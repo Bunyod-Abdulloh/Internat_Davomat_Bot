@@ -142,7 +142,12 @@ async def educators_get_work_days(message: types.Message, state: FSMContext):
     )
     data = await state.get_data()
     first_name = data['educator_first_name']
-    print(data)
+    last_name = data['educator_last_name']
+    surname = data['educator_surname']
+    first_number = data['educator_first_number']
+
+    print(data.keys())
+
     for admin in ADMINS:
         await bot.send_message(
             chat_id=admin,
