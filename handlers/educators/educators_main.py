@@ -1,8 +1,9 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
+from data.config import ADMINS
 from keyboards.inline.educators_inline_keys import edu_phone_number
-from loader import dp, db
+from loader import dp, db, bot
 from states.educators_states import Educators_State
 
 
@@ -81,8 +82,8 @@ async def educators_get_first_number(message: types.Message, state: FSMContext):
             educator_first_number=f"+{message.text}"
         )
         await message.answer(
-            text="Agar raqamingiz ikkita bo'lsa <b>Raqam kiritish</b> tugmasini, bitta bo'lsa <b>Raqamim bitta</b>"
-                 "tugmasini bosing!",
+            text="Agar raqamingiz ikkita bo'lsa <b><i>Raqam kiritish</i></b> tugmasini, bitta bo'lsa "
+                 "<b><i>Raqamim bitta</i></b> tugmasini bosing!",
             reply_markup=edu_phone_number
         )
         await Educators_State.second_number.set()
@@ -129,3 +130,25 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
         )
 
 
+@dp.message_handler(state=Educators_State.work_days)
+async def educators_get_work_days(message: types.Message, state: FSMContext):
+
+    await state.update_data(
+        educator_work_days=message.text
+    )
+    await message.answer(
+        text="Ma'lumotlaringiz qabul qilindi! Admin ma'lumotlaringizni tasdiqlaganidan so'ng botdan "
+             "foydalanishingiz mumkin!"
+    )
+    data = await state.get_data()
+    first_name = data['educator_first_name']
+    print(data)
+    for admin in ADMINS:
+        await bot.send_message(
+            chat_id=admin,
+            text=f"Yangi tarbiyachi ma'lumotlari qabul qilindi!"
+                 f"\n\nIsmi: {data['educator_first_name']}"
+                 f"\nFamiliyasi: {data['educator_last_name']}"
+                 f"\nOtasining ismi: {data['educator_surname']}"
+                 f"\nTelefon raqami: {data['educator_first_number']}"
+        )
