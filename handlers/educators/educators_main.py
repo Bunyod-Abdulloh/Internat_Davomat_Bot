@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from data.config import ADMINS
+from keyboards.inline.admin_inline_keys import admin_check_button
 from keyboards.inline.educators_inline_keys import edu_phone_number
 from loader import dp, db, bot
 from states.educators_states import Educators_State
@@ -24,10 +25,9 @@ async def educators_first_main(call: types.CallbackQuery):
 
 @dp.message_handler(state=Educators_State.firstname)
 async def educators_get_firstname(message: types.Message, state: FSMContext):
-
     if message.text.isalpha():
         await state.update_data(
-            educator_firstname=message.text
+            educator_first_name=message.text
         )
         await message.answer(
             text="Familiyangizni kiriting:"
@@ -41,10 +41,9 @@ async def educators_get_firstname(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Educators_State.lastname)
 async def educators_get_lastname(message: types.Message, state: FSMContext):
-
     if message.text.isalpha():
         await state.update_data(
-            educator_lastname=message.text
+            educator_last_name=message.text
         )
         await message.answer(
             text="Otangizni ismini kiriting:"
@@ -58,7 +57,6 @@ async def educators_get_lastname(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Educators_State.surname)
 async def educators_get_surname(message: types.Message, state: FSMContext):
-
     if message.text.isalpha():
         await state.update_data(
             educator_surname=message.text
@@ -76,7 +74,6 @@ async def educators_get_surname(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Educators_State.first_number)
 async def educators_get_first_number(message: types.Message, state: FSMContext):
-
     if message.text.isdigit():
         await state.update_data(
             educator_first_number=f"+{message.text}"
@@ -95,11 +92,10 @@ async def educators_get_first_number(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(state=Educators_State.second_number)
 async def educators_get_second_number(call: types.CallbackQuery, state: FSMContext):
-
     if call.data == "add_edusecond_number":
         await call.message.edit_text(
             text="Ikkinchi raqamingizni kiriting:"
-                 "<b>Namuna: 998974450292</b>"
+                 "\n\n<b>Namuna: 998974450292</b>"
         )
         await Educators_State.check_second_number.set()
 
@@ -113,7 +109,6 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
 
 @dp.message_handler(state=Educators_State.check_second_number)
 async def educators_check_second_number(message: types.Message, state: FSMContext):
-
     if message.text.isdigit():
         await state.update_data(
             educator_second_number=f"+{message.text}"
@@ -132,7 +127,6 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
 
 @dp.message_handler(state=Educators_State.work_days)
 async def educators_get_work_days(message: types.Message, state: FSMContext):
-
     await state.update_data(
         educator_work_days=message.text
     )
@@ -145,15 +139,33 @@ async def educators_get_work_days(message: types.Message, state: FSMContext):
     last_name = data['educator_last_name']
     surname = data['educator_surname']
     first_number = data['educator_first_number']
-
-    print(data.keys())
+    work_days = data['educator_work_days']
 
     for admin in ADMINS:
-        await bot.send_message(
-            chat_id=admin,
-            text=f"Yangi tarbiyachi ma'lumotlari qabul qilindi!"
-                 f"\n\nIsmi: {data['educator_first_name']}"
-                 f"\nFamiliyasi: {data['educator_last_name']}"
-                 f"\nOtasining ismi: {data['educator_surname']}"
-                 f"\nTelefon raqami: {data['educator_first_number']}"
-        )
+        if 'educator_second_number' in data.keys():
+            await bot.send_message(
+                chat_id=admin,
+                text=f"Yangi tarbiyachi ma'lumotlari qabul qilindi!"
+                     f"\n\nIsmi: {first_name}"
+                     f"\nFamiliyasi: {last_name}"
+                     f"\nOtasining ismi: {surname}"
+                     f"\nTelefon raqami: {first_number}"
+                     f"\nIkkinchi telefon raqami: {data['educator_second_number']}"
+                     f"\nIsh kunlari: {work_days}",
+                reply_markup=admin_check_button(
+                    user_id=message.from_user.id
+                )
+            )
+        else:
+            await bot.send_message(
+                chat_id=admin,
+                text=f"Yangi tarbiyachi ma'lumotlari qabul qilindi!"
+                     f"\n\nIsmi: {first_name}"
+                     f"\nFamiliyasi: {last_name}"
+                     f"\nOtasining ismi: {surname}"
+                     f"\nTelefon raqami: {first_number}"
+                     f"\nIsh kunlari: {work_days}",
+                reply_markup=admin_check_button(
+                    user_id=message.from_user.id
+                )
+            )
