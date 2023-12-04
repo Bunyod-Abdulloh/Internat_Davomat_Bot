@@ -48,7 +48,7 @@ class Database:
         first_number VARCHAR(20) NULL,
         second_number VARCHAR(20) NULL,
         class_number VARCHAR(20) NULL,
-        work_days VARCHAR(255) NULL,        
+        student VARCHAR(255) NULL,        
         telegram_id BIGINT NOT NULL UNIQUE 
         );        
         """
@@ -66,6 +66,10 @@ class Database:
                "VALUES($1, $2, $3, $4, $5) returning *")
         return await self.execute(sql, fullname, first_number, class_number, telegram_id, second_number,
                                   fetchrow=True)
+
+    async def add_student(self, student, class_number):
+        sql = "INSERT INTO Educators (student) VALUES($1) WHERE class_number=$2"
+        return await self.execute(sql, student, class_number, fetchrow=True)
 
     async def select_all_educators(self):
         sql = "SELECT * FROM Educators"
