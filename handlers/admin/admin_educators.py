@@ -8,42 +8,38 @@ from states.admin_state import AdminEducator_State
 
 @dp.callback_query_handler(text_contains="admincheck_", state="*")
 async def admin_educators_check(call: types.CallbackQuery, state: FSMContext):
-    try:
-        user_id = call.data.split('_')[-1]
 
-        data = await state.get_data()
-        print(data)
-        fullname = data['educator_fullname']
-        first_number = data['educator_first_number']
-        class_number = data['educator_class_number']
+    data = await state.get_data()
+    fullname = data['educator_fullname']
+    first_number = data['educator_first_number']
+    class_number = data['educator_class_number']
+    educator_id = int(call.data.split('_')[-1])
 
-        if 'educator_second_number' in data.keys():
-            await db.add_educators(
-                fullname=fullname,
-                first_number=first_number,
-                second_number=data['educator_second_number'],
-                class_number=class_number,
-                telegram_id=user_id
-            )
-        else:
-            await db.add_educators(
-                fullname=fullname,
-                first_number=first_number,
-                class_number=class_number,
-                telegram_id=user_id
-            )
-
-        await call.message.edit_text(
-            text=f"Tarbiyachi {fullname}ning ma'lumotlari saqlandi!"
+    if 'educator_second_number' in data.keys():
+        await db.add_educators(
+            fullname=fullname,
+            first_number=first_number,
+            second_number=data['educator_second_number'],
+            class_number=class_number,
+            telegram_id=educator_id
+        )
+    else:
+        await db.add_educators(
+            fullname=fullname,
+            first_number=first_number,
+            class_number=class_number,
+            telegram_id=educator_id
         )
 
-        await bot.send_message(
-            chat_id=user_id,
-            text="Ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botdan foydalanishingiz mumkin!"
-        )
-        await state.finish()
-    except Exception as err:
-        print(f"{err} admin edu 46")
+    await call.message.edit_text(
+        text=f"Tarbiyachi {fullname}ning ma'lumotlari saqlandi!"
+    )
+
+    await bot.send_message(
+        chat_id=educator_id,
+        text="Ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botdan foydalanishingiz mumkin!"
+    )
+    await state.finish()
 
 
 @dp.callback_query_handler(text_contains='admincancel_', state='*')
@@ -91,6 +87,7 @@ async def admin_educator_cancelcheck(call: types.CallbackQuery, state: FSMContex
                  f"\n\n<b>Sabab: {cancel_text}</b>"
         )
         await call.answer(
-            text=f"Habar foydalanuvchi {fullname}ga yuborildi!"
+            text=f"Habar foydalanuvchi {fullname}ga yuborildi!",
+            show_alert=True
         )
         await state.finish()

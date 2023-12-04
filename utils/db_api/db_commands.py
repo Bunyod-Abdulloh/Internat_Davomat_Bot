@@ -61,10 +61,10 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educators(self, fullname, first_number, second_number, class_number, telegram_id):
-        sql = ("INSERT INTO Educators (fullname, first_number, second_number, class_number, telegram_id) "
+    async def add_educators(self, fullname, first_number, class_number, telegram_id, second_number=None):
+        sql = ("INSERT INTO Educators (fullname, first_number, class_number, telegram_id,  second_number) "
                "VALUES($1, $2, $3, $4, $5) returning *")
-        return await self.execute(sql, fullname, first_number, second_number, class_number, telegram_id,
+        return await self.execute(sql, fullname, first_number, class_number, telegram_id, second_number,
                                   fetchrow=True)
 
     async def select_all_educators(self):

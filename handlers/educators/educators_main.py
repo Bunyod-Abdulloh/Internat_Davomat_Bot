@@ -114,7 +114,7 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
                         user_id=call.from_user.id
                     )
                 )
-                await state.reset_state(with_data=True)
+            await state.reset_state(with_data=False)
 
     elif call.data == "back_for_classes":
         await call.message.edit_text(
