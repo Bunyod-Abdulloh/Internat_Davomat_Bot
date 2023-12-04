@@ -5,6 +5,7 @@ from keyboards.inline.admin_inline_keys import admin_check_keyboard
 from loader import dp, db, bot
 from states.admin_state import AdminEducator_State
 
+
 # a_e_a - Admin educators add (handlers/file_name)
 
 
@@ -12,6 +13,7 @@ from states.admin_state import AdminEducator_State
 async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
 
     data = await state.get_data()
+    post = data['educator_post']
     fullname = data['educator_fullname']
     first_number = data['educator_first_number']
     class_number = data['educator_class_number']
@@ -23,6 +25,7 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
             first_number=first_number,
             second_number=data['educator_second_number'],
             class_number=class_number,
+            post=post,
             telegram_id=educator_id
         )
     else:
@@ -30,11 +33,12 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
             fullname=fullname,
             first_number=first_number,
             class_number=class_number,
+            post=post,
             telegram_id=educator_id
         )
     await call.message.delete()
     await call.answer(
-        text=f"Tarbiyachi {fullname}ning ma'lumotlari saqlandi!",
+        text=f"{post} {fullname}ning ma'lumotlari saqlandi!",
         show_alert=True
     )
 

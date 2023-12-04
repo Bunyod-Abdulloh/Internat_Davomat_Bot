@@ -78,7 +78,8 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
 
     if call.data in classes_list:
         await state.update_data(
-            educator_class_number=call.data
+            educator_class_number=call.data,
+            educator_post="Tarbiyachi"
         )
 
         await call.message.edit_text(
@@ -94,7 +95,8 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
             if 'educator_second_number' in data.keys():
                 await bot.send_message(
                     chat_id=admin,
-                    text=f"Yangi tarbiyachi ma'lumotlari qabul qilindi!"
+                    text=f"Yangi hodim ma'lumotlari qabul qilindi!"
+                         f"\n\nLavozimi: Tarbiyachi"
                          f"\n\nF.I.Sh: {fullname}"
                          f"\n\nTelefon raqami: {first_number}"
                          f"\n\nIkkinchi telefon raqami: {data['educator_second_number']}"
@@ -106,7 +108,8 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
             else:
                 await bot.send_message(
                     chat_id=admin,
-                    text=f"Yangi tarbiyachi ma'lumotlari qabul qilindi!"
+                    text=f"Yangi hodim ma'lumotlari qabul qilindi!"
+                         f"\n\nLavozimi: Tarbiyachi"
                          f"\n\nF.I.Sh: {fullname}"
                          f"\n\nTelefon raqami: {first_number}"
                          f"\n\nSinfi: {class_number}",

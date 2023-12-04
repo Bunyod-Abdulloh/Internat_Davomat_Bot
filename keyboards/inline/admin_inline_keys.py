@@ -3,6 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from loader import db
 
 
+# aik = Admin inline keys (keyboards/inline/file_name)
 async def admin_check_button(user_id):
 
     key = InlineKeyboardMarkup(row_width=2)
@@ -35,15 +36,15 @@ admin_main_button = InlineKeyboardMarkup(row_width=1)
 admin_main_button.add(
     InlineKeyboardButton(
         text="👨‍👨‍👧 Ota - onalar",
-        callback_data="admin_parents_main"
+        callback_data="aik_parents_main"
     ),
     InlineKeyboardButton(
         text="🏫 Sinf rahbarlar",
-        callback_data="adminteachers_main"
+        callback_data="aikteachers_main"
     ),
     InlineKeyboardButton(
         text="🧑‍🏫 Tarbiyachilar",
-        callback_data="admin_educatorsmain"
+        callback_data="aik_educatorsmain"
     )
 )
 
@@ -51,18 +52,44 @@ admin_main_button.add(
 async def admin_view_educators_button():
     educators = await db.select_all_educators()
     key = InlineKeyboardMarkup(row_width=2)
-    print(f"{educators} admin ikeys 54")
     for educator in educators:
         key.insert(
             InlineKeyboardButton(
                 text=educator[1],
-                callback_data=educator[0]
+                callback_data=f"aikeducatorid_{educator[0]}"
             )
         )
-        key.add(
-            InlineKeyboardButton(
-                text="⬅️ Ortga",
-                callback_data="adminmain_back"
-            )
+    key.add(
+        InlineKeyboardButton(
+            text="⬅️ Ortga",
+            callback_data="aikback_adminpage"
         )
+    )
+    return key
+
+
+async def edit_educators(id_number):
+    key = InlineKeyboardMarkup(row_width=1)
+    key.add(
+        InlineKeyboardButton(
+            text="Ism - familiya o'zgartirish",
+            callback_data=f"aikeditnameeducator_{id_number}"
+        ),
+        InlineKeyboardButton(
+            text="Lavozim o'zgartirish",
+            callback_data=f"aikeditposteducator_{id_number}"
+        ),
+        InlineKeyboardButton(
+            text="Telefon raqam o'zgartirish",
+            callback_data=f"aikeditphoneeducator_{id_number}"
+        ),
+        InlineKeyboardButton(
+            text="Sinfini o'zgartirish",
+            callback_data=f"aikeditclasseducator_{id_number}"
+        ),
+        InlineKeyboardButton(
+            text="⬅️ Ortga",
+            callback_data="aikback_educatorslist"
+        )
+    )
     return key

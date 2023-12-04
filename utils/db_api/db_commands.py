@@ -50,7 +50,9 @@ class Database:
         second_number VARCHAR(20) NULL,
         class_number VARCHAR(20) NULL,
         student_number TEXT NULL,
-        student_fullname VARCHAR(255) NULL,        
+        student_fullname VARCHAR(255) NULL,
+        work_day BOOLEAN NULL DEFAULT FALSE,
+        post VARCHAR(50) NULL,        
         telegram_id BIGINT NOT NULL 
         );        
         """
@@ -63,10 +65,10 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educators(self, fullname, first_number, class_number, telegram_id, second_number=None):
-        sql = ("INSERT INTO Educators (fullname, first_number, class_number, telegram_id,  second_number) "
-               "VALUES($1, $2, $3, $4, $5) returning *")
-        return await self.execute(sql, fullname, first_number, class_number, telegram_id, second_number,
+    async def add_educators(self, fullname, first_number, class_number, telegram_id, post, second_number=None):
+        sql = ("INSERT INTO Educators (fullname, first_number, class_number, telegram_id,  post, second_number) "
+               "VALUES($1, $2, $3, $4, $5, $6) returning *")
+        return await self.execute(sql, fullname, first_number, class_number, telegram_id, post, second_number,
                                   fetchrow=True)
 
     # async def add_student(self, student, class_number):
@@ -85,6 +87,10 @@ class Database:
     async def select_educator(self, telegram_id):
         sql = f"SELECT DISTINCT fullname FROM Educators WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, fetch=True)
+
+    async def select_by_id(self, id_number):
+        sql = f"SELECT * FROM Educators WHERE id='{id_number}'"
+        return await self.execute(sql, fetchrow=True)
 
     async def count_educators(self):
         sql = "SELECT COUNT(*) FROM Educators"
