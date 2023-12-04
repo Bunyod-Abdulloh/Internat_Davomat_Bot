@@ -44,11 +44,10 @@ class Database:
     async def create_table_educators(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Educators (        
-        firstname VARCHAR(100) NULL,
-        lastname VARCHAR(100) NULL,
-        surname VARCHAR(100) NULL,
+        fullname VARCHAR(255) NULL,        
         first_number VARCHAR(20) NULL,
         second_number VARCHAR(20) NULL,
+        class_number VARCHAR(20) NULL,
         work_days VARCHAR(255) NULL,        
         telegram_id BIGINT NOT NULL UNIQUE 
         );        
@@ -62,11 +61,11 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educators(self, firstname, lastname, surname, first_number, second_number, work_days, telegram_id):
-        sql = ("INSERT INTO Educators (firstname, lastname, surname, first_number, second_number, work_days, "
-               "telegram_id) VALUES($1, $2, $3, $4, $5, $6) returning *")
-        return await self.execute(sql, firstname, lastname, surname, first_number, second_number, work_days,
-                                  telegram_id, fetchrow=True)
+    async def add_educators(self, fullname, first_number, second_number, class_number, telegram_id):
+        sql = ("INSERT INTO Educators (fullname, first_number, second_number, class_number, telegram_id) "
+               "VALUES($1, $2, $3, $4, $5) returning *")
+        return await self.execute(sql, fullname, first_number, second_number, class_number, telegram_id,
+                                  fetchrow=True)
 
     async def select_all_educators(self):
         sql = "SELECT * FROM Educators"
