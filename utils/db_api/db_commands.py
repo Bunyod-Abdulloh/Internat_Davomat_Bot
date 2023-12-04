@@ -43,7 +43,8 @@ class Database:
 
     async def create_table_educators(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS Educators (        
+        CREATE TABLE IF NOT EXISTS Educators (
+        id SERIAL,        
         fullname VARCHAR(255) NULL,        
         first_number VARCHAR(20) NULL,
         second_number VARCHAR(20) NULL,
@@ -82,7 +83,7 @@ class Database:
         return await self.execute(sql, fetch=True)
 
     async def select_educator(self, telegram_id):
-        sql = f"SELECT * FROM Educators WHERE telegram_id='{telegram_id}'"
+        sql = f"SELECT DISTINCT fullname FROM Educators WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, fetch=True)
 
     async def count_educators(self):
