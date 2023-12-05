@@ -46,11 +46,9 @@ class Database:
         CREATE TABLE IF NOT EXISTS Educators (
         id SERIAL,        
         fullname VARCHAR(255) NULL,        
-        first_number VARCHAR(20) NULL,
-        second_number VARCHAR(20) NULL,
-        class_number VARCHAR(20) NULL,
-        student_number TEXT NULL,
-        student_fullname VARCHAR(255) NULL,
+        first_phone VARCHAR(20) NULL,
+        second_phone VARCHAR(20) NULL,
+        class_number VARCHAR(20) NULL,        
         work_day BOOLEAN NULL DEFAULT FALSE,
         post VARCHAR(50) NULL,        
         telegram_id BIGINT NOT NULL 
@@ -65,11 +63,33 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educators(self, fullname, first_number, class_number, telegram_id, post, second_number=None):
-        sql = ("INSERT INTO Educators (fullname, first_number, class_number, telegram_id,  post, second_number) "
-               "VALUES($1, $2, $3, $4, $5, $6) returning *")
-        return await self.execute(sql, fullname, first_number, class_number, telegram_id, post, second_number,
-                                  fetchrow=True)
+    async def add_educators(self, telegram_id):
+        sql = "INSERT INTO Educators (telegram_id) VALUES($1) returning *"
+        return await self.execute(sql, telegram_id, fetchrow=True)
+
+    async def update_educator_fullname(self, fullname, telegram_id):
+        sql = f"UPDATE Educators SET fullname='{fullname}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_educator_first_phone(self, first_phone, telegram_id):
+        sql = f"UPDATE Educators SET first_phone='{first_phone}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_educator_second_phone(self, second_phone, telegram_id):
+        sql = f"UPDATE Educators SET second_phone='{second_phone}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_educator_class_number(self, class_number, telegram_id):
+        sql = f"UPDATE Educators SET class_number='{class_number}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_educator_work_day(self, work_day, telegram_id):
+        sql = f"UPDATE Educators SET work_day='{work_day}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_educator_post(self, post, telegram_id):
+        sql = f"UPDATE Educators SET post='{post}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
 
     # async def add_student(self, student, class_number):
     #     sql = "INSERT INTO Educators (student) VALUES($1) WHERE class_number=$2"
