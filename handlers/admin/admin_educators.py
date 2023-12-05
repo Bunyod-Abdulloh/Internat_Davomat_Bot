@@ -16,10 +16,9 @@ async def a_e_main(call: types.CallbackQuery):
 @dp.callback_query_handler(text_contains='aikeducatorid_', state='*')
 async def a_e_get_educator_id(call: types.CallbackQuery):
     educator_id = call.data.split('_')[-1]
-    educator = await db.select_by_id(
-        id_number=educator_id
+    educator = await db.select_educator(
+        telegram_id=educator_id
     )
-    print(educator)
     if educator[3] is None:
         await call.message.edit_text(
             text=f"Hodim: {educator[1]}"
@@ -27,6 +26,8 @@ async def a_e_get_educator_id(call: types.CallbackQuery):
                  f"\nTelefon raqami: {educator[2]}"
                  f"\nBiriktirilgan sinfi: {educator[4]}",
             reply_markup=await edit_educators(
-                id_number=educator_id
+                telegram_id=educator_id
             )
         )
+
+
