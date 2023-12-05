@@ -91,15 +91,6 @@ class Database:
         sql = f"UPDATE Educators SET post='{post}' WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, execute=True)
 
-    # async def add_student(self, student, class_number):
-    #     sql = "INSERT INTO Educators (student) VALUES($1) WHERE class_number=$2"
-    #     return await self.execute(sql, student, class_number, fetchrow=True)
-
-    async def add_student(self, student_number, student_fullname, class_number, telegram_id):
-        sql = (f"UPDATE Educators SET student_number='{student_number}', student_fullname='{student_fullname}'"
-               f" WHERE class_number='{class_number}'")
-        return await self.execute(sql, execute=True)
-
     async def select_all_educators(self):
         sql = "SELECT * FROM Educators"
         return await self.execute(sql, fetch=True)
@@ -116,12 +107,42 @@ class Database:
         sql = "SELECT COUNT(*) FROM Educators"
         return await self.execute(sql, fetchval=True)
 
-    # async def update_user_username(self, username, telegram_id):
-    #     sql = "UPDATE Users SET username=$1 WHERE telegram_id=$2"
-    #     return await self.execute(sql, username, telegram_id, execute=True)
-
     async def delete_educators(self, telegram_id):
         await self.execute(f"DELETE FROM Educators WHERE telegram_id='{telegram_id}'", execute=True)
 
     async def drop_table_educators(self):
         await self.execute("DROP TABLE Educators", execute=True)
+
+# ============================ STUDENTS ============================
+    async def create_table_students(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Students (
+        id SERIAL,
+        class_number VARCHAR(20) NOT NULL,
+        fullname VARCHAR(255) NULL         
+        );        
+        """
+        await self.execute(sql, execute=True)
+
+    async def add_student(self, class_number, fullname):
+        sql = "INSERT INTO Students (class_number, fullname) VALUES($1, $2) returning *"
+        return await self.execute(sql, class_number, fullname, fetchrow=True)
+
+    async def update_student(self, old_class, old_fullname, new_class, new_fullname):
+        sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
+               f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
+        return await self.execute(sql, execute=True)
+
+    async def get_students(self, class_number):
+        sql = f"SELECT * FROM Students WHERE class_number='{class_number}'"
+        return await self.execute(sql, fetch=True)
+
+    async def get_student(self, class_number, fullname):
+        sql = f"SELECT * FROM Students WHERE class_number='{class_number}' AND fullname='{fullname}'"
+        return await self.execute(sql, fetchrow=True)
+
+    async def delete_student(self, id_number):
+        await self.execute(f"DELETE FROM Students WHERE id='{id_number}'", execute=True)
+
+    async def drop_table_students(self):
+        await self.execute("DROP TABLE Students", execute=True)
