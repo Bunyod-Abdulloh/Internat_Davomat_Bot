@@ -119,7 +119,8 @@ class Database:
         CREATE TABLE IF NOT EXISTS Students (
         id SERIAL,
         class_number VARCHAR(20) NOT NULL,
-        fullname VARCHAR(255) NULL         
+        fullname VARCHAR(255) NULL,
+        mark VARCHAR(20) DEFAULT '❌'         
         );        
         """
         await self.execute(sql, execute=True)
@@ -133,12 +134,20 @@ class Database:
                f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
         return await self.execute(sql, execute=True)
 
+    async def update_mark_student(self, mark, id_number):
+        sql = f"UPDATE Students SET mark='{mark}' WHERE id='{id_number}'"
+        return await self.execute(sql, execute=True)
+
     async def get_students(self, class_number):
-        sql = f"SELECT * FROM Students WHERE class_number='{class_number}'"
+        sql = f"SELECT * FROM Students WHERE class_number='{class_number}' ORDER BY fullname"
         return await self.execute(sql, fetch=True)
 
     async def get_student(self, class_number, fullname):
         sql = f"SELECT * FROM Students WHERE class_number='{class_number}' AND fullname='{fullname}'"
+        return await self.execute(sql, fetchrow=True)
+
+    async def get_student_id(self, id_number):
+        sql = f"SELECT * FROM Students WHERE id='{id_number}'"
         return await self.execute(sql, fetchrow=True)
 
     async def delete_student(self, id_number):
