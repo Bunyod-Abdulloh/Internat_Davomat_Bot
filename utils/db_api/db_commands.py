@@ -150,6 +150,10 @@ class Database:
         sql = f"SELECT * FROM Students WHERE id='{id_number}'"
         return await self.execute(sql, fetchrow=True)
 
+    async def count_mark(self, class_number, mark):
+        sql = f"SELECT COUNT(*) FROM Educators WHERE class_number='{class_number} AND mark='{mark}'"
+        return await self.execute(sql, fetchval=True)
+
     async def delete_student(self, id_number):
         await self.execute(f"DELETE FROM Students WHERE id='{id_number}'", execute=True)
 

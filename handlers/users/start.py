@@ -15,7 +15,7 @@ async def students_button(class_number: str):
         key.add(
             types.InlineKeyboardButton(
                 text=f"{student[2]} {student[-1]}",
-                callback_data=f"stb_{student[0]}"
+                callback_data=f"stb_{student[0]}_{student[1]}"
             )
         )
     return key
@@ -46,37 +46,53 @@ async def sampler_handler(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(state='buttons')
 async def sampler_two(call: types.CallbackQuery, state: FSMContext):
+
     await call.answer(cache_time=0)
     data = await state.get_data()
     count = data['count']
-    student_id = call.data.split("_")[-1]
-    print(f"{count} count 53")
+    student_id = call.data.split("_")[1]
+    class_number = call.data.split("_")[-1]
+    get_student = await db.get_student_id(
+        id_number=student_id
+    )
+
     if call.data:
         count += 1
         if count == 1:
-            await db.update_mark_student(
-                mark="✅",
-                id_number=student_id
-            )
-            await call.message.edit_reply_markup(
-                reply_markup=await students_button(
-                    class_number="6-V"
+            if get_student[3] == "✅":
+                await db.update_mark_student(
+                    mark="❌",
+                    id_number=student_id
                 )
-            )
+            else:
+                await db.update_mark_student(
+                    mark="✅",
+                    id_number=student_id
+                )
+
         elif count == 2:
-            await db.update_mark_student(
-                mark="❌",
-                id_number=student_id
-            )
-            await call.message.edit_reply_markup(
-                reply_markup=await students_button(
-                    class_number="6-V"
+            if get_student[3] == "❌":
+                await db.update_mark_student(
+                    mark="✅",
+                    id_number=student_id
                 )
-            )
+            else:
+                await db.update_mark_student(
+                    mark="❌",
+                    id_number=student_id
+                )
             count = 0
 
         await state.update_data(
             count=count
         )
-    print(f"{count} count 81")
-    print(f"{student_id} student id")
+    # present = await db.count_mark(class_number=class_number, mark="✅")
+    # absent = await db.count_mark(class_number=class_number, mark="❌")
+    await call.message.edit_text(
+        text=f"Kelgan o'quvchilar soni: "
+             f"\nKelmagan o'quvchilar soni:",
+        reply_markup=await students_button(
+            class_number=class_number
+        )
+    )
+# {present} {absent}
