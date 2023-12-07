@@ -14,7 +14,7 @@ async def students_button(class_number: str):
     for student in students:
         key.add(
             types.InlineKeyboardButton(
-                text=f"{student[2]} {student[-1]}",
+                text=f"{student[2]} | {student[-1]}",
                 callback_data=f"stb_{student[0]}_{student[1]}"
             )
         )
@@ -61,7 +61,7 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
         if count == 1:
             if get_student[3] == "✅":
                 await db.update_mark_student(
-                    mark="❌",
+                    mark="❎",
                     id_number=student_id
                 )
             else:
@@ -71,14 +71,14 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
                 )
 
         elif count == 2:
-            if get_student[3] == "❌":
+            if get_student[3] == "❎":
                 await db.update_mark_student(
                     mark="✅",
                     id_number=student_id
                 )
             else:
                 await db.update_mark_student(
-                    mark="❌",
+                    mark="❎",
                     id_number=student_id
                 )
             count = 0
@@ -86,11 +86,11 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
         await state.update_data(
             count=count
         )
-    # present = await db.count_mark(class_number=class_number, mark="✅")
-    # absent = await db.count_mark(class_number=class_number, mark="❌")
+    absent = await db.count_mark(class_number=class_number, mark="✅")
+    present = await db.count_mark(class_number=class_number, mark="❎")
     await call.message.edit_text(
-        text=f"Kelgan o'quvchilar soni: "
-             f"\nKelmagan o'quvchilar soni:",
+        text=f"Kelgan o'quvchilar soni: {absent}"
+             f"\nKelmagan o'quvchilar soni: {present}",
         reply_markup=await students_button(
             class_number=class_number
         )

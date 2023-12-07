@@ -120,7 +120,7 @@ class Database:
         id SERIAL,
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
-        mark VARCHAR(20) DEFAULT '❌'         
+        mark VARCHAR(20) DEFAULT '❎'         
         );        
         """
         await self.execute(sql, execute=True)
@@ -151,7 +151,7 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def count_mark(self, class_number, mark):
-        sql = f"SELECT COUNT(*) FROM Educators WHERE class_number='{class_number} AND mark='{mark}'"
+        sql = f"SELECT COUNT(*) FROM Students WHERE class_number='{class_number}' AND mark='{mark}'"
         return await self.execute(sql, fetchval=True)
 
     async def delete_student(self, id_number):
