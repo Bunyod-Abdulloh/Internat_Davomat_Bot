@@ -45,6 +45,10 @@ admin_main_button.add(
     InlineKeyboardButton(
         text="🧑‍🏫 Tarbiyachilar",
         callback_data="aik_educatorsmain"
+    ),
+    InlineKeyboardButton(
+        text="🎓 O'quvchilar",
+        callback_data="aik_students_main"
     )
 )
 
@@ -52,11 +56,11 @@ admin_main_button.add(
 async def admin_view_educators_button():
     educators = await db.select_all_educators()
     key = InlineKeyboardMarkup(row_width=2)
-    print(f"{educators} 55")
+
     for educator in educators:
         key.insert(
             InlineKeyboardButton(
-                text=educator[1],
+                text=f"{educator[4]} | {educator[1]} ",
                 callback_data=f"aikeducatorid_{educator[0]}"
             )
         )
@@ -64,33 +68,6 @@ async def admin_view_educators_button():
         InlineKeyboardButton(
             text="⬅️ Ortga",
             callback_data="aikback_adminpage"
-        )
-    )
-    return key
-
-
-async def edit_educators(telegram_id):
-    key = InlineKeyboardMarkup(row_width=1)
-    key.add(
-        InlineKeyboardButton(
-            text="Ism - familiya o'zgartirish",
-            callback_data=f"aikeditnameeducator_{telegram_id}"
-        ),
-        InlineKeyboardButton(
-            text="Lavozim o'zgartirish",
-            callback_data=f"aikeditposteducator_{telegram_id}"
-        ),
-        InlineKeyboardButton(
-            text="Telefon raqam o'zgartirish",
-            callback_data=f"aikeditphoneeducator_{telegram_id}"
-        ),
-        InlineKeyboardButton(
-            text="Sinfini o'zgartirish",
-            callback_data=f"aikeditclasseducator_{telegram_id}"
-        ),
-        InlineKeyboardButton(
-            text="⬅️ Ortga",
-            callback_data="aikback_educatorslist"
         )
     )
     return key

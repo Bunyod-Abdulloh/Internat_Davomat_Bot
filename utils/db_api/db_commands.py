@@ -41,6 +41,7 @@ class Database:
                     result = await connection.execute(command, *args)
             return result
 
+    # ============================ EDUCATORS ============================
     async def create_table_educators(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Educators (
