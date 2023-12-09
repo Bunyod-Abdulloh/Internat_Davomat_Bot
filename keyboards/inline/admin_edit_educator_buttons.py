@@ -10,10 +10,6 @@ async def edit_educators(telegram_id, second_phone=False):
             callback_data=f"aeebname_{telegram_id}"
         ),
         InlineKeyboardButton(
-            text="Lavozim o'zgartirish",
-            callback_data=f"aeebpost_{telegram_id}"
-        ),
-        InlineKeyboardButton(
             text="Telefon raqam o'zgartirish",
             callback_data=f"aeebfirstphone_{telegram_id}"
         )
@@ -26,7 +22,7 @@ async def edit_educators(telegram_id, second_phone=False):
         )
     else:
         key.add(InlineKeyboardButton(
-            text="Sinfini o'zgartirish",
+            text="Sinfni o'zgartirish",
             callback_data=f"aeebclass_{telegram_id}"
         ),
             InlineKeyboardButton(

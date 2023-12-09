@@ -71,3 +71,46 @@ async def admin_view_educators_button():
         )
     )
     return key
+
+
+def chunks(lst, n):
+
+    empty_list = []
+    for e in lst:
+        empty_list.append(e)
+    for i in range(0, len(lst), n):
+        yield empty_list[i:i + n]
+
+
+async def key_returner(items, current_page, all_pages):
+    keys = InlineKeyboardMarkup(
+        row_width=1
+    )
+    for i in items:
+        keys.insert(
+            InlineKeyboardButton(
+                text=f"{i[4]} | {i[1]}",
+                callback_data=f"{i[0]}"
+            )
+        )
+    keys.row(
+        InlineKeyboardButton(
+            text="⬅️ Ortga",
+            callback_data="-1"
+        ),
+        InlineKeyboardButton(
+            text=f"{current_page}/{all_pages}",
+            callback_data=f"alertmessage_{current_page}"
+        ),
+        InlineKeyboardButton(
+            text="Oldinga ➡️",
+            callback_data="+1"
+        )
+    )
+    keys.add(
+        InlineKeyboardButton(
+            text="🏡 Bosh sahifa",
+            callback_data="main_menu"
+        )
+    )
+    return keys

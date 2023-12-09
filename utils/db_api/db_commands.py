@@ -50,8 +50,7 @@ class Database:
         first_phone VARCHAR(20) NULL,
         second_phone VARCHAR(20) NULL,
         class_number VARCHAR(20) NULL,        
-        work_day BOOLEAN NULL DEFAULT FALSE,
-        post VARCHAR(50) NULL,        
+        work_day BOOLEAN NULL DEFAULT FALSE,                
         telegram_id BIGINT NOT NULL 
         );        
         """
@@ -68,28 +67,24 @@ class Database:
         sql = "INSERT INTO Educators (telegram_id) VALUES($1) returning *"
         return await self.execute(sql, telegram_id, fetchrow=True)
 
-    async def update_educator_fullname(self, fullname, telegram_id):
-        sql = f"UPDATE Educators SET fullname='{fullname}' WHERE telegram_id='{telegram_id}'"
+    async def update_educator_fullname(self, fullname, id_number):
+        sql = f"UPDATE Educators SET fullname='{fullname}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
-    async def update_educator_first_phone(self, first_phone, telegram_id):
-        sql = f"UPDATE Educators SET first_phone='{first_phone}' WHERE telegram_id='{telegram_id}'"
+    async def update_educator_first_phone(self, first_phone, id_number):
+        sql = f"UPDATE Educators SET first_phone='{first_phone}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
-    async def update_educator_second_phone(self, second_phone, telegram_id):
-        sql = f"UPDATE Educators SET second_phone='{second_phone}' WHERE telegram_id='{telegram_id}'"
+    async def update_educator_second_phone(self, second_phone, id_number):
+        sql = f"UPDATE Educators SET second_phone='{second_phone}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
-    async def update_educator_class_number(self, class_number, telegram_id):
-        sql = f"UPDATE Educators SET class_number='{class_number}' WHERE telegram_id='{telegram_id}'"
+    async def update_educator_class_number(self, class_number, id_number):
+        sql = f"UPDATE Educators SET class_number='{class_number}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
-    async def update_educator_work_day(self, work_day, telegram_id):
-        sql = f"UPDATE Educators SET work_day='{work_day}' WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-    async def update_educator_post(self, post, telegram_id):
-        sql = f"UPDATE Educators SET post='{post}' WHERE telegram_id='{telegram_id}'"
+    async def update_educator_work_day(self, work_day, id_number):
+        sql = f"UPDATE Educators SET work_day='{work_day}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
     async def select_all_educators(self):
