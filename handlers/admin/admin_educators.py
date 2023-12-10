@@ -2,7 +2,9 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from handlers.admin.a_functions import educator_main_first, educator_main_second
-from keyboards.inline.admin_inline_keys import admin_view_educators_button, admin_main_button, chunks, key_returner
+from keyboards.inline.admin_inline_keys import admin_view_educators_button, admin_main_button, chunks, key_returner, \
+    educators_class_button
+from keyboards.inline.all_inline_keys import classes_list
 from loader import dp, db
 from states.admin_state import AdminEditEdicators
 
@@ -14,6 +16,16 @@ from states.admin_state import AdminEditEdicators
 #         text="Tarbiyachilar bo'limi",
 #         reply_markup=await admin_view_educators_button()
 #     )
+
+@dp.message_handler(text="userlar", state="*")
+async def a_e_userlar(message: types.Message):
+    for sinf in classes_list:
+        await db.add_educators_class(
+            class_number=sinf
+        )
+    await message.answer(
+        text="Sinflar qo'shildi!"
+    )
 
 
 @dp.callback_query_handler(text_contains='aikeducatorid_', state='*')
@@ -29,7 +41,7 @@ async def a_e_get_educator_id(call: types.CallbackQuery):
         )
     else:
         await educator_main_second(
-            educator_id=educator_id, call=call, educator=educator, employee="Hodim",first_phone="Telefon raqam",
+            educator_id=educator_id, call=call, educator=educator, employee="Hodim", first_phone="Telefon raqam",
             second_phone="Ikkinchi telefon raqam", class_="Biriktirilgan sinf"
         )
     await AdminEditEdicators.main.set()
@@ -67,27 +79,30 @@ async def alert_message(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(text="aik_educatorsmain", state="*")
-async def qadamjolar_first_handler(call: types.CallbackQuery, state: FSMContext):
-    c = 0
-    educators = await db.select_all_educators()
-    # print(f"{educators} 73")
-    datas = list(chunks(educators, 15))
-    print(f"{datas[c]} 75")
-    keys = await key_returner(
-        items=datas[c], current_page=1, all_pages=len(datas)
+async def a_e_classes(call: types.CallbackQuery, state: FSMContext):
+    await call.message.edit_text(
+        text="Tarbiyachilar bo'limi\n\nKerakli sinfni tanlang:",
+        reply_markup=await educators_class_button()
     )
-
-    await call.message.answer(
-        text="Tarbiyachilar bo'limi", reply_markup=keys
-    )
-    counter = c + 1
-    await state.update_data(
-        c=c,
-        len_datas=len(datas),
-        counter=counter
-    )
+    # c = 0
+    # educators = await db.select_all_educators()
+    # # print(f"{educators} 73")
+    # datas = list(chunks(educators, 15))
+    #
+    # keys = await key_returner(
+    #     items=datas[c], current_page=1, all_pages=len(datas)
+    # )
+    #
+    # await call.message.answer(
+    #     text="Tarbiyachilar bo'limi", reply_markup=keys
+    # )
+    # counter = c + 1
+    # await state.update_data(
+    #     c=c,
+    #     len_datas=len(datas),
+    #     counter=counter
+    # )
     # await MuqriyVideoStates.qadamjolar_menu.set()
-
 
 # @dp.callback_query_handler(state=MuqriyVideoStates.qadamjolar_menu)
 # async def callback_resp(call: types.CallbackQuery, state: FSMContext):

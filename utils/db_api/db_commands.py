@@ -51,7 +51,7 @@ class Database:
         second_phone VARCHAR(20) NULL,
         class_number VARCHAR(20) NULL,        
         work_day BOOLEAN NULL DEFAULT FALSE,                
-        telegram_id BIGINT NOT NULL 
+        telegram_id BIGINT NULL 
         );        
         """
         await self.execute(sql, execute=True)
@@ -66,6 +66,10 @@ class Database:
     async def add_educators(self, telegram_id):
         sql = "INSERT INTO Educators (telegram_id) VALUES($1) returning *"
         return await self.execute(sql, telegram_id, fetchrow=True)
+
+    async def add_educators_class(self, class_number):
+        sql = "INSERT INTO Educators (class_number) VALUES($1) returning *"
+        return await self.execute(sql, class_number, fetchrow=True)
 
     async def update_educator_fullname(self, fullname, id_number):
         sql = f"UPDATE Educators SET fullname='{fullname}' WHERE id='{id_number}'"
@@ -93,6 +97,10 @@ class Database:
 
     async def select_educator(self, telegram_id):
         sql = f"SELECT DISTINCT fullname FROM Educators WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, fetch=True)
+
+    async def get_educators_class(self):
+        sql = f"SELECT class_number FROM Educators ORDER BY id"
         return await self.execute(sql, fetch=True)
 
     async def select_by_id(self, id_number):

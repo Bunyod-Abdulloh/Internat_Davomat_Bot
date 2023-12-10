@@ -5,7 +5,6 @@ from loader import db
 
 # aik = Admin inline keys (keyboards/inline/file_name)
 async def admin_check_button(user_id):
-
     key = InlineKeyboardMarkup(row_width=2)
     key.row(
         InlineKeyboardButton(
@@ -53,6 +52,12 @@ admin_main_button.add(
 )
 
 
+async def educators_class_button():
+    classes = await db.get_educators_class()
+    # print(classes)
+    key = InlineKeyboardMarkup(row_width=5)
+    for class in classes
+
 async def admin_view_educators_button():
     educators = await db.select_all_educators()
     key = InlineKeyboardMarkup(row_width=2)
@@ -74,7 +79,6 @@ async def admin_view_educators_button():
 
 
 def chunks(lst, n):
-
     empty_list = []
     for e in lst:
         empty_list.append(e)
