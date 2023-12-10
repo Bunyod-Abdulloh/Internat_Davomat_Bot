@@ -2,6 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from keyboards.inline.admin_inline_keys import admin_check_keyboard
+from keyboards.inline.main_menu_inline_keys import main_menu_keys
 from loader import dp, db, bot
 from states.admin_state import AdminEducator_State
 
@@ -12,48 +13,29 @@ from states.admin_state import AdminEducator_State
 @dp.callback_query_handler(text_contains="admincheck_", state="*")
 async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
 
-    data = await state.get_data()
-    post = data['educator_post']
-    fullname = data['educator_fullname']
-    first_number = data['educator_first_number']
-    class_number = data['educator_class_number']
-    educator_id = int(call.data.split('_')[-1])
+    telegram_id = call.data.split('_')[-1]
 
-    if 'educator_second_number' in data.keys():
-        await db.add_educators(
-            fullname=fullname,
-            first_number=first_number,
-            second_number=data['educator_second_number'],
-            class_number=class_number,
-            post=post,
-            telegram_id=educator_id
-        )
-    else:
-        await db.add_educators(
-            fullname=fullname,
-            first_number=first_number,
-            class_number=class_number,
-            post=post,
-            telegram_id=educator_id
-        )
-    await call.message.delete()
-    await call.answer(
-        text=f"{post} {fullname}ning ma'lumotlari saqlandi!",
-        show_alert=True
+    await db.update_educator_access(
+        access=True, telegram_id=telegram_id
     )
-
+    await call.message.edit_text(
+        text="Bosh sahifa", reply_markup=main_menu_keys
+    )
+    await call.answer(
+        text="Hodim ma'lumotlari saqlandi!", show_alert=True
+    )
     await bot.send_message(
-        chat_id=educator_id,
-        text="Ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botdan foydalanishingiz mumkin!"
+        chat_id=telegram_id, text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botning to'liq "
+                                  "imkoniyatlaridan foydalanishingiz mumkin!"
     )
     await state.finish()
 
 
 @dp.callback_query_handler(text_contains='admincancel_', state='*')
 async def a_e_a_cancel(call: types.CallbackQuery, state: FSMContext):
-    educator_id = call.data.split('_')[-1]
+    telegram_id = call.data.split('_')[-1]
     await state.update_data(
-        educator_id=educator_id
+        educator_telegram_id=telegram_id
     )
     await call.message.edit_text(
         text="Bekor qilish sababini kiriting:"
@@ -83,18 +65,21 @@ async def a_e_a_cancelcheck(call: types.CallbackQuery, state: FSMContext):
 
     elif call.data == "checkadmin":
         data = await state.get_data()
-        educator_id = data["educator_id"]
-        fullname = data['educator_fullname']
+        educator_telegram_id = data["educator_telegram_id"]
         cancel_text = data["cancel_text"]
+        educator = await db.select_educator_(
+            telegram_id=educator_telegram_id
+        )
+        print(educator)
 
         await bot.send_message(
-            chat_id=educator_id,
+            chat_id=educator_telegram_id,
             text=f"Bot admini tomonidan kiritgan ma'lumotlaringiz qabul qilinmadi!"
                  f"\nIltimos, ma'lumotlaringizni qayta kiriting!"
                  f"\n\n<b>Sabab: {cancel_text}</b>"
         )
         await call.answer(
-            text=f"Habar foydalanuvchi {fullname}ga yuborildi!",
+            text=f"Habar foydalanuvchiga yuborildi!",
             show_alert=True
         )
         await state.finish()

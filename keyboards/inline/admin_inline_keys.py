@@ -54,9 +54,22 @@ admin_main_button.add(
 
 async def educators_class_button():
     classes = await db.get_educators_class()
-    # print(classes)
     key = InlineKeyboardMarkup(row_width=5)
-    for class in classes
+    for class_ in classes:
+        key.insert(
+            InlineKeyboardButton(
+                text=class_[0],
+                callback_data=class_[0]
+            )
+        )
+    key.add(
+        InlineKeyboardButton(
+            text="⬅️ Ortga",
+            callback_data="aikback_adminpage"
+        )
+    )
+    return key
+
 
 async def admin_view_educators_button():
     educators = await db.select_all_educators()
