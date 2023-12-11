@@ -33,10 +33,12 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text_contains='admincancel_', state='*')
 async def a_e_a_cancel(call: types.CallbackQuery, state: FSMContext):
-    telegram_id = call.data.split('_')[-1]
-    print(telegram_id)
+    telegram_id = call.data.split('_')[1]
+    class_number = call.data.split('_')[-1]
+
     await state.update_data(
-        educator_telegram_id=telegram_id
+        educator_telegram_id=telegram_id,
+        educator_class_number=class_number
     )
     await call.message.edit_text(
         text="Bekor qilish sababini kiriting:"
@@ -47,7 +49,7 @@ async def a_e_a_cancel(call: types.CallbackQuery, state: FSMContext):
 @dp.message_handler(state=AdminEducator_State.cancel_message)
 async def a_e_a_canceltext(message: types.Message, state: FSMContext):
     await state.update_data(
-        cancel_text=message.text
+        educator_cancel_text=message.text
     )
     await message.answer(
         text="Habaringizni tasdiqlaysizmi?",
@@ -66,17 +68,15 @@ async def a_e_a_cancelcheck(call: types.CallbackQuery, state: FSMContext):
 
     elif call.data == "checkadmin":
         data = await state.get_data()
-        print(data)
-        educator_telegram_id = data.get("educator_telegram_id")
-        cancel_text = data.get("cancel_text")
-        class_number = data.get("class_number")
-        print(class_number)
-        educator = await db.select_educator_(
-            telegram_id=educator_telegram_id, class_number=class_number
+
+        telegram_id = data.get("educator_telegram_id")
+        cancel_text = data.get("educator_cancel_text")
+        class_number = data.get("educator_class_number")
+        await db.update_educator_telegram(
+            telegram_id=telegram_id, class_number=class_number
         )
-        print(educator)
         await bot.send_message(
-            chat_id=educator_telegram_id,
+            chat_id=telegram_id,
             text=f"Bot admini tomonidan kiritgan ma'lumotlaringiz qabul qilinmadi!"                 
                  f"\n\n<b>Sabab: {cancel_text}</b>"
                  f"\n\nIltimos, ma'lumotlaringizni qayta kiriting!"
