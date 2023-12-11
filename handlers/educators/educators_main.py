@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from data.config import ADMINS
 from keyboards.inline.admin_inline_keys import admin_check_button, educators_class_button
 from keyboards.inline.all_inline_keys import classes_list
-from keyboards.inline.educators_inline_keys import edu_phone_number
+from keyboards.inline.educators_inline_keys import edu_phone_number, edu_work_time
 from loader import dp, db, bot
 from states.educators_states import Educators_State
 
@@ -18,9 +18,17 @@ async def educators_first_main(call: types.CallbackQuery):
     await Educators_State.select_class.set()
 
 
+@dp.callback_query_handler(text="edu_back", state="*")
+async def e_m_back(call: types.CallbackQuery, state: FSMContext, state: FSMContext):
+    await call.message.edit_text(
+        text="Tarbiyachilar bo'limi", reply_markup=await educators_class_button()
+    )
+    await state.finish()
+
+
 @dp.callback_query_handler(state=Educators_State.select_class)
 async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
-    select_educator = await db.select_educator_(telegram_id=call.from_user.id)
+    select_educator = await db.select_educator_(telegram_id=call.from_user.id, class_number=call.data)
 
     if not select_educator:
         await db.add_educator_(
@@ -41,7 +49,7 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
             )
         else:
             await call.message.edit_text(
-                text="Tez orada ishga tushadi!"
+                text="Ish vaqtingizni tanlang:", reply_markup=edu_work_time
             )
 
 
@@ -85,10 +93,12 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
 
     elif call.data == "edu_number_first":
         await call.message.edit_text(
-                    text="Ma'lumotlaringiz qabul qilindi! Admin ma'lumotlaringizni tasdiqlaganidan so'ng botdan "
-                         "foydalanishingiz mumkin!"
+            text="Ma'lumotlaringiz qabul qilindi! Admin ma'lumotlaringizni tasdiqlaganidan so'ng botdan "
+                 "foydalanishingiz mumkin!"
         )
-        educator = await db.select_educator_(telegram_id=call.from_user.id)
+        data = await state.get_data()
+        class_number = data.get('educator_class_number')
+        educator = await db.select_educator_(telegram_id=call.from_user.id, class_number=class_number)
 
         for admin in ADMINS:
             await bot.send_message(
@@ -96,38 +106,13 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
                 text=f"Yangi hodim ma'lumotlari qabul qilindi!"
                      f"\n\nLavozimi: Tarbiyachi"
                      f"\n\nF.I.Sh: {educator[1]}"
-                     f"\n\nTelefon raqami: {educator[2]}"                         
+                     f"\n\nTelefon raqami: {educator[2]}"
                      f"\n\nSinfi: {educator[4]}",
                 reply_markup=await admin_check_button(
                     user_id=call.from_user.id
                 )
             )
         await state.finish()
-
-        #         await state.reset_state(with_data=False)
-
-    # if call.data in classes_list:
-    #     await state.update_data(
-    #         educator_class_number=call.data,
-    #         educator_post="Tarbiyachi"
-    #     )
-    #
-    #
-    #     )
-    #     data = await state.get_data()
-    #     fullname = data['educator_fullname']
-    #     first_number = data['educator_first_number']
-    #     class_number = call.data
-    #
-    #
-    #
-    # elif call.data == "back_for_classes":
-    #     await call.message.edit_text(
-    #         text="Agar raqamingiz ikkita bo'lsa <b><i>Raqam kiritish</i></b> tugmasini, bitta bo'lsa "
-    #              "<b><i>Raqamim bitta</i></b> tugmasini bosing!",
-    #         reply_markup=edu_phone_number
-    #     )
-    #     await Educators_State.second_number.set()
 
 
 @dp.message_handler(state=Educators_State.check_second_number)
@@ -141,7 +126,9 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
             text="Ma'lumotlaringiz qabul qilindi! Admin ma'lumotlaringizni tasdiqlaganidan so'ng botdan "
                  "foydalanishingiz mumkin!"
         )
-        educator = await db.select_educator_(telegram_id=message.from_user.id)
+        data = await state.get_data()
+        class_number = data.get('class_number')
+        educator = await db.select_educator_(telegram_id=message.from_user.id, class_number=class_number)
 
         for admin in ADMINS:
             await bot.send_message(

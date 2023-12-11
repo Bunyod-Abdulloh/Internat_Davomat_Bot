@@ -1,5 +1,6 @@
 from aiogram import executor
 
+from keyboards.inline.all_inline_keys import classes_list
 from loader import dp, db
 import middlewares, filters, handlers
 from utils.notify_admins import on_startup_notify
@@ -12,6 +13,10 @@ async def on_startup(dispatcher):
     # await db.drop_table_students()
     await db.create_table_educators()
     await db.create_table_students()
+    for sinf in classes_list:
+        await db.add_educators_class(
+            class_number=sinf
+        )
 
     # await db.add_student(class_number="6-V",
     #                      fullname="Abdulxayev Muhammadzohir")

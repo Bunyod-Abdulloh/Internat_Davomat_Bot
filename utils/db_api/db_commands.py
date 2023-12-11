@@ -106,11 +106,11 @@ class Database:
         return await self.execute(sql, fetch=True)
 
     async def select_educator(self, telegram_id):
-        sql = f"SELECT telegram_id FROM Educators WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, fetch=True)
+        sql = f"SELECT * FROM Educators WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, fetchrow=True)
 
-    async def select_educator_(self, telegram_id):
-        sql = f"SELECT DISTINCT * FROM Educators WHERE telegram_id='{telegram_id}'"
+    async def select_educator_(self, telegram_id, class_number):
+        sql = f"SELECT DISTINCT * FROM Educators WHERE telegram_id='{telegram_id}' AND class_number='{class_number}'"
         return await self.execute(sql, fetchrow=True)
 
     async def get_educators_class(self):
