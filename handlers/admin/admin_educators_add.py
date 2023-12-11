@@ -34,6 +34,7 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(text_contains='admincancel_', state='*')
 async def a_e_a_cancel(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.data.split('_')[-1]
+    print(telegram_id)
     await state.update_data(
         educator_telegram_id=telegram_id
     )
@@ -65,18 +66,20 @@ async def a_e_a_cancelcheck(call: types.CallbackQuery, state: FSMContext):
 
     elif call.data == "checkadmin":
         data = await state.get_data()
-        educator_telegram_id = data["educator_telegram_id"]
-        cancel_text = data["cancel_text"]
+        print(data)
+        educator_telegram_id = data.get("educator_telegram_id")
+        cancel_text = data.get("cancel_text")
+        class_number = data.get("class_number")
+        print(class_number)
         educator = await db.select_educator_(
-            telegram_id=educator_telegram_id
+            telegram_id=educator_telegram_id, class_number=class_number
         )
         print(educator)
-
         await bot.send_message(
             chat_id=educator_telegram_id,
-            text=f"Bot admini tomonidan kiritgan ma'lumotlaringiz qabul qilinmadi!"
-                 f"\nIltimos, ma'lumotlaringizni qayta kiriting!"
+            text=f"Bot admini tomonidan kiritgan ma'lumotlaringiz qabul qilinmadi!"                 
                  f"\n\n<b>Sabab: {cancel_text}</b>"
+                 f"\n\nIltimos, ma'lumotlaringizni qayta kiriting!"
         )
         await call.answer(
             text=f"Habar foydalanuvchiga yuborildi!",

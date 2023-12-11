@@ -19,7 +19,7 @@ async def educators_first_main(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(text="edu_back", state="*")
-async def e_m_back(call: types.CallbackQuery, state: FSMContext, state: FSMContext):
+async def e_m_back(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         text="Tarbiyachilar bo'limi", reply_markup=await educators_class_button()
     )
@@ -109,7 +109,8 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
                      f"\n\nTelefon raqami: {educator[2]}"
                      f"\n\nSinfi: {educator[4]}",
                 reply_markup=await admin_check_button(
-                    user_id=call.from_user.id
+                    user_id=call.from_user.id,
+                    class_number=educator[4]
                 )
             )
         await state.finish()
