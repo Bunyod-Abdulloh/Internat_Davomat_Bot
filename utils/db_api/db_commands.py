@@ -77,7 +77,8 @@ class Database:
         return await self.execute(sql, class_number, fetchrow=True)
 
     async def update_educator_telegram(self, telegram_id, class_number):
-        sql = f"UPDATE Educators SET telegram_id='{telegram_id}' WHERE class_number='{class_number}'"
+        sql = (f"UPDATE Educators SET telegram_id = NULL WHERE class_number='{class_number}' AND "
+               f"telegram_id='{telegram_id}'")
         return await self.execute(sql, execute=True)
 
     async def update_educator_fullname(self, fullname, class_number, telegram_id):

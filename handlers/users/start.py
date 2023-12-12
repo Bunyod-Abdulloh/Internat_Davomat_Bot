@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 
 from data.config import ADMINS
+from keyboards.default.start_keyboard import menu
 from keyboards.inline.main_menu_inline_keys import main_menu_keys
 from loader import dp, db, bot
 
@@ -10,10 +11,23 @@ from loader import dp, db, bot
 @dp.message_handler(CommandStart(), state='*')
 async def bot_start(message: types.Message):
     await message.answer(
-        text="Assalomu alaykum! Internat_Botimizga xush kelibsiz!"
-             "\n\nTugmalardan birini tanlang:",
+        text="Assalomu alaykum! Internat_Botimizga xush kelibsiz!",
+        reply_markup=menu
+    )
+    await message.answer(
+        text="Tugmalardan birini tanlang:",
         reply_markup=main_menu_keys
     )
+
+
+@dp.message_handler(text="🏡 Bosh sahifa", state="*")
+async def main_menu_custom(message: types.Message, state: FSMContext):
+    await message.answer(
+        text="🏡 Bosh sahifa",
+        reply_markup=main_menu_keys
+    )
+    await state.finish()
+
     # await message.answer(
     #     text="Live location yuboring"
     # )

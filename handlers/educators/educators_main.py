@@ -5,6 +5,7 @@ from data.config import ADMINS
 from keyboards.inline.admin_inline_keys import admin_check_button, educators_class_button
 from keyboards.inline.all_inline_keys import classes_list
 from keyboards.inline.educators_inline_keys import edu_phone_number, edu_work_time
+from keyboards.inline.main_menu_inline_keys import main_menu_keys
 from loader import dp, db, bot
 from states.educators_states import Educators_State
 
@@ -30,27 +31,33 @@ async def e_m_back(call: types.CallbackQuery, state: FSMContext):
 async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
     select_educator = await db.select_educator_(telegram_id=call.from_user.id, class_number=call.data)
 
-    if not select_educator:
-        await db.add_educator_(
-            telegram_id=call.from_user.id, class_number=call.data
-        )
-        await state.update_data(
-            educator_class_number=call.data
-        )
+    if call.data == "aikback_adminpage":
         await call.message.edit_text(
-            text="Ism, familiya va otangizni ismini kiriting:"
-                 "\n\n<b>Namuna: Djalilov Zoir Saydirahmon o'g'li</b>"
+            text="Bosh sahifa", reply_markup=main_menu_keys
         )
-        await Educators_State.fullname.set()
+        await state.finish()
     else:
-        if select_educator[-1] is False:
-            await call.answer(
-                text="Ma'lumotlaringiz hali admin tomonidan tasdiqlanmadi!", show_alert=True
+        if not select_educator:
+            await db.add_educator_(
+                telegram_id=call.from_user.id, class_number=call.data
             )
-        else:
+            await state.update_data(
+                educator_class_number=call.data
+            )
             await call.message.edit_text(
-                text="Ish vaqtingizni tanlang:", reply_markup=edu_work_time
+                text="Ism, familiya va otangizni ismini kiriting:"
+                     "\n\n<b>Namuna: Djalilov Zoir Saydirahmon o'g'li</b>"
             )
+            await Educators_State.fullname.set()
+        else:
+            if select_educator[-1] is False:
+                await call.answer(
+                    text="Ma'lumotlaringiz hali admin tomonidan tasdiqlanmadi!", show_alert=True
+                )
+            else:
+                await call.message.edit_text(
+                    text="Ish vaqtingizni tanlang:", reply_markup=edu_work_time
+                )
 
 
 @dp.message_handler(state=Educators_State.fullname)

@@ -13,7 +13,7 @@ from states.admin_state import AdminEducator_State
 @dp.callback_query_handler(text_contains="admincheck_", state="*")
 async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
 
-    telegram_id = call.data.split('_')[-1]
+    telegram_id = call.data.split('_')[1]
 
     await db.update_educator_access(
         access=True, telegram_id=telegram_id
@@ -25,8 +25,9 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
         text="Hodim ma'lumotlari saqlandi!", show_alert=True
     )
     await bot.send_message(
-        chat_id=telegram_id, text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botning to'liq "
-                                  "imkoniyatlaridan foydalanishingiz mumkin!"
+        chat_id=telegram_id,
+        text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botning to'liq "
+             "imkoniyatlaridan foydalanishingiz mumkin!"
     )
     await state.finish()
 
