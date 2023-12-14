@@ -4,7 +4,7 @@ from loader import db
 
 
 # aik = Admin inline keys (keyboards/inline/file_name)
-async def admin_check_button(user_id: int, class_number: str):
+async def admin_check_btn(user_id: int, class_number: str):
     key = InlineKeyboardMarkup(row_width=2)
     key.row(
         InlineKeyboardButton(
@@ -52,26 +52,7 @@ admin_main_button.add(
 )
 
 
-async def educators_class_button():
-    classes = await db.get_educators_class()
-    key = InlineKeyboardMarkup(row_width=5)
-    for class_ in classes:
-        key.insert(
-            InlineKeyboardButton(
-                text=class_[0],
-                callback_data=class_[0]
-            )
-        )
-    key.add(
-        InlineKeyboardButton(
-            text="⬅️ Ortga",
-            callback_data="aikback_adminpage"
-        )
-    )
-    return key
-
-
-async def admin_view_educators_button():
+async def admin_view_educators_btn():
     educators = await db.select_all_educators()
     key = InlineKeyboardMarkup(row_width=2)
 

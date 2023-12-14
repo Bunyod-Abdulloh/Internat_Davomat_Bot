@@ -2,36 +2,35 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from data.config import ADMINS
-from keyboards.inline.admin_inline_keys import admin_check_button, educators_class_button
-from keyboards.inline.all_inline_keys import classes_list
-from keyboards.inline.educators_inline_keys import edu_phone_number, edu_work_time
+from keyboards.inline.admin_inline_keys import admin_check_btn
+from keyboards.inline.educators_inline_keys import edu_phone_number, edu_work_time, educators_class_btn
 from keyboards.inline.main_menu_inline_keys import main_menu_keys
 from loader import dp, db, bot
-from states.educators_states import Educators_State
+from states.educators_states import EducatorsQuestionnaire, EducatorsWorkTime
 
 
+# e_m = Educators_main (handlers/educators/file-name)
 @dp.callback_query_handler(text='educator', state='*')
-async def educators_first_main(call: types.CallbackQuery):
+async def e_m_main(call: types.CallbackQuery):
     await call.message.edit_text(
-        text="O'zingizga biriktirilgan sinfni tanlang:",
-        reply_markup=await educators_class_button()
+        text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
     )
-    await Educators_State.select_class.set()
+    await EducatorsQuestionnaire.select_class.set()
 
 
 @dp.callback_query_handler(text="edu_back", state="*")
 async def e_m_back(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(
-        text="Tarbiyachilar bo'limi", reply_markup=await educators_class_button()
+        text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
     )
     await state.finish()
 
 
-@dp.callback_query_handler(state=Educators_State.select_class)
-async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
+@dp.callback_query_handler(state=EducatorsQuestionnaire.select_class)
+async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
     select_educator = await db.select_educator_(telegram_id=call.from_user.id, class_number=call.data)
 
-    if call.data == "aikback_adminpage":
+    if call.data == "eduback_one":
         await call.message.edit_text(
             text="Bosh sahifa", reply_markup=main_menu_keys
         )
@@ -48,7 +47,7 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
                 text="Ism, familiya va otangizni ismini kiriting:"
                      "\n\n<b>Namuna: Djalilov Zoir Saydirahmon o'g'li</b>"
             )
-            await Educators_State.fullname.set()
+            await EducatorsQuestionnaire.fullname.set()
         else:
             if select_educator[-1] is False:
                 await call.answer(
@@ -58,9 +57,10 @@ async def educators_select_class(call: types.CallbackQuery, state: FSMContext):
                 await call.message.edit_text(
                     text="Ish vaqtingizni tanlang:", reply_markup=edu_work_time
                 )
+                await EducatorsWorkTime.main.set()
 
 
-@dp.message_handler(state=Educators_State.fullname)
+@dp.message_handler(state=EducatorsQuestionnaire.fullname)
 async def educators_get_fullname(message: types.Message, state: FSMContext):
     data = await state.get_data()
     class_number = data['educator_class_number']
@@ -70,10 +70,10 @@ async def educators_get_fullname(message: types.Message, state: FSMContext):
     await message.answer(
         text="Telefon raqamingizni kiriting:\n\n<b>Namuna: 998974450292</b>"
     )
-    await Educators_State.first_number.set()
+    await EducatorsQuestionnaire.first_number.set()
 
 
-@dp.message_handler(state=Educators_State.first_number)
+@dp.message_handler(state=EducatorsQuestionnaire.first_number)
 async def educators_get_first_number(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         await db.update_educator_first_phone(first_phone=f"+{message.text}", telegram_id=message.from_user.id)
@@ -83,20 +83,20 @@ async def educators_get_first_number(message: types.Message, state: FSMContext):
                  "<b><i>Raqamim bitta</i></b> tugmasini bosing!",
             reply_markup=edu_phone_number
         )
-        await Educators_State.second_number.set()
+        await EducatorsQuestionnaire.second_number.set()
     else:
         await message.answer(
             text="Iltimos faqat raqam kiriting"
         )
 
 
-@dp.callback_query_handler(state=Educators_State.second_number)
+@dp.callback_query_handler(state=EducatorsQuestionnaire.second_number)
 async def educators_get_second_number(call: types.CallbackQuery, state: FSMContext):
     if call.data == "add_edusecond_number":
         await call.message.edit_text(
             text="Ikkinchi raqamingizni kiriting:\n\n<b>Namuna: 998974450292</b>"
         )
-        await Educators_State.check_second_number.set()
+        await EducatorsQuestionnaire.check_second_number.set()
 
     elif call.data == "edu_number_first":
         await call.message.edit_text(
@@ -115,7 +115,7 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
                      f"\n\nF.I.Sh: {educator[1]}"
                      f"\n\nTelefon raqami: {educator[2]}"
                      f"\n\nSinfi: {educator[4]}",
-                reply_markup=await admin_check_button(
+                reply_markup=await admin_check_btn(
                     user_id=call.from_user.id,
                     class_number=educator[4]
                 )
@@ -123,7 +123,7 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
         await state.finish()
 
 
-@dp.message_handler(state=Educators_State.check_second_number)
+@dp.message_handler(state=EducatorsQuestionnaire.check_second_number)
 async def educators_check_second_number(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         await db.update_educator_second_phone(
@@ -147,7 +147,7 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
                      f"\n\nTelefon raqami: {educator[2]}"
                      f"\n\nIkkinchi telefon raqami: {educator[3]}"
                      f"\n\nSinfi: {educator[4]}",
-                reply_markup=await admin_check_button(
+                reply_markup=await admin_check_btn(
                     user_id=message.from_user.id
                 )
             )

@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 
 from handlers.admin.a_functions import educator_main_first, educator_main_second
 from keyboards.inline.admin_edit_educator_buttons import edit_educators
-from keyboards.inline.admin_inline_keys import admin_check_keyboard, admin_view_educators_button
+from keyboards.inline.admin_inline_keys import admin_check_keyboard, admin_view_educators_btn
 from loader import dp, db
 from states.admin_state import AdminEditEdicators
 
@@ -65,5 +65,5 @@ async def a_e_e_check_fullname(call: types.CallbackQuery, state: FSMContext):
 
     await call.message.edit_text(
         text="Tarbiyachilar bo'limi",
-        reply_markup=await admin_view_educators_button()
+        reply_markup=await admin_view_educators_btn()
     )

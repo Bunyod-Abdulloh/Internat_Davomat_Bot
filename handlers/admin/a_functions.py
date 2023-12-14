@@ -1,9 +1,6 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 
 from keyboards.inline.admin_edit_educator_buttons import edit_educators
-from keyboards.inline.main_menu_inline_keys import main_menu_keys
-from loader import dp
 
 
 # admin educators line 26
