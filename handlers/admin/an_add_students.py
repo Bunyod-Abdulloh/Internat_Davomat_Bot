@@ -18,3 +18,17 @@
 #         reply_markup=await admin_main_buttons()
 #     )
 #
+from aiogram import types
+
+from loader import dp
+from states.admin_state import AdminMain
+
+
+@dp.message_handler(state=AdminMain.students)
+async def a_a_s_students(message: types.Message):
+    if message.text == "Sinf qo'shish":
+        pass
+    elif message.text == "O'quvchi qo'shish":
+        pass
+    elif message.text == "🔙 Ortga":
+        pass

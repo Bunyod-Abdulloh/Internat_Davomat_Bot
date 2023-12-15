@@ -10,3 +10,10 @@ class AdminEditEdicators(StatesGroup):
     main = State()
     edit_fullname = State()
     check_fullname = State()
+
+
+class AdminMain(StatesGroup):
+    parents = State()
+    curators = State()
+    educators = State()
+    students = State()

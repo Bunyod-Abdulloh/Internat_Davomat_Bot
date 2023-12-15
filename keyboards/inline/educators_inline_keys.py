@@ -15,7 +15,7 @@ edu_phone_number.row(
 )
 
 edu_work_time = InlineKeyboardMarkup(row_width=1)
-edu_work_time.row(
+edu_work_time.add(
     InlineKeyboardButton(
         text="🌄 Ertalabki", callback_data="edu_morning"
     ),
@@ -35,7 +35,7 @@ edu_work_time.add(
 
 async def educators_class_btn():
     classes = await db.get_educators_class()
-    key = InlineKeyboardMarkup(row_width=5)
+    key = InlineKeyboardMarkup(row_width=4)
     for class_ in classes:
         key.insert(
             InlineKeyboardButton(

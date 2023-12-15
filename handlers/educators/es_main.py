@@ -18,12 +18,12 @@ async def e_m_main(call: types.CallbackQuery):
     await EducatorsQuestionnaire.select_class.set()
 
 
-@dp.callback_query_handler(text="edu_back", state="*")
-async def e_m_back(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text(
-        text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
-    )
-    await state.finish()
+# @dp.callback_query_handler(text="edu_back", state="*")
+# async def e_m_back(call: types.CallbackQuery, state: FSMContext):
+#     await call.message.edit_text(
+#         text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
+#     )
+#     await state.finish()
 
 
 @dp.callback_query_handler(state=EducatorsQuestionnaire.select_class)
