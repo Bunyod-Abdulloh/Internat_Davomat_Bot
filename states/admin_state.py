@@ -27,4 +27,3 @@ class AdminStudents(StatesGroup):
     add_student = State()
     delete_student = State()
     students_xls = State()
-    download_xls = State()

@@ -1,32 +1,14 @@
-# from aiogram import types
-#
-# from keyboards.inline.admin_inline_keys import
-# from loader import dp, db
-#
-#
-# @dp.message_handler(text='salom', state='*')
-# async def sampler(message: types.Message):
-#
-#     await db.add_student(
-#         student_number="1",
-#         student_fullname="Aziza Abdulloh qizi",
-#         class_number="6-V",
-#         telegram_id=message.from_user.id
-#     )
-#     await message.answer(
-#         text="Qo'shildi!",
-#         reply_markup=await admin_main_buttons()
-#     )
-#
 import openpyxl
 from aiogram import types
+from aiogram.dispatcher import FSMContext
 
-from loader import dp
+from keyboards.default.admin_custom_buttons import admin_custom_btn
+from loader import dp, db
 from states.admin_state import AdminMain, AdminStudents
 
 
 @dp.message_handler(state=AdminMain.students)
-async def a_a_s_students(message: types.Message):
+async def a_a_s_students(message: types.Message, state: FSMContext):
     if message.text == "Sinf qo'shish":
         await AdminStudents.add_class.set()
 
@@ -41,19 +23,17 @@ async def a_a_s_students(message: types.Message):
 
     elif message.text == "O'quvchilarni qo'shish (excel shaklda)":
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIIIWV9MW0AAZgRzdUZOs7EvKaxlmCM-QACT9cxGyhC8UsKA7-MGkMZqgEAAwIAA3gAAzME",
+            photo="AgACAgIAAxkBAAIJYmV9jU0nJmkk94-SvPbmsf6T0UGPAAKq2DEbKELxS1ajHyqGhCkDAQADAgADeAADMwQ",
             caption="Diqqat!!!\n\nYuboriladigan hujjat excel jadval shaklida va yuqoridagi tartibda yozilgan bo'lishi "
                     "lozim! \n\nHujjatni yuboring:"
         )
         await AdminStudents.students_xls.set()
+
     elif message.text == "🔙 Ortga":
-        pass
-
-
-# @dp.message_handler(state=AdminStudents.students_xls)
-# async def a_a_s_add_xls(message: types.Message):
-#
-#     await AdminStudents.download_xls.set()
+        await message.answer(
+            text=message.text, reply_markup=admin_custom_btn
+        )
+        await state.finish()
 
 
 @dp.message_handler(state=AdminStudents.students_xls, content_types=['document'])
@@ -66,11 +46,28 @@ async def get_photo(message: types.Message):
 
     wb = openpyxl.load_workbook(f'D:/AbuAbdulloh/Новая папка/INTERNAT/23-24/{file_name}')
 
-    # Получить активный лист
     sheet = wb.active
+    c = 0
+    level = str()
+    for row in sheet.iter_rows():
+        c += 1
+        class_number = row[1].value
+        fullname = row[2].value
+        level = class_number
+        await db.add_student(
+            class_number=class_number, fullname=fullname
+        )
+    await message.answer(
+        text=f"{level} sinfi uchun jami qo'shilgan o'quvchilar soni: {c} ta"
+    )
+    c = 0
+    level = ''
+    await AdminMain.students.set()
 
-    # Получить значения из первой ячейки
-    cell = sheet['A1']
 
-    # Напечатать значение
-    print(cell.value)
+@dp.message_handler(state=AdminStudents.students_xls, text="🔙 Ortga")
+async def a_a_s_back(message: types.Message, state: FSMContext):
+    await message.answer(
+        text=message.text, reply_markup=admin_custom_btn
+    )
+    await state.finish()
