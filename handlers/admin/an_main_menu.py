@@ -38,7 +38,7 @@ async def a_m_m_parents(message: types.Message):
     await AdminMain.educators.set()
 
 
-@dp.message_handler(text="Tarbiyachilar", state="*", user_id=ADMINS)
+@dp.message_handler(text="O'quvchilar", state="*", user_id=ADMINS)
 async def a_m_m_parents(message: types.Message):
     await message.answer(
         text=message.text, reply_markup=admin_custom_students

@@ -17,3 +17,14 @@ class AdminMain(StatesGroup):
     curators = State()
     educators = State()
     students = State()
+
+
+class AdminStudents(StatesGroup):
+    add_class = State()
+    delete_class = State()
+    add_students = State()
+    delete_students = State()
+    add_student = State()
+    delete_student = State()
+    students_xls = State()
+    download_xls = State()
