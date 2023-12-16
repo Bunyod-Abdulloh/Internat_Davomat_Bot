@@ -15,5 +15,7 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
         )
         await EducatorsQuestionnaire.select_class.set()
 
-    # elif call.data == "edu_morning":
-
+    elif call.data == "edu_morning":
+        await call.message.edit_text(
+            text="Salom"
+        )

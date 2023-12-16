@@ -143,14 +143,15 @@ class Database:
         id SERIAL,
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
+        language VARCHAR(10) NULL,
         mark VARCHAR(20) DEFAULT '❎'         
         );        
         """
         await self.execute(sql, execute=True)
 
-    async def add_student(self, class_number, fullname):
-        sql = "INSERT INTO Students (class_number, fullname) VALUES($1, $2) returning *"
-        return await self.execute(sql, class_number, fullname, fetchrow=True)
+    async def add_student(self, class_number, language, fullname):
+        sql = "INSERT INTO Students (class_number, language, fullname) VALUES($1, $2, $3) returning *"
+        return await self.execute(sql, class_number, language, fullname, fetchrow=True)
 
     async def update_student(self, old_class, old_fullname, new_class, new_fullname):
         sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
