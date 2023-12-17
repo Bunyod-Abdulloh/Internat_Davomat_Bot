@@ -15,17 +15,17 @@ edu_phone_number.row(
 )
 
 
-async def edu_work_time(telegram_id: int, class_number: str):
+async def edu_work_time(class_number: str):
     key = InlineKeyboardMarkup(row_width=1)
     key.add(
         InlineKeyboardButton(
-            text="🌄 Ertalabki", callback_data=f"edumorning_{telegram_id}_{class_number}"
+            text="🌄 Ertalabki", callback_data=f"edumorning_{class_number}"
         ),
         InlineKeyboardButton(
-            text="️⏳ Yarim kun", callback_data=f"eduhalf_{telegram_id}_{class_number}"
+            text="️⏳ Yarim kun", callback_data=f"eduhalf_{class_number}"
         ),
         InlineKeyboardButton(
-            text="⌛️ Bir kun", callback_data=f"eduday_{telegram_id}_{class_number}"
+            text="⌛️ Bir kun", callback_data=f"eduday_{class_number}"
         )
     )
     key.add(

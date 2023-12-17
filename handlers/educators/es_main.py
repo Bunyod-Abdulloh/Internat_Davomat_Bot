@@ -55,7 +55,9 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
                 )
             else:
                 await call.message.edit_text(
-                    text="Ish vaqtingizni tanlang:", reply_markup=edu_work_time
+                    text="Ish vaqtingizni tanlang:", reply_markup=await edu_work_time(
+                        class_number=call.data
+                    )
                 )
                 await EducatorsWorkTime.main.set()
 

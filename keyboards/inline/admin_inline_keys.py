@@ -84,10 +84,11 @@ async def key_returner(items, current_page, all_pages):
     keys = InlineKeyboardMarkup(
         row_width=1
     )
+
     for i in items:
         keys.insert(
             InlineKeyboardButton(
-                text=f"{i[4]} | {i[1]}",
+                text=f"{i[2]} | {i[4]}",
                 callback_data=f"{i[0]}"
             )
         )

@@ -141,6 +141,7 @@ class Database:
         sql = """
         CREATE TABLE IF NOT EXISTS Students (
         id SERIAL,
+        serial_number INT NULL,
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
@@ -149,9 +150,10 @@ class Database:
         """
         await self.execute(sql, execute=True)
 
-    async def add_student(self, class_number, language, fullname):
-        sql = "INSERT INTO Students (class_number, language, fullname) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, class_number, language, fullname, fetchrow=True)
+    async def add_student(self, serial_number, class_number, language, fullname):
+        sql = ("INSERT INTO Students (serial_number, class_number, language, fullname) "
+               "VALUES($1, $2, $3, $4) returning *")
+        return await self.execute(sql, serial_number, class_number, language, fullname, fetchrow=True)
 
     async def update_student(self, old_class, old_fullname, new_class, new_fullname):
         sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
