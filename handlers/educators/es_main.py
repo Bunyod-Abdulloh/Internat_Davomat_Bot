@@ -135,7 +135,7 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
                  "foydalanishingiz mumkin!"
         )
         data = await state.get_data()
-        class_number = data.get('class_number')
+        class_number = data.get('educator_class_number')
         educator = await db.select_educator_(telegram_id=message.from_user.id, class_number=class_number)
 
         for admin in ADMINS:
@@ -148,7 +148,7 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
                      f"\n\nIkkinchi telefon raqami: {educator[3]}"
                      f"\n\nSinfi: {educator[4]}",
                 reply_markup=await admin_check_btn(
-                    user_id=message.from_user.id
+                    user_id=message.from_user.id, class_number=class_number
                 )
             )
     else:

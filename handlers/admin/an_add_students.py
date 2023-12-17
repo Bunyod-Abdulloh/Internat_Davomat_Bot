@@ -2,6 +2,7 @@ import openpyxl
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
+from data.config import ADMINS
 from keyboards.default.admin_custom_buttons import admin_custom_btn
 from loader import dp, db
 from states.admin_state import AdminMain, AdminStudents
@@ -23,7 +24,7 @@ async def a_a_s_students(message: types.Message, state: FSMContext):
 
     elif message.text == "O'quvchilarni qo'shish (excel shaklda)":
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIJpmV91fbJ77nAravZBUE0tHeUUvRiAAJK1jEbbLLwS4qDT_ggqjh0AQADAgADeAADMwQ",
+            photo="AgACAgIAAxkBAAIJqmV-XC1pUsbJ8b5cWVROK4JO6jtYAAIpzjEbbLL4SyQgO2Y2cYg5AQADAgADeAADMwQ",
             caption="Diqqat!!!\n\nYuboriladigan hujjat excel jadval shaklida va yuqoridagi tartibda yozilgan bo'lishi "
                     "lozim! \n\nHujjatni yuboring:"
         )
@@ -38,33 +39,32 @@ async def a_a_s_students(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=AdminStudents.students_xls, content_types=['document'])
 async def get_photo(message: types.Message):
-    await message.answer(
-        text=message.document.file_id
-    )
-
     file_name = message.document.file_name
 
     wb = openpyxl.load_workbook(f'D:/AbuAbdulloh/Новая папка/INTERNAT/23-24/{file_name}')
 
     sheet = wb.active
-    c = 0
+    counter = 0
+    skipper = 0
     level = str()
+
     for row in sheet.iter_rows():
-        c += 1
-        if c == 1:
-            pass
-        else:
-            class_number = row[1].value
-            language = row[2].value
-            fullname = row[3].value
-            level = class_number
-            await db.add_student(
-                class_number=class_number, language=language, fullname=fullname
-            )
+        skipper += 1
+        if skipper == 1:
+            continue
+        counter += 1
+        class_number = row[1].value
+        language = row[2].value
+        fullname = row[3].value
+        level = class_number
+        await db.add_student(
+            class_number=class_number, language=language, fullname=fullname
+        )
     await message.answer(
-        text=f"{level} sinfi uchun jami qo'shilgan o'quvchilar soni: {c} ta"
+        text=f"{level} sinfi uchun jami qo'shilgan o'quvchilar soni: {counter} ta"
     )
-    c = 0
+    counter = 0
+    skipper = 0
     level = ''
     await AdminMain.students.set()
 
@@ -77,7 +77,7 @@ async def a_a_s_back(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@dp.message_handler(state="*", content_types=['photo'])
+@dp.message_handler(state="*", content_types=['photo'], user_id=ADMINS)
 async def a_a_photo(message: types.Message):
     await message.answer(
         text=message.photo[-1].file_id
