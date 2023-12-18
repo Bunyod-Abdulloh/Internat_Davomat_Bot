@@ -15,22 +15,22 @@ edu_phone_number.row(
 )
 
 
-async def edu_work_time(class_number: str):
+async def edu_work_time(class_number: str, morning: str, half_day: str, all_day: str, back: str):
     key = InlineKeyboardMarkup(row_width=1)
     key.add(
         InlineKeyboardButton(
-            text="🌄 Ertalabki", callback_data=f"edumorning_{class_number}"
+            text=f"🌄 {morning}", callback_data=f"edumorning_{class_number}"
         ),
         InlineKeyboardButton(
-            text="️⏳ Yarim kun", callback_data=f"eduhalf_{class_number}"
+            text=f"⏳ {half_day}", callback_data=f"eduhalf_{class_number}"
         ),
         InlineKeyboardButton(
-            text="⌛️ Bir kun", callback_data=f"eduday_{class_number}"
+            text=f"⌛️ {all_day}", callback_data=f"eduallday_{class_number}"
         )
     )
     key.add(
         InlineKeyboardButton(
-            text="⬅️ Ortga", callback_data="edu_back"
+            text=f"⬅️ {back}", callback_data="edu_back"
         )
     )
     return key

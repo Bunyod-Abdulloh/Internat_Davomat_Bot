@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from keyboards.inline.admin_inline_keys import key_returner
-from keyboards.inline.educators_inline_keys import educators_class_btn
+from keyboards.inline.educators_inline_keys import educators_class_btn, edu_work_time
 from keyboards.inline.student_inline_buttons import students_button
 from loader import dp, db
 from states.educators_states import EducatorsWorkTime, EducatorsQuestionnaire
@@ -19,23 +19,79 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
 
     elif call.data.__contains__("edumorning_"):
         class_number = call.data.split("_")[-1]
-        students = await db.get_students(
-            class_number=class_number
-        )
 
         await call.message.edit_text(
             text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
                  "bosing:",
-            reply_markup=await students_button(class_number=class_number, back="Ortga", check="Tasdiqlash"
-                                               )
+            reply_markup=await students_button(class_number=class_number, back="Ortga", check="Tasdiqlash"                                               )
         )
         await state.update_data(
             count=0
         )
-        await state.set_state("buttons")
+        await EducatorsWorkTime.morning.set()
 
     elif call.data.__contains__("eduhalf_"):
         class_number = call.data.split("_")[-1]
 
     elif call.data.__contains__("eduday_"):
         class_number = call.data.split("_")[-1]
+
+
+@dp.callback_query_handler(state=EducatorsWorkTime.morning)
+async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
+
+    await call.answer(cache_time=0)
+    data = await state.get_data()
+    count = data['count']
+    class_number = call.data.split("_")[1]
+
+    if call.data.__contains__("stbback_"):
+        await call.message.edit_text(
+            text="Ish vaqtingizni tanlang:",
+            reply_markup=await edu_work_time(class_number=class_number, morning="Ertalabki", half_day="Yarim kun",
+                                             all_day="To'liq kun", back="Ortga")
+        )
+
+    elif call.data:
+        student_id = call.data.split("_")[1]
+        get_student = await db.get_student_id(
+            id_number=student_id
+        )
+        count += 1
+        if count == 1:
+            if get_student[-1] == "✅":
+                await db.update_mark_student(
+                    mark="❎",
+                    id_number=student_id
+                )
+            else:
+                await db.update_mark_student(
+                    mark="✅",
+                    id_number=student_id
+                )
+
+        elif count == 2:
+            if get_student[-1] == "❎":
+                await db.update_mark_student(
+                    mark="✅",
+                    id_number=student_id
+                )
+            else:
+                await db.update_mark_student(
+                    mark="❎",
+                    id_number=student_id
+                )
+            count = 0
+
+        await state.update_data(
+            count=count
+        )
+    absent = await db.count_mark(class_number=class_number, mark="✅")
+    present = await db.count_mark(class_number=class_number, mark="❎")
+    await call.message.edit_text(
+        text=f"Kelgan o'quvchilar soni: {absent}"
+             f"\nKelmagan o'quvchilar soni: {present}",
+        reply_markup=await students_button(
+            class_number=class_number, back="Ortga", check="Tasdiqlash"
+        )
+    )
