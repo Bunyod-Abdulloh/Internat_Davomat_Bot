@@ -165,7 +165,7 @@ class Database:
         return await self.execute(sql, execute=True)
 
     async def get_students(self, class_number):
-        sql = f"SELECT * FROM Students WHERE class_number='{class_number}' ORDER BY fullname"
+        sql = f"SELECT * FROM Students WHERE class_number='{class_number}' ORDER BY serial_number"
         return await self.execute(sql, fetch=True)
 
     async def get_student(self, class_number, fullname):

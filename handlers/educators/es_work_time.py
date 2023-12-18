@@ -24,10 +24,15 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
         )
 
         await call.message.edit_text(
-            text="Salom", reply_markup=await students_button(
-                class_number=class_number
-            )
+            text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
+                 "bosing:",
+            reply_markup=await students_button(class_number=class_number, back="Ortga", check="Tasdiqlash"
+                                               )
         )
+        await state.update_data(
+            count=0
+        )
+        await state.set_state("buttons")
 
     elif call.data.__contains__("eduhalf_"):
         class_number = call.data.split("_")[-1]

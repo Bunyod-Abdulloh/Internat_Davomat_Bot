@@ -26,11 +26,11 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
     data = await state.get_data()
     count = data['count']
     student_id = call.data.split("_")[1]
-    class_number = call.data.split("_")[-1]
     get_student = await db.get_student_id(
         id_number=student_id
     )
-
+    class_number = get_student[2]
+    print(get_student)
     if call.data:
         count += 1
         if count == 1:
@@ -67,6 +67,6 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
         text=f"Kelgan o'quvchilar soni: {absent}"
              f"\nKelmagan o'quvchilar soni: {present}",
         reply_markup=await students_button(
-            class_number=class_number
+            class_number=class_number, back="Ortga", check="Tasdiqlash"
         )
     )

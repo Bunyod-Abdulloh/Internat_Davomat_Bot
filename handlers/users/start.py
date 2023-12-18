@@ -22,9 +22,9 @@ async def bot_start(message: types.Message):
 
 @dp.message_handler(text="🏡 Bosh sahifa", state="*")
 async def main_menu_custom(message: types.Message, state: FSMContext):
+
     await message.answer(
-        text="🏡 Bosh sahifa",
-        reply_markup=main_menu_keys
+        text="Kerakli bo'limni tanlang:", reply_markup=main_menu_keys
     )
     await state.finish()
 

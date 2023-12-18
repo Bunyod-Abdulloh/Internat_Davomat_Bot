@@ -24,7 +24,7 @@ async def a_a_s_students(message: types.Message, state: FSMContext):
 
     elif message.text == "O'quvchilarni qo'shish (excel shaklda)":
         await message.answer_photo(
-            photo="AgACAgIAAxkBAAIKYGV-718IyWm9zffBhl4T-In0CpG4AAJz0DEbbLL4S8U3lOlOS9eRAQADAgADeAADMwQ",
+            photo="AgACAgIAAxkBAAIKyGV_yOm45q-cnBbtBIrYP_RxiRjtAAJx1TEbouT4S-MDG0T8eoo-AQADAgADeAADMwQ",
             caption="Diqqat!!!\n\nYuboriladigan hujjat excel jadval shaklida va yuqoridagi tartibda yozilgan bo'lishi "
                     "lozim! \n\nHujjatni yuboring:"
         )
@@ -45,13 +45,9 @@ async def get_photo(message: types.Message):
 
     sheet = wb.active
     counter = 0
-    skipper = 0
     level = str()
 
     for row in sheet.iter_rows():
-        skipper += 1
-        if skipper == 1:
-            continue
         counter += 1
         serial_number = row[0].value
         class_number = row[1].value
@@ -65,7 +61,6 @@ async def get_photo(message: types.Message):
         text=f"{level} sinfi uchun jami qo'shilgan o'quvchilar soni: {counter} ta"
     )
     counter = 0
-    skipper = 0
     level = ''
     await AdminMain.students.set()
 

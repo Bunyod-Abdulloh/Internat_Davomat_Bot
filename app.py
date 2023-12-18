@@ -9,14 +9,14 @@ from utils.set_bot_commands import set_default_commands
 
 async def on_startup(dispatcher):
     await db.create()
-    await db.drop_table_educators()
-    await db.drop_table_students()
+    # await db.drop_table_educators()
+    # await db.drop_table_students()
     await db.create_table_educators()
     await db.create_table_students()
-    for sinf in classes_list:
-        await db.add_educators_class(
-            class_number=sinf
-        )
+    # for sinf in classes_list:
+    #     await db.add_educators_class(
+    #         class_number=sinf
+    #     )
 
     # await db.add_student(class_number="6-V",
     #                      fullname="Abdulxayev Muhammadzohir")
