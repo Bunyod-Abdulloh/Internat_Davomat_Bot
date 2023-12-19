@@ -1,6 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
+from keyboards.inline.teachers_inline_buttons import senior_lessons_ibutton
 from loader import dp
 from states.teachers_state import TeachersAnketa
 
@@ -21,13 +22,16 @@ async def ts_m_get_fullname(message: types.Message, state: FSMContext):
         teacher_fullname=message.text
     )
     await message.answer(
-        text="Faningiz nomini tanlang:"
+        text="Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(
+            back_step="Ortga", next_step="Keyingi"
+        )
     )
     await TeachersAnketa.get_lesson.set()
 
 
 @dp.callback_query_handler(state=TeachersAnketa.get_lesson)
 async def ts_m_get_lesson(call: types.CallbackQuery, state: FSMContext):
+    print(call.data)
     await state.update_data(
         teacher_lesson=call.data
     )

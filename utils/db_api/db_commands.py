@@ -188,13 +188,18 @@ class Database:
 
     async def create_table_teachers(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS Students (
-        id SERIAL,
-        serial_number INT NULL,
-        class_number VARCHAR(20) NOT NULL,
-        fullname VARCHAR(255) NULL,
+        CREATE TABLE IF NOT EXISTS Teachers (
+        id SERIAL,        
+        class_number VARCHAR(20) NULL,
+        fullname VARCHAR(255) NOT NULL,
         language VARCHAR(10) NULL,
-        mark VARCHAR(20) DEFAULT '❎'
+        item_name VARCHAR(50) NULL        
         );
         """
         await self.execute(sql, execute=True)
+
+    async def add_teacher(self, fullname, telegram_id):
+        sql = "INSERT INTO Teachers (fullname, telegram_id) VALUES($1, $2) returning *"
+        return await self.execute(sql, fullname, telegram_id, fetchrow=True)
+
+
