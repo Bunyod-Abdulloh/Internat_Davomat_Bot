@@ -22,10 +22,10 @@ async def edu_work_time(class_number: str, morning: str, half_day: str, all_day:
             text=f"🌄 {morning}", callback_data=f"edumorning_{class_number}"
         ),
         InlineKeyboardButton(
-            text=f"⏳ {half_day}", callback_data=f"eduhalf_{class_number}"
+            text=f"⏱ {half_day}", callback_data=f"eduhalf_{class_number}"
         ),
         InlineKeyboardButton(
-            text=f"⌛️ {all_day}", callback_data=f"eduallday_{class_number}"
+            text=f"⏳ {all_day}", callback_data=f"eduallday_{class_number}"
         )
     )
     key.add(

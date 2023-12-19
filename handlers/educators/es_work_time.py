@@ -20,11 +20,15 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
     elif call.data.__contains__("edumorning_"):
         class_number = call.data.split("_")[-1]
 
+        absent = await db.count_mark(class_number=class_number, mark="✅")
+        present = await db.count_mark(class_number=class_number, mark="❎")
         await call.message.edit_text(
-            text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
-                 "bosing:",
-            reply_markup=await students_button(class_number=class_number, back="Ortga", check="Tasdiqlash",
-                                               absent="Kelganlar: 0 ta", present="Kelmaganlar: 0 ta")
+            text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
+                 "tugmasini bosing:",
+            reply_markup=await students_button(
+                class_number=class_number, back="Ortga", check="Tasdiqlash", absent=f"Kelganlar: {absent} ta",
+                present=f"Kelmaganlar: {present} ta", attendance_uz=True
+            )
         )
         await state.update_data(
             count=0
@@ -40,61 +44,91 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(state=EducatorsWorkTime.morning)
 async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
-    print(call.data)
-    await call.answer(cache_time=0)
-    data = await state.get_data()
-    count = data['count']
-    class_number = call.data.split("_")[-1]
-    student_id = call.data.split("_")[1]
 
-    if call.data.__contains__("stbback_"):
-        await call.message.edit_text(
-            text="Ish vaqtingizni tanlang:",
-            reply_markup=await edu_work_time(class_number=class_number, morning="Ertalabki", half_day="Yarim kun",
-                                             all_day="To'liq kun", back="Ortga")
+    if call.data == "absent_uz":
+        await call.answer(
+            text="Bu tugma faqat kelgan o'quvchilar sonini ko'rsatadi!", show_alert=True
         )
 
-    if call.data.__contains__("stb_"):
-        get_student = await db.get_student_id(
-            id_number=student_id
+    elif call.data == "present_uz":
+        await call.answer(
+            text=f"Bu tugma faqat kelmagan o'quvchilar sonini ko'rsatadi!", show_alert=True
         )
-        count += 1
-        if count == 1:
-            if get_student[-1] == "✅":
-                await db.update_mark_student(
-                    mark="❎",
-                    id_number=student_id
-                )
-            else:
-                await db.update_mark_student(
-                    mark="✅",
-                    id_number=student_id
-                )
+    else:
+        await call.answer(cache_time=0)
+        data = await state.get_data()
+        count = data['count']
+        class_number = call.data.split("_")[-1]
+        student_id = call.data.split("_")[1]
 
-        elif count == 2:
-            if get_student[-1] == "❎":
-                await db.update_mark_student(
-                    mark="✅",
-                    id_number=student_id
-                )
-            else:
-                await db.update_mark_student(
-                    mark="🟥",
-                    id_number=student_id
-                )
-            count = 0
+        # absent = await db.count_mark(class_number=class_number, mark="✅")
+        # present = await db.count_mark(class_number=class_number, mark="❎")
 
-    await state.update_data(
-        count=count
-    )#
-    absent = await db.count_mark(class_number=class_number, mark="✅")
-    present = await db.count_mark(class_number=class_number, mark="❎")
-    await call.message.edit_text(
-        text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
-             "bosing:",
-        reply_markup=await students_button(
-            class_number=class_number, back="Ortga", check="Tasdiqlash", absent=f"Kelganlar: {absent} ta",
-            present=f"Kelmaganlar: {present} ta"
-        )
-    )
+        if call.data.__contains__("stbback_"):
+            await call.message.edit_text(
+                text="Ish vaqtingizni tanlang:",
+                reply_markup=await edu_work_time(class_number=class_number, morning="Ertalabki", half_day="Yarim kun",
+                                                 all_day="To'liq kun", back="Ortga")
+            )
+            await EducatorsWorkTime.main.set()
+        elif call.data.__contains__("stb_"):
+            get_student = await db.get_student_id(
+                id_number=student_id
+            )
+            count += 1
+            if count == 1:
+                if get_student[-1] == "✅":
+                    await db.update_mark_student(
+                        mark="❎",
+                        id_number=student_id
+                    )
+                else:
+                    await db.update_mark_student(
+                        mark="✅",
+                        id_number=student_id
+                    )
+
+            elif count == 2:
+                if get_student[-1] == "❎":
+                    await db.update_mark_student(
+                        mark="✅",
+                        id_number=student_id
+                    )
+                else:
+                    await db.update_mark_student(
+                        mark="❎",
+                        id_number=student_id
+                    )
+                count = 0
+
+            await state.update_data(
+                count=count
+            )
+            absent = await db.count_mark(class_number=class_number, mark="✅")
+            present = await db.count_mark(class_number=class_number, mark="❎")
+            await call.message.edit_text(
+                text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
+                     "tugmasini bosing:",
+                reply_markup=await students_button(
+                    class_number=class_number, back="Ortga", check="Tasdiqlash", absent=f"Kelganlar: {absent} ta",
+                    present=f"Kelmaganlar: {present} ta", attendance_uz=True
+                )
+            )
+
+        elif call.data.__contains__("stbcheck_"):
+
+            print(call.data)
+
+
+# @dp.callback_query_handler(state=EducatorsWorkTime.morning)
+# async def e_w_t_present_absent(call: types.CallbackQuery):
 #
+#     if call.data == "absent_uz":
+#         await call.answer(
+#             text="Bu tugma faqat kelgan o'quvchilar sonini ko'rsatadi!", show_alert=True
+#         )
+#
+#     elif call.data == "present_uz":
+#         await call.answer(
+#             text=f"Bu tugma faqat kelmagan o'quvchilar sonini ko'rsatadi!", show_alert=True
+#         )

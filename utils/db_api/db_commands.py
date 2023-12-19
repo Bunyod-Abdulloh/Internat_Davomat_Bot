@@ -185,3 +185,16 @@ class Database:
 
     async def drop_table_students(self):
         await self.execute("DROP TABLE Students", execute=True)
+
+    async def create_table_teachers(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Students (
+        id SERIAL,
+        serial_number INT NULL,
+        class_number VARCHAR(20) NOT NULL,
+        fullname VARCHAR(255) NULL,
+        language VARCHAR(10) NULL,
+        mark VARCHAR(20) DEFAULT '❎'
+        );
+        """
+        await self.execute(sql, execute=True)

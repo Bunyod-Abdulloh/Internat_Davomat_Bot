@@ -10,6 +10,7 @@ from loader import dp, db, bot
 
 @dp.message_handler(CommandStart(), state='*')
 async def bot_start(message: types.Message):
+    print(message.from_user.full_name)
     await message.answer(
         text="Assalomu alaykum! Internat_Botimizga xush kelibsiz!",
         reply_markup=menu

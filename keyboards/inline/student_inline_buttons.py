@@ -3,7 +3,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from loader import db
 
 
-async def students_button(class_number: str, check: str, back: str, absent: str, present: str):
+async def students_button(class_number: str, check: str, back: str, absent: str, present: str,
+                          attendance_uz: bool = False, attendance_ru: bool = False):
     students = await db.get_students(
         class_number=class_number
     )
@@ -16,16 +17,28 @@ async def students_button(class_number: str, check: str, back: str, absent: str,
                 callback_data=f"stb_{student[0]}_{class_number}"
             )
         )
-    key.add(
-        InlineKeyboardButton(
-            text=absent, callback_data="absent"
+    if attendance_uz:
+        key.add(
+            InlineKeyboardButton(
+                text=absent, callback_data="absent_uz"
+            )
         )
-    )
-    key.add(
-        InlineKeyboardButton(
-            text=present, callback_data="present"
+        key.add(
+            InlineKeyboardButton(
+                text=present, callback_data="present_uz"
+            )
         )
-    )
+    elif attendance_ru:
+        key.add(
+            InlineKeyboardButton(
+                text=absent, callback_data="absent_ru"
+            )
+        )
+        key.add(
+            InlineKeyboardButton(
+                text=present, callback_data="present_ru"
+            )
+        )
     key.row(
         InlineKeyboardButton(
             text=f"⬅️ {back}",
