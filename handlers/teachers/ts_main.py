@@ -2,12 +2,12 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from keyboards.inline.teachers_inline_buttons import senior_lessons_ibutton
-from loader import dp
+from loader import dp, db
 from states.teachers_state import TeachersAnketa
 
 
 # ts_m_ = Teachers Main (handlers/teachers/file_name)
-@dp.callback_query_handler(text="form_master", state="*")
+@dp.callback_query_handler(text="tr_main", state="*")
 async def ts_m_main(call: types.CallbackQuery):
     await call.message.edit_text(
         text="Ism-sharif va otaningizni ismini kiriting: "
@@ -18,8 +18,9 @@ async def ts_m_main(call: types.CallbackQuery):
 
 @dp.message_handler(state=TeachersAnketa.get_fullname)
 async def ts_m_get_fullname(message: types.Message, state: FSMContext):
-    await state.update_data(
-        teacher_fullname=message.text
+
+    await db.add_teacher(
+        fullname=message.text, telegram_id=message.from_user.id
     )
     await message.answer(
         text="Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(

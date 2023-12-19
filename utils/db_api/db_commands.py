@@ -202,4 +202,9 @@ class Database:
         sql = "INSERT INTO Teachers (fullname, telegram_id) VALUES($1, $2) returning *"
         return await self.execute(sql, fullname, telegram_id, fetchrow=True)
 
+    async def update_teacher_(self, old_class, old_fullname, new_class, new_fullname):
+        sql = (f"UPDATE Teachers SET class_number='{new_class}', fullname='{new_fullname}'"
+               f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
+        return await self.execute(sql, execute=True)
+
 
