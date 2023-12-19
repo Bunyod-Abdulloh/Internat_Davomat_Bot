@@ -24,7 +24,7 @@ async def ts_m_get_fullname(message: types.Message, state: FSMContext):
     )
     await message.answer(
         text="Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(
-            back_step="Ortga", next_step="Keyingi"
+            back_step="Ortga", next_step="Keyingi", language_uz=True
         )
     )
     await TeachersAnketa.get_lesson.set()
@@ -36,10 +36,10 @@ async def ts_m_get_lesson(call: types.CallbackQuery, state: FSMContext):
     await state.update_data(
         teacher_lesson=call.data
     )
-    await call.message.edit_text(
-        text="Ish kunlaringizni tanlang:"
-    )
-    await TeachersAnketa.get_work_days.set()
+    # await call.message.edit_text(
+    #     text="Ish kunlaringizni tanlang:"
+    # )
+    # await TeachersAnketa.get_work_days.set()
 
 
 @dp.callback_query_handler(state=TeachersAnketa.get_work_days)

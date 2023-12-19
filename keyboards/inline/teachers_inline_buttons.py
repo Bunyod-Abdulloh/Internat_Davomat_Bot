@@ -5,19 +5,29 @@ primary_classes = ["Matematika", "Alifbe", "Yozuv", "DG", "Tarbiya", "Ingliz til
                    "Письмо", "Информатика", "Анг.язык", "Физ-ра", "ЛГ", "Кл.час", "ИЗО", "Воспитания", "Музыка",
                    "O'qish", "Ona tili", "Rus tili", "Tarbiya", "Чтение", "Русс.язык", "Узб.язык"]
 
-senior_classes = ["Texnologiya", "Tarbiya", "Musiqa", "Geografiya", "Botanika", "JT", "Tarix", "Ingliz tili",
-                  "Matematika", "Ona tili", "DG", "Rus tili", "Informatika", "Tasviriy san'at", "Sinf soati",
-                  "Adabiyot", "Литература", "Информатика", "Англ.язык", "Математика", "Ботаника", "Физ-ра", "Узб.язык"]
+senior_classes_uz = ["Texnologiya", "Tarbiya", "Musiqa", "Geografiya", "Botanika", "JT", "Tarix", "Ingliz tili",
+                     "Matematika", "Ona tili", "DG", "Rus tili", "Informatika", "Tasviriy san'at", "Sinf soati",
+                     "Adabiyot"]
+
+senior_classes_ru = ["Литература", "Информатика", "Англ.язык", "Математика", "Ботаника", "Физ-ра", "Узб.язык"]
 
 
-async def senior_lessons_ibutton(back_step: str, next_step: str):
+async def senior_lessons_ibutton(back_step: str, next_step: str, language_uz: bool = False, language_ru: bool = False):
     key = InlineKeyboardMarkup(row_width=2)
-    for lesson in senior_classes:
-        key.insert(
-            InlineKeyboardButton(
-                text=lesson, callback_data=lesson
+    if language_uz:
+        for lesson in senior_classes_uz:
+            key.insert(
+                InlineKeyboardButton(
+                    text=lesson, callback_data=lesson
+                )
             )
-        )
+    elif language_ru:
+        for lesson in senior_classes_ru:
+            key.insert(
+                InlineKeyboardButton(
+                    text=lesson, callback_data=lesson
+                )
+            )
     key.add(
         InlineKeyboardButton(
             text=f"⬅️ {back_step}", callback_data="backtib"
