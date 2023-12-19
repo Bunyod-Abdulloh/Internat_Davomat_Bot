@@ -145,7 +145,7 @@ class Database:
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
-        mark VARCHAR(20) DEFAULT '🟥'         
+        mark VARCHAR(20) DEFAULT '❎'         
         );        
         """
         await self.execute(sql, execute=True)

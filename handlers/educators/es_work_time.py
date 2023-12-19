@@ -60,21 +60,21 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
         )
         count += 1
         if count == 1:
-            if get_student[-1] == "🟩":
+            if get_student[-1] == "✅":
                 await db.update_mark_student(
-                    mark="🟥",
+                    mark="❎",
                     id_number=student_id
                 )
             else:
                 await db.update_mark_student(
-                    mark="🟩",
+                    mark="✅",
                     id_number=student_id
                 )
 
         elif count == 2:
-            if get_student[-1] == "🟥":
+            if get_student[-1] == "❎":
                 await db.update_mark_student(
-                    mark="🟩",
+                    mark="✅",
                     id_number=student_id
                 )
             else:
@@ -87,8 +87,8 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
     await state.update_data(
         count=count
     )#
-    absent = await db.count_mark(class_number=class_number, mark="🟩")
-    present = await db.count_mark(class_number=class_number, mark="🟥")
+    absent = await db.count_mark(class_number=class_number, mark="✅")
+    present = await db.count_mark(class_number=class_number, mark="❎")
     await call.message.edit_text(
         text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
              "bosing:",
@@ -97,3 +97,4 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
             present=f"Kelmaganlar: {present} ta"
         )
     )
+#
