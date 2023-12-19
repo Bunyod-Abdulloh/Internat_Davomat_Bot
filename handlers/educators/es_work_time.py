@@ -23,7 +23,8 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
         await call.message.edit_text(
             text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
                  "bosing:",
-            reply_markup=await students_button(class_number=class_number, back="Ortga", check="Tasdiqlash"                                               )
+            reply_markup=await students_button(class_number=class_number, back="Ortga", check="Tasdiqlash",
+                                               absent="Kelganlar: 0 ta", present="Kelmaganlar: 0 ta")
         )
         await state.update_data(
             count=0
@@ -39,11 +40,12 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(state=EducatorsWorkTime.morning)
 async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
-
+    print(call.data)
     await call.answer(cache_time=0)
     data = await state.get_data()
     count = data['count']
-    class_number = call.data.split("_")[1]
+    class_number = call.data.split("_")[-1]
+    student_id = call.data.split("_")[1]
 
     if call.data.__contains__("stbback_"):
         await call.message.edit_text(
@@ -52,46 +54,46 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
                                              all_day="To'liq kun", back="Ortga")
         )
 
-    elif call.data:
-        student_id = call.data.split("_")[1]
+    if call.data.__contains__("stb_"):
         get_student = await db.get_student_id(
             id_number=student_id
         )
         count += 1
         if count == 1:
-            if get_student[-1] == "✅":
+            if get_student[-1] == "🟩":
                 await db.update_mark_student(
-                    mark="❎",
+                    mark="🟥",
                     id_number=student_id
                 )
             else:
                 await db.update_mark_student(
-                    mark="✅",
+                    mark="🟩",
                     id_number=student_id
                 )
 
         elif count == 2:
-            if get_student[-1] == "❎":
+            if get_student[-1] == "🟥":
                 await db.update_mark_student(
-                    mark="✅",
+                    mark="🟩",
                     id_number=student_id
                 )
             else:
                 await db.update_mark_student(
-                    mark="❎",
+                    mark="🟥",
                     id_number=student_id
                 )
             count = 0
 
-        await state.update_data(
-            count=count
-        )
-    absent = await db.count_mark(class_number=class_number, mark="✅")
-    present = await db.count_mark(class_number=class_number, mark="❎")
+    await state.update_data(
+        count=count
+    )#
+    absent = await db.count_mark(class_number=class_number, mark="🟩")
+    present = await db.count_mark(class_number=class_number, mark="🟥")
     await call.message.edit_text(
-        text=f"Kelgan o'quvchilar soni: {absent}"
-             f"\nKelmagan o'quvchilar soni: {present}",
+        text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang, yakunda <b>Tasdiqlash</b> tugmasini "
+             "bosing:",
         reply_markup=await students_button(
-            class_number=class_number, back="Ortga", check="Tasdiqlash"
+            class_number=class_number, back="Ortga", check="Tasdiqlash", absent=f"Kelganlar: {absent} ta",
+            present=f"Kelmaganlar: {present} ta"
         )
     )
