@@ -193,7 +193,8 @@ class Database:
         class_number VARCHAR(20) NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
-        lesson_name VARCHAR(50) NOT NULL        
+        lesson_name VARCHAR(50) NOT NULL,
+        mark VARCHAR(20) DEFAULT '🔘'       
         );
         """
         await self.execute(sql, execute=True)
@@ -203,15 +204,16 @@ class Database:
         return await self.execute(sql, lesson_name, fetchrow=True)
 
     async def get_lessons(self):
-        sql = f"SELECT lesson_name FROM Teachers ORDER BY lesson_name"
+        sql = f"SELECT lesson_name, mark FROM Teachers ORDER BY lesson_name"
         return await self.execute(sql, fetch=True)
 
     async def add_teacher(self, fullname, telegram_id):
         sql = "INSERT INTO Teachers (fullname, telegram_id) VALUES($1, $2) returning *"
         return await self.execute(sql, fullname, telegram_id, fetchrow=True)
 
-    async def update_teacher_item_name(self, item_name, fullname, telegram_id):
-        sql = f"UPDATE Teachers SET item_name='{item_name}' WHERE "
+    async def update_teacher_lesson_name(self, mark, lesson_name, telegram_id):
+        sql = f"UPDATE Teachers SET mark='{mark}' WHERE lesson_name='{lesson_name}' AND telegram_id='{telegram_id}'"
         return await self.execute(sql, execute=True)
 
-
+    async def drop_table_teachers(self):
+        await self.execute("DROP TABLE Teachers", execute=True)
