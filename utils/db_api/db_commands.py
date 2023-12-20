@@ -191,20 +191,27 @@ class Database:
         CREATE TABLE IF NOT EXISTS Teachers (
         id SERIAL,        
         class_number VARCHAR(20) NULL,
-        fullname VARCHAR(255) NOT NULL,
+        fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
-        item_name VARCHAR(50) NULL        
+        lesson_name VARCHAR(50) NOT NULL        
         );
         """
         await self.execute(sql, execute=True)
+
+    async def add_lessons(self, lesson_name):
+        sql = "INSERT INTO Teachers (lesson_name) VALUES($1) returning *"
+        return await self.execute(sql, lesson_name, fetchrow=True)
+
+    async def get_lessons(self):
+        sql = f"SELECT lesson_name FROM Teachers ORDER BY lesson_name"
+        return await self.execute(sql, fetch=True)
 
     async def add_teacher(self, fullname, telegram_id):
         sql = "INSERT INTO Teachers (fullname, telegram_id) VALUES($1, $2) returning *"
         return await self.execute(sql, fullname, telegram_id, fetchrow=True)
 
     async def update_teacher_item_name(self, item_name, fullname, telegram_id):
-        sql = (f"UPDATE Teachers SET item_name='{item_name}', fullname='{new_fullname}'"
-               f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
+        sql = f"UPDATE Teachers SET item_name='{item_name}' WHERE "
         return await self.execute(sql, execute=True)
 
 

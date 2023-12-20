@@ -19,8 +19,8 @@ async def ts_m_main(call: types.CallbackQuery):
 @dp.message_handler(state=TeachersAnketa.get_fullname)
 async def ts_m_get_fullname(message: types.Message, state: FSMContext):
 
-    await db.add_teacher(
-        fullname=message.text, telegram_id=message.from_user.id
+    await state.update_data(
+        teacher_fullname=message.text
     )
     await message.answer(
         text="Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(
@@ -33,9 +33,19 @@ async def ts_m_get_fullname(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(state=TeachersAnketa.get_lesson)
 async def ts_m_get_lesson(call: types.CallbackQuery, state: FSMContext):
     print(call.data)
-    await state.update_data(
-        teacher_lesson=call.data
+    data = await state.get_data()
+    lessons = str()
+    lessons += call.data
+
+    await call.message.edit_text(
+        text=f"Tanlangan fan: {lessons}", reply_markup=await senior_lessons_ibutton(
+            back_step="Ortga", next_step="Keyingi", language_uz=True
+        )
     )
+    #
+    # await state.update_data(
+    #     teacher_lesson=call.data
+    # )
     # await call.message.edit_text(
     #     text="Ish kunlaringizni tanlang:"
     # )

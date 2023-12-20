@@ -19,6 +19,11 @@ class AdminMain(StatesGroup):
     students = State()
 
 
+class AdminTeachers(StatesGroup):
+    main = State()
+    add_lessons = State()
+
+
 class AdminStudents(StatesGroup):
     add_class = State()
     delete_class = State()
