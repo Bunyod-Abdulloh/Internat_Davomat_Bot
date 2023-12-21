@@ -26,8 +26,8 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
     )
     await bot.send_message(
         chat_id=telegram_id,
-        text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! Botning to'liq "
-             "imkoniyatlaridan foydalanishingiz mumkin!"
+        text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! /start buyrug'ini qayta kiritib botdan"
+             " foydalanishingiz mumkin!"
     )
     await state.finish()
 
@@ -82,6 +82,7 @@ async def a_e_a_cancelcheck(call: types.CallbackQuery, state: FSMContext):
                  f"\n\n<b>Sabab: {cancel_text}</b>"
                  f"\n\nIltimos, ma'lumotlaringizni qayta kiriting!"
         )
+        await call.message.delete()
         await call.answer(
             text=f"Habar foydalanuvchiga yuborildi!",
             show_alert=True

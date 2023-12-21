@@ -18,14 +18,6 @@ async def e_m_main(call: types.CallbackQuery):
     await EducatorsQuestionnaire.select_class.set()
 
 
-# @dp.callback_query_handler(text="edu_back", state="*")
-# async def e_m_back(call: types.CallbackQuery, state: FSMContext):
-#     await call.message.edit_text(
-#         text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
-#     )
-#     await state.finish()
-
-
 @dp.callback_query_handler(state=EducatorsQuestionnaire.select_class)
 async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
     select_educator = await db.select_educator_(telegram_id=call.from_user.id, class_number=call.data)
@@ -65,11 +57,19 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=EducatorsQuestionnaire.fullname)
 async def educators_get_fullname(message: types.Message, state: FSMContext):
+
     data = await state.get_data()
     class_number = data['educator_class_number']
-    await db.update_educator_fullname(
-        fullname=message.text, telegram_id=message.from_user.id, class_number=class_number
-    )
+
+    if "'" in message.text:
+        fullname = message.text.replace("'", "`")
+        await db.update_educator_fullname(
+            fullname=fullname, telegram_id=message.from_user.id, class_number=class_number
+        )
+    else:
+        await db.update_educator_fullname(
+            fullname=message.text, telegram_id=message.from_user.id, class_number=class_number
+        )
     await message.answer(
         text="Telefon raqamingizni kiriting:\n\n<b>Namuna: 998974450292</b>"
     )
@@ -77,7 +77,7 @@ async def educators_get_fullname(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(state=EducatorsQuestionnaire.first_number)
-async def educators_get_first_number(message: types.Message, state: FSMContext):
+async def educators_get_first_number(message: types.Message):
     if message.text.isdigit():
         await db.update_educator_first_phone(first_phone=f"+{message.text}", telegram_id=message.from_user.id)
 

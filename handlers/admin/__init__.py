@@ -1,4 +1,4 @@
-from . import an_educators_add
+from . import an_add_educators
 from . import an_add_students
 from . import an_main_menu
 from . import an_educators
