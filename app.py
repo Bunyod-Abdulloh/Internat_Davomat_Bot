@@ -12,9 +12,11 @@ async def on_startup(dispatcher):
     # await db.drop_table_educators()
     # await db.drop_table_students()
     await db.drop_table_teachers()
+    # await db.drop_table_lessons()
     await db.create_table_educators()
     await db.create_table_students()
     await db.create_table_teachers()
+    await db.create_table_lessons()
     # for sinf in classes_list:
     #     await db.add_educators_class(
     #         class_number=sinf

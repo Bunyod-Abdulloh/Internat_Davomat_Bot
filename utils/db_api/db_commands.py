@@ -145,7 +145,7 @@ class Database:
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
-        mark VARCHAR(20) DEFAULT '❎'         
+        mark VARCHAR(10) DEFAULT '🔘'         
         );        
         """
         await self.execute(sql, execute=True)
@@ -186,30 +186,56 @@ class Database:
     async def drop_table_students(self):
         await self.execute("DROP TABLE Students", execute=True)
 
-    async def create_table_teachers(self):
+    async def create_table_lessons(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS Teachers (
+        CREATE TABLE IF NOT EXISTS Lessons (
         id SERIAL,        
         class_number VARCHAR(20) NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
         lesson_name VARCHAR(50) NOT NULL,
-        mark VARCHAR(20) DEFAULT '🔘'       
+        telegram_id BIGINT NULL,
+        mark VARCHAR(10) DEFAULT '🔘'       
         );
         """
         await self.execute(sql, execute=True)
 
     async def add_lessons(self, lesson_name):
-        sql = "INSERT INTO Teachers (lesson_name) VALUES($1) returning *"
+        sql = "INSERT INTO Lessons (lesson_name) VALUES($1) returning *"
+        return await self.execute(sql, lesson_name, fetchrow=True)
+
+    async def add_lesson(self, lesson_name):
+        sql = "INSERT INTO Lessons (lesson_name) VALUES($1) returning *"
         return await self.execute(sql, lesson_name, fetchrow=True)
 
     async def get_lessons(self):
-        sql = f"SELECT lesson_name, mark FROM Teachers ORDER BY lesson_name"
+        sql = f"SELECT lesson_name, fullname, mark FROM Lessons ORDER BY lesson_name"
         return await self.execute(sql, fetch=True)
+
+    async def drop_table_lessons(self):
+        await self.execute("DROP TABLE Lessons", execute=True)
+
+    async def create_table_teachers(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Teachers (
+        id SERIAL,        
+        class_number VARCHAR(20) NULL,
+        fullname VARCHAR(100) NULL,
+        language VARCHAR(10) NULL,
+        lesson_name VARCHAR(50),
+        telegram_id BIGINT NOT NULL,
+        mark VARCHAR(10) DEFAULT '🔘'       
+        );
+        """
+        await self.execute(sql, execute=True)
 
     async def add_teacher(self, fullname, telegram_id):
         sql = "INSERT INTO Teachers (fullname, telegram_id) VALUES($1, $2) returning *"
         return await self.execute(sql, fullname, telegram_id, fetchrow=True)
+
+    async def get_teacher(self, telegram_id, fullname):
+        sql = f"SELECT lesson_name, fullname, mark FROM Teachers WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, fetch=True)
 
     async def update_teacher_lesson_name(self, mark, lesson_name, telegram_id):
         sql = f"UPDATE Teachers SET mark='{mark}' WHERE lesson_name='{lesson_name}' AND telegram_id='{telegram_id}'"

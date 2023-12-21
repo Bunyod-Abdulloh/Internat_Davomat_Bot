@@ -23,7 +23,7 @@ async def senior_lessons_ibutton(back_step: str, next_step: str,
         for lesson in lessons_uz:
             key.insert(
                 InlineKeyboardButton(
-                    text=f"{lesson[0]} {lesson[1]}", callback_data=lesson[0]
+                    text=f"{lesson[0]} {lesson[2]}", callback_data=lesson[0]
                 )
             )
     elif language_ru:
