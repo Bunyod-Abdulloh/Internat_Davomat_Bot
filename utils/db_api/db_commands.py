@@ -159,7 +159,7 @@ class Database:
         sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
                f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
         return await self.execute(sql, execute=True)
-
+ jmnnnnnnnnnn
     async def update_mark_student(self, mark, id_number):
         sql = f"UPDATE Students SET mark='{mark}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
