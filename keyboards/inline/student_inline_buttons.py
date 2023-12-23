@@ -8,12 +8,12 @@ async def students_button(class_number: str, check: str, back: str, absent: str,
     students = await db.get_students(
         class_number=class_number
     )
-
+    print(students)
     key = InlineKeyboardMarkup(row_width=1)
     for student in students:
         key.add(
             InlineKeyboardButton(
-                text=f"{student[1]}.{student[3]} {student[-1]}",
+                text=f"{student[1]}.{student[3]} {student[-2]}",
                 callback_data=f"stb_{student[0]}_{class_number}"
             )
         )

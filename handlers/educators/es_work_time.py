@@ -74,7 +74,7 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
             )
             count += 1
             if count == 1:
-                if get_student[-1] == "✅":
+                if get_student[-2] == "✅":
                     await db.update_mark_student(
                         mark="🔘",
                         id_number=student_id
@@ -86,7 +86,7 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
                     )
 
             elif count == 2:
-                if get_student[-1] == "🔘":
+                if get_student[-2] == "🔘":
                     await db.update_mark_student(
                         mark="✅",
                         id_number=student_id
@@ -113,8 +113,8 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
             )
 
         elif call.data.__contains__("stbcheck_"):
-
             print(call.data)
+
 
 
 # @dp.callback_query_handler(state=EducatorsWorkTime.morning)

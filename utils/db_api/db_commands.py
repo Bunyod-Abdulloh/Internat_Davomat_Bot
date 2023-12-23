@@ -145,7 +145,8 @@ class Database:
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
-        mark VARCHAR(10) DEFAULT '🔘'         
+        mark VARCHAR(10) DEFAULT '🔘',
+        date DATE NOT NULL DEFAULT CURRENT_DATE    
         );        
         """
         await self.execute(sql, execute=True)
@@ -159,7 +160,7 @@ class Database:
         sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
                f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
         return await self.execute(sql, execute=True)
- jmnnnnnnnnnn
+
     async def update_mark_student(self, mark, id_number):
         sql = f"UPDATE Students SET mark='{mark}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)

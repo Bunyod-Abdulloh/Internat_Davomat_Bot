@@ -10,7 +10,7 @@ from utils.set_bot_commands import set_default_commands
 async def on_startup(dispatcher):
     await db.create()
     await db.drop_table_educators()
-    # await db.drop_table_students()
+    await db.drop_table_students()
     await db.drop_table_teachers()
     # await db.drop_table_lessons()
     await db.create_table_educators()
