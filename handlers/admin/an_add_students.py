@@ -49,13 +49,13 @@ async def get_photo(message: types.Message):
 
     for row in sheet.iter_rows():
         counter += 1
-        serial_number = row[0].value
+        student_id = row[0].value
         class_number = row[1].value
         language = row[2].value
         fullname = row[3].value
         level = class_number
         await db.add_student(
-            serial_number=serial_number, class_number=class_number, language=language, fullname=fullname
+            student_id=student_id, class_number=class_number, language=language, fullname=fullname
         )
     await message.answer(
         text=f"{level} sinfi uchun jami qo'shilgan o'quvchilar soni: {counter} ta"

@@ -13,6 +13,8 @@ async def on_startup(dispatcher):
     await db.drop_table_students()
     await db.drop_table_teachers()
     # await db.drop_table_lessons()
+    await db.drop_table_admins()
+    await db.create_table_admins()
     await db.create_table_educators()
     await db.create_table_students()
     await db.create_table_teachers()
@@ -21,7 +23,7 @@ async def on_startup(dispatcher):
         await db.add_educators_class(
             class_number=sinf
         )
-
+    await db.add_admin(telegram_id=1041847396)
     # await db.add_student(class_number="6-V",
     #                      fullname="Abdulxayev Muhammadzohir")
     # await db.add_student(class_number="6-V",

@@ -12,22 +12,12 @@ class Database:
         self.pool: Union[Pool, None] = None
 
     async def create(self):
-        self.pool = await asyncpg.create_pool(
-            user=config.DB_USER,
-            password=config.DB_PASS,
-            host=config.DB_HOST,
-            database=config.DB_NAME,
-        )
+        self.pool = await asyncpg.create_pool(user=config.DB_USER, password=config.DB_PASS, host=config.DB_HOST,
+                                              database=config.DB_NAME)
 
-    async def execute(
-            self,
-            command,
-            *args,
-            fetch: bool = False,
-            fetchval: bool = False,
-            fetchrow: bool = False,
-            execute: bool = False,
-    ):
+    async def execute(self, command, *args, fetch: bool = False, fetchval: bool = False, fetchrow: bool = False,
+                      execute: bool = False):
+
         async with self.pool.acquire() as connection:
             connection: Connection
             async with connection.transaction():
@@ -40,6 +30,31 @@ class Database:
                 elif execute:
                     result = await connection.execute(command, *args)
             return result
+
+    # ============================ ADMIN COMMANDS ============================
+    async def create_table_admins(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Admins (
+        telegram_id BIGINT UNIQUE NOT NULL,
+        bot_on BOOLEAN DEFAULT TRUE        
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def add_admin(self, telegram_id):
+        sql = "INSERT INTO Admins (telegram_id) VALUES($1) returning *"
+        return await self.execute(sql, telegram_id, fetchrow=True)
+
+    async def update_admin(self, bot_on: bool):
+        sql = f"UPDATE Admins SET bot_on='{bot_on}'"
+        return await self.execute(sql, execute=True)
+
+    async def select_admins(self):
+        sql = f"SELECT bot_on FROM Admins"
+        return await self.execute(sql, fetchrow=True)
+
+    async def drop_table_admins(self):
+        await self.execute("DROP TABLE Admins", execute=True)
 
     # ============================ EDUCATORS ============================
     async def create_table_educators(self):
@@ -140,33 +155,35 @@ class Database:
     async def create_table_students(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Students (
-        id SERIAL,
-        serial_number INT NULL,
+        id SERIAL PRIMARY KEY,                                
+        student_id INT NULL,
         class_number VARCHAR(20) NOT NULL,
         fullname VARCHAR(255) NULL,
         language VARCHAR(10) NULL,
-        mark VARCHAR(10) DEFAULT '🔘',
-        date DATE NOT NULL DEFAULT CURRENT_DATE    
+        morning_check VARCHAR(5) DEFAULT '🔘',
+        day_check VARCHAR(5) DEFAULT '🔘',
+        night_check VARCHAR(5) DEFAULT '🔘'
         );        
         """
         await self.execute(sql, execute=True)
 
-    async def add_student(self, serial_number, class_number, language, fullname):
-        sql = ("INSERT INTO Students (serial_number, class_number, language, fullname) "
+    async def add_student(self, student_id, class_number, language, fullname):
+        sql = ("INSERT INTO Students (student_id, class_number, language, fullname) "
                "VALUES($1, $2, $3, $4) returning *")
-        return await self.execute(sql, serial_number, class_number, language, fullname, fetchrow=True)
+        return await self.execute(sql, student_id, class_number, language, fullname, fetchrow=True)
 
     async def update_student(self, old_class, old_fullname, new_class, new_fullname):
         sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
                f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
         return await self.execute(sql, execute=True)
 
-    async def update_mark_student(self, mark, id_number):
-        sql = f"UPDATE Students SET mark='{mark}' WHERE id='{id_number}'"
+    async def update_morning_student(self, morning_check, id_number):
+        sql = f"UPDATE Students SET morning_check='{morning_check}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
     async def get_students(self, class_number):
-        sql = f"SELECT * FROM Students WHERE class_number='{class_number}' ORDER BY serial_number"
+        sql = (f"SELECT id, student_id, class_number, fullname, morning_check FROM Students "
+               f"WHERE class_number='{class_number}' ORDER BY student_id")
         return await self.execute(sql, fetch=True)
 
     async def get_student(self, class_number, fullname):
@@ -174,11 +191,11 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def get_student_id(self, id_number):
-        sql = f"SELECT * FROM Students WHERE id='{id_number}'"
+        sql = f"SELECT morning_check, day_check, night_check FROM Students WHERE id='{id_number}'"
         return await self.execute(sql, fetchrow=True)
 
-    async def count_mark(self, class_number, mark):
-        sql = f"SELECT COUNT(*) FROM Students WHERE class_number='{class_number}' AND mark='{mark}'"
+    async def count_morning_check(self, class_number, morning_check):
+        sql = f"SELECT COUNT(morning_check) FROM Students WHERE class_number='{class_number}' AND morning_check='{morning_check}'"
         return await self.execute(sql, fetchval=True)
 
     async def delete_student(self, id_number):
@@ -187,12 +204,35 @@ class Database:
     async def drop_table_students(self):
         await self.execute("DROP TABLE Students", execute=True)
 
+    async def create_table_check(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Check (        
+        date DATE DEFAULT CURRENT_DATE,
+        educator_id INTEGER NULL
+        student_id INTEGER NULL,
+        class_number VARCHAR(10) NULL,        
+        morning_check VARCHAR(10) DEFAULT '🔘',
+        check_day VARCHAR(10) DEFAULT '🔘',
+        check_night VARCHAR(10) DEFAULT '🔘'        
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def add_morning_check(self, educator_id, student_id, class_number, fullname, morning_check):
+        sql = ("INSERT INTO Check (educator_id, student_id, class_number, fullname, morning_check) "
+               "VALUES ($1, $2, $3, $4, $5) returning *")
+        return await self.execute(sql, educator_id, student_id, class_number, fullname, morning_check,
+                                  fetchrow=True)
+
+    async def drop_table_check(self):
+        await self.execute("DROP TABLE Check", execute=True)
+
     async def create_table_lessons(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Lessons (
         id SERIAL,        
         class_number VARCHAR(20) NULL,
-        fullname VARCHAR(255) NULL,
+        fullname VARCHAR(60) NULL,
         language VARCHAR(10) NULL,
         lesson_name VARCHAR(50) NOT NULL,
         telegram_id BIGINT NULL,
