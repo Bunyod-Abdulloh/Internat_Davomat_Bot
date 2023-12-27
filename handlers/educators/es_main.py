@@ -3,14 +3,15 @@ from aiogram.dispatcher import FSMContext
 
 from data.config import ADMINS
 from keyboards.inline.admin_inline_keys import admin_check_btn
-from keyboards.inline.educators_inline_keys import edu_phone_number, edu_work_time, educators_class_btn
-from keyboards.inline.main_menu_inline_keys import main_menu_keys
+from keyboards.inline.educators_inline_keys import edu_phone_number, edu_work_time, educators_class_btn, \
+    select_chapters_educator
+from keyboards.inline.main_menu_inline_keys import main_menu_ikeys
 from loader import dp, db, bot
 from states.educators_states import EducatorsQuestionnaire, EducatorsWorkTime
 
 
 # e_m = Educators_main (handlers/educators/file-name)
-@dp.callback_query_handler(text='educator', state='*')
+@dp.callback_query_handler(text='educator_uz', state='*')
 async def e_m_main(call: types.CallbackQuery):
     await call.message.edit_text(
         text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
@@ -24,7 +25,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
 
     if call.data == "eduback_one":
         await call.message.edit_text(
-            text="Bosh sahifa", reply_markup=main_menu_keys
+            text="Bosh sahifa", reply_markup=await main_menu_ikeys(uz=True)
         )
         await state.finish()
     else:
@@ -47,17 +48,26 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
                 )
             else:
                 await call.message.edit_text(
-                    text="Ish vaqtingizni tanlang:", reply_markup=await edu_work_time(
-                        class_number=call.data, morning="Ertalabki", half_day="Yarim kun",
-                        all_day="To'liq kun", back="Ortga"
+                    text="Kerakli bo'limni tanlang:", reply_markup=await select_chapters_educator(
+                        uz=True, class_number=call.data, back="Ortga"
                     )
                 )
-                await EducatorsWorkTime.main.set()
+                await state.finish()
+
+
+@dp.callback_query_handler(text="presents_uz", state="*")
+async def es_main_presents(call: types.CallbackQuery):
+    await call.message.edit_text(
+        text="Ish vaqtingizni tanlang:", reply_markup=await edu_work_time(
+            class_number=call.data, morning="Ertalabki", half_day="Yarim kun",
+            all_day="To'liq kun", back="Ortga"
+        )
+    )
+    await EducatorsWorkTime.main.set()
 
 
 @dp.message_handler(state=EducatorsQuestionnaire.fullname)
 async def educators_get_fullname(message: types.Message, state: FSMContext):
-
     data = await state.get_data()
     class_number = data['educator_class_number']
 

@@ -14,6 +14,17 @@ senior_classes_uz = ["Texnologiya", "Tarbiya", "Musiqa", "Geografiya", "Botanika
 senior_classes_ru = ["Литература", "Информатика", "Англ.язык", "Математика", "Ботаника", "Физ-ра", "Узб.язык"]
 
 
+select_language_teachers = InlineKeyboardMarkup(row_width=1)
+select_language_teachers.row(
+    InlineKeyboardButton(
+        text="O'zbek", callback_data="uz_teach"
+    ),
+    InlineKeyboardButton(
+        text="Русский", callback_data="ru_teach"
+    )
+)
+
+
 async def senior_lessons_ibutton(back_step: str, next_step: str,
                                  language_uz: bool = False, language_ru: bool = False):
     key = InlineKeyboardMarkup(row_width=2)
@@ -38,7 +49,7 @@ async def senior_lessons_ibutton(back_step: str, next_step: str,
             text=f"⬅️ {back_step}", callback_data="backtib"
         ),
         InlineKeyboardButton(
-            text=f"➡️ {next_step}", callback_data="nexttib"
+            text=f"{next_step} ➡️", callback_data="nexttib"
         )
     )
     return key

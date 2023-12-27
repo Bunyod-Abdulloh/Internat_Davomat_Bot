@@ -34,7 +34,7 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
                      "tugmasini bosing:",
                 reply_markup=await view_students_uz(
                     work_time=morning, class_number=class_number, back="Ortga", check="Tasdiqlash",
-                    absent=f"Kelganlar: {absent} ta", present=f"Kelmaganlar: {present} ta"
+                    absent=f"✅ Kelganlar: {absent} ta", present=f"🔘 Kelmaganlar: {present} ta", uz=True
                 )
             )
             await state.update_data(
@@ -69,9 +69,9 @@ async def e_w_t_main(call: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(state=EducatorsWorkTime.morning)
 async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
 
-    if call.data == "absent_uz" or call.data == "present_uz":
+    if call.data == "absent_uz":
         await call.answer(
-            text="Bu tugma faqat kelgan o'quvchilar sonini ko'rsatadi!", show_alert=True
+            text="Bu tugma faqat kelgan/kelmagan o'quvchilar sonini ko'rsatadi!", show_alert=True
         )
     else:
         await call.answer(cache_time=0)
@@ -130,8 +130,8 @@ async def e_w_t_morning(call: types.CallbackQuery, state: FSMContext):
                 text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
                      "tugmasini bosing:",
                 reply_markup=await view_students_uz(
-                    work_time=morning, class_number=class_number, back="Ortga", check="Tasdiqlash", 
-                    absent=f"Kelganlar: {absent} ta", present=f"Kelmaganlar: {present} ta"
+                    work_time=morning, class_number=class_number, back="Ortga", check="Tasdiqlash",
+                    absent=f"✅ Kelganlar: {absent} ta", present=f"🔘 Kelmaganlar: {present} ta", uz=True
                 )
             )
 

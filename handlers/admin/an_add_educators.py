@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from keyboards.inline.admin_inline_keys import admin_check_keyboard
-from keyboards.inline.main_menu_inline_keys import main_menu_keys
+from keyboards.inline.main_menu_inline_keys import main_menu_ikeys
 from loader import dp, db, bot
 from states.admin_state import AdminEducator_State
 
@@ -19,7 +19,7 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
         access=True, telegram_id=telegram_id
     )
     await call.message.edit_text(
-        text="Bosh sahifa", reply_markup=main_menu_keys
+        text="Bosh sahifa", reply_markup=await main_menu_ikeys(uz=True)
     )
     await call.answer(
         text="Hodim ma'lumotlari saqlandi!", show_alert=True

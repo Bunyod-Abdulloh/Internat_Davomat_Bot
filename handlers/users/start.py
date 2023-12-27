@@ -1,11 +1,10 @@
-from aiogram import types, bot
+from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 
-from data.config import ADMINS
 from keyboards.default.start_keyboard import menu
-from keyboards.inline.main_menu_inline_keys import main_menu_keys
-from loader import dp, db, bot
+from keyboards.inline.main_menu_inline_keys import select_language_ikeys, main_menu_ikeys
+from loader import dp
 
 
 @dp.message_handler(CommandStart(), state='*')
@@ -16,8 +15,17 @@ async def bot_start(message: types.Message):
         reply_markup=menu
     )
     await message.answer(
+        text="Tilni tanlang:"
+             "\n\nВыберите язык:",
+        reply_markup=select_language_ikeys
+    )
+
+
+@dp.callback_query_handler(text="uz", state="*")
+async def start_uz_main(call: types.CallbackQuery):
+    await call.message.edit_text(
         text="Tugmalardan birini tanlang:",
-        reply_markup=main_menu_keys
+        reply_markup=await main_menu_ikeys(uz=True)
     )
 
 
@@ -25,20 +33,6 @@ async def bot_start(message: types.Message):
 async def main_menu_custom(message: types.Message, state: FSMContext):
 
     await message.answer(
-        text="Kerakli bo'limni tanlang:", reply_markup=main_menu_keys
+        text="Kerakli bo'limni tanlang:", reply_markup=await main_menu_ikeys(uz=True)
     )
     await state.finish()
-
-    # await message.answer(
-    #     text="Live location yuboring"
-    # )
-
-
-@dp.message_handler(content_types=['location'], state="*")
-async def live_location(message: types.Message):
-    for admin in ADMINS:
-        await bot.send_location(
-            chat_id=admin,
-            latitude=message.location.latitude,
-            longitude=message.location.longitude
-        )

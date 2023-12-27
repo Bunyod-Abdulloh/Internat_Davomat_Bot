@@ -15,6 +15,25 @@ edu_phone_number.row(
 )
 
 
+async def select_chapters_educator(class_number: str, back: str, uz: bool = False, ru: bool = False):
+    key = InlineKeyboardMarkup(row_width=1)
+    if uz:
+        key.add(
+            InlineKeyboardButton(
+                text="Davomat kiritish", callback_data=f"presents_{class_number}"
+            ),
+            InlineKeyboardButton(
+                text="Shaxsiy kabinet", callback_data=f"cabineteducator_{class_number}"
+            ),
+            InlineKeyboardButton(
+                text=f"⬅️ {back}", callback_data="back_chapters"
+            )
+        )
+    elif ru:
+        pass
+    return key
+
+
 async def edu_work_time(class_number: str, morning: str, half_day: str, all_day: str, back: str):
     key = InlineKeyboardMarkup(row_width=1)
     key.add(
