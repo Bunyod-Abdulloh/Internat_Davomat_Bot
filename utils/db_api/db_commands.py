@@ -56,6 +56,43 @@ class Database:
     async def drop_table_admins(self):
         await self.execute("DROP TABLE Admins", execute=True)
 
+    # ============================ ADD CLASSES ============================
+    async def create_table_classes(self):
+        sql = """
+        CREATE TABLE IF NOT EXISTS Classes (
+        id SERIAL PRIMARY KEY,
+        class_number VARCHAR(10) NOT NULL,
+        mark VARCHAR(10) DEFAULT '🔘' 
+        );
+        """
+        await self.execute(sql, execute=True)
+
+    async def add_class(self, class_number):
+        sql = "INSERT INTO Classes (class_number) VALUES($1) returning *"
+        return await self.execute(sql, class_number, fetchrow=True)
+
+    async def select_all_classes(self):
+        sql = "SELECT class_number, mark FROM Classes"
+        return await self.execute(sql, fetch=True)
+
+    async def select_class(self, class_number):
+        sql = "SELECT class_number, mark FROM Classes WHERE class_number=$1"
+        return await self.execute(sql, class_number, fetch=True)
+
+    async def update_class_mark(self, mark, class_number):
+        sql = f"UPDATE Classes SET mark=$1 WHERE class_number=$2"
+        return await self.execute(sql, mark, class_number, execute=True)
+
+    async def update_class_name(self, class_number, id_number):
+        sql = f"UPDATE Classes SET class_number=$1 WHERE id=$2"
+        return await self.execute(sql, class_number, id_number, execute=True)
+
+    async def delete_class(self, id_number):
+        await self.execute(f"DELETE FROM Classes WHERE id='{id_number}'", execute=True)
+
+    async def drop_table_classes(self):
+        await self.execute("DROP TABLE Classes", execute=True)
+
     # ============================ EDUCATORS ============================
     async def create_table_educators(self):
         sql = """
@@ -67,6 +104,7 @@ class Database:
         class_number VARCHAR(20) NULL,        
         work_day BOOLEAN NULL DEFAULT FALSE,                
         telegram_id BIGINT NULL,
+        mark VARCHAR(10) DEFAULT '🔘',
         access BOOLEAN NULL DEFAULT FALSE 
         );        
         """
@@ -79,27 +117,43 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    # async def add_educator(self, telegram_id, class_number):
+    # async def add_educator(self, fullname, telegram_id):
     #     sql = "INSERT INTO Educators (fullname, telegram_id) VALUES($1, $2) returning *"
-    #     return await self.execute(sql, telegram_id fetchrow=True)
+    #     return await self.execute(sql, fullname, telegram_id, fetchrow=True)
 
-    async def add_educator_(self, telegram_id, class_number):
-        sql = f"UPDATE Educators SET telegram_id='{telegram_id}' WHERE class_number='{class_number}'"
-        return await self.execute(sql, execute=True)
+    # async def add_educator_(self, telegram_id, class_number):
+    #     sql = f"UPDATE Educators SET telegram_id='{telegram_id}' WHERE class_number='{class_number}'"
+    #     return await self.execute(sql, execute=True)
 
     async def add_educators_class(self, class_number):
         sql = "INSERT INTO Educators (class_number) VALUES($1) returning *"
         return await self.execute(sql, class_number, fetchrow=True)
+
+    async def add_educator_new(self, class_number, telegram_id, mark):
+        sql = "INSERT INTO Educators (class_number, telegram_id, mark) VALUES ($1, $2, $3) returning*"
+        return await self.execute(sql, class_number, telegram_id, mark, fetchrow=True)
+
+    async def update_educator(self, telegram_id, mark, class_number):
+        sql = f"UPDATE Educators SET telegram_id=$1, mark=$2 WHERE class_number=$3"
+        return await self.execute(sql, telegram_id, mark, class_number, execute=True)
+
+    async def update_educator_mark(self, mark, telegram_id, class_number):
+        sql = f"UPDATE Educators SET mark=$1 WHERE telegram_id=$2 AND class_number=$3"
+        return await self.execute(sql, mark, telegram_id, class_number, execute=True)
 
     async def update_educator_telegram(self, telegram_id, class_number):
         sql = (f"UPDATE Educators SET telegram_id = NULL WHERE class_number='{class_number}' AND "
                f"telegram_id='{telegram_id}'")
         return await self.execute(sql, execute=True)
 
-    async def update_educator_fullname(self, fullname, class_number, telegram_id):
-        sql = (f"UPDATE Educators SET fullname='{fullname}' WHERE telegram_id='{telegram_id}' "
-               f"AND class_number='{class_number}'")
-        return await self.execute(sql, execute=True)
+    # async def update_educator_(self, telegram_id, class_number):
+    #         sql = (f"UPDATE Educators SET telegram_id = NULL WHERE class_number='{class_number}' AND "
+    #                f"telegram_id='{telegram_id}'")
+    #         return await self.execute(sql, execute=True)
+
+    async def update_educator_fullname(self, fullname, telegram_id):
+        sql = f"UPDATE Educators SET fullname=$1 WHERE telegram_id=$2"
+        return await self.execute(sql, fullname, telegram_id, execute=True)
 
     async def update_educator_first_phone(self, first_phone, telegram_id):
         sql = f"UPDATE Educators SET first_phone='{first_phone}' WHERE telegram_id='{telegram_id}'"
@@ -109,10 +163,9 @@ class Database:
         sql = f"UPDATE Educators SET second_phone='{second_phone}' WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, execute=True)
 
-    async def update_educator_class_number(self, class_number, id_number):
-        sql = f"UPDATE Educators SET class_number='{class_number}' WHERE id='{id_number}'"
-        return await self.execute(sql, execute=True)
-
+    # async def update_educator_class_number(self, class_number, mark, telegram_id):
+    #     sql = f"UPDATE Educators SET class_number='{class_number}' WHERE ='{id_number}'"
+    #     return await self.execute(sql, execute=True)
     async def update_educator_work_day(self, work_day, telegram_id):
         sql = f"UPDATE Educators SET work_day='{work_day}' WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, execute=True)
@@ -127,14 +180,14 @@ class Database:
 
     async def select_educator(self, telegram_id):
         sql = f"SELECT * FROM Educators WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, fetchrow=True)
+        return await self.execute(sql, fetch=True)
 
     async def select_educator_(self, telegram_id, class_number):
-        sql = f"SELECT DISTINCT * FROM Educators WHERE telegram_id='{telegram_id}' AND class_number='{class_number}'"
+        sql = f"SELECT mark FROM Educators WHERE telegram_id='{telegram_id}' AND class_number='{class_number}'"
         return await self.execute(sql, fetchrow=True)
 
     async def get_educators_class(self):
-        sql = f"SELECT class_number FROM Educators ORDER BY id"
+        sql = f"SELECT class_number, mark FROM Educators ORDER BY id"
         return await self.execute(sql, fetch=True)
 
     async def select_by_id(self, id_number):

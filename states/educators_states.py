@@ -9,8 +9,13 @@ class EducatorsQuestionnaire(StatesGroup):
     select_class = State()
 
 
+class EducatorsMain(StatesGroup):
+    main = State()
+
+
 class EducatorsWorkTime(StatesGroup):
     main = State()
+    presents = State()
     morning = State()
     up_to_four = State()
     after_four = State()

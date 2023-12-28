@@ -15,6 +15,7 @@ async def on_startup(dispatcher):
     # await db.drop_table_lessons()
     await db.drop_table_admins()
     await db.create_table_admins()
+    # await db.create_table_classes()
     await db.create_table_educators()
     await db.create_table_students()
     await db.create_table_teachers()

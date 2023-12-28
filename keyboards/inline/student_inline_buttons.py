@@ -6,6 +6,7 @@ from loader import db
 async def view_students_uz(work_time: list, class_number: str, check: str, back: str, absent: str, present: str,
                            uz: bool = False, ru: bool = False):
     key = InlineKeyboardMarkup(row_width=1)
+
     for student in work_time:
         key.add(
             InlineKeyboardButton(
@@ -14,9 +15,12 @@ async def view_students_uz(work_time: list, class_number: str, check: str, back:
             )
         )
     if uz:
-        key.add(
+        key.row(
             InlineKeyboardButton(
-                text=f"{absent} | {present}", callback_data="absent_uz"
+                text=f"{present}", callback_data="present_uz"
+            ),
+            InlineKeyboardButton(
+                text=f"{absent}", callback_data="absent_uz"
             )
         )
     elif ru:

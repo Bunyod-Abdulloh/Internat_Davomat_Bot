@@ -49,7 +49,7 @@ async def edu_work_time(class_number: str, morning: str, half_day: str, all_day:
     )
     key.add(
         InlineKeyboardButton(
-            text=f"⬅️ {back}", callback_data="edu_back"
+            text=f"⬅️ {back}", callback_data=f"eduback_{class_number}"
         )
     )
     return key
@@ -57,18 +57,24 @@ async def edu_work_time(class_number: str, morning: str, half_day: str, all_day:
 
 async def educators_class_btn():
     classes = await db.get_educators_class()
-    key = InlineKeyboardMarkup(row_width=4)
+
+    key = InlineKeyboardMarkup(row_width=3)
+
     for class_ in classes:
         key.insert(
             InlineKeyboardButton(
-                text=class_[0],
+                text=f"{class_[0]} {class_[1]}",
                 callback_data=class_[0]
             )
         )
-    key.add(
+    key.row(
         InlineKeyboardButton(
             text="⬅️ Ortga",
             callback_data="eduback_one"
+        ),
+        InlineKeyboardButton(
+            text="Davom etish ➡️",
+            callback_data="educontinue"
         )
     )
     return key
