@@ -4,16 +4,16 @@ from loader import db
 
 
 # aik = Admin inline keys (keyboards/inline/file_name)
-async def admin_check_btn(user_id: int, class_number: str):
+async def admin_check_btn(user_id: int):
     key = InlineKeyboardMarkup(row_width=2)
     key.row(
         InlineKeyboardButton(
             text="❌ Bekor qilish",
-            callback_data=f"admincancel_{user_id}_{class_number}"
+            callback_data=f"admincancel_{user_id}"
         ),
         InlineKeyboardButton(
             text="✅ Tasdiqlash",
-            callback_data=f"admincheck_{user_id}_{class_number}"
+            callback_data=f"admincheck_{user_id}"
         )
     )
     return key

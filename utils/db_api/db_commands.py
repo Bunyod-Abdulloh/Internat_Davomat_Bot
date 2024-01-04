@@ -101,11 +101,12 @@ class Database:
         fullname VARCHAR(255) NULL,        
         first_phone VARCHAR(20) NULL,
         second_phone VARCHAR(20) NULL,
-        class_number VARCHAR(20) NULL,        
-        work_day BOOLEAN NULL DEFAULT FALSE,                
+        class_number VARCHAR(20) NULL,                        
         telegram_id BIGINT NULL,
         mark VARCHAR(10) DEFAULT '🔘',
-        access BOOLEAN NULL DEFAULT FALSE 
+        access BOOLEAN DEFAULT FALSE,
+        morning BOOLEAN DEFAULT FALSE,
+        day BOOLEAN DEFAULT FALSE 
         );        
         """
         await self.execute(sql, execute=True)
@@ -129,13 +130,17 @@ class Database:
         sql = "INSERT INTO Educators (class_number) VALUES($1) returning *"
         return await self.execute(sql, class_number, fetchrow=True)
 
-    async def add_educator_new(self, class_number, telegram_id, mark):
-        sql = "INSERT INTO Educators (class_number, telegram_id, mark) VALUES ($1, $2, $3) returning*"
-        return await self.execute(sql, class_number, telegram_id, mark, fetchrow=True)
+    async def add_educator_new(self, telegram_id, mark, class_number):
+        sql = f"UPDATE Educators SET telegram_id='{telegram_id}', mark='{mark}' WHERE class_number='{class_number}'"
+        return await self.execute(sql, execute=True)
 
-    async def update_educator(self, telegram_id, mark, class_number):
-        sql = f"UPDATE Educators SET telegram_id=$1, mark=$2 WHERE class_number=$3"
-        return await self.execute(sql, telegram_id, mark, class_number, execute=True)
+    async def update_educator_morning(self, morning, telegram_id):
+        sql = f"UPDATE Educators SET morning='{morning}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_educator_day(self, day, telegram_id):
+        sql = f"UPDATE Educators SET day='{day}' WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
 
     async def update_educator_mark(self, mark, telegram_id, class_number):
         sql = f"UPDATE Educators SET mark=$1 WHERE telegram_id=$2 AND class_number=$3"
@@ -178,11 +183,18 @@ class Database:
         sql = "SELECT * FROM Educators"
         return await self.execute(sql, fetch=True)
 
-    async def select_educator(self, telegram_id):
+    async def select_educator(self, telegram_id, onerow=False):
         sql = f"SELECT * FROM Educators WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, fetch=True)
+        if onerow:
+            return await self.execute(sql, fetchrow=True)
+        else:
+            return await self.execute(sql, fetch=True)
 
-    async def select_educator_(self, telegram_id, class_number):
+    async def select_educator_distinct(self, telegram_id):
+        sql = f"SELECT DISTINCT * FROM Educators WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, fetchrow=True)
+
+    async def select_educator_mark(self, telegram_id, class_number):
         sql = f"SELECT mark FROM Educators WHERE telegram_id='{telegram_id}' AND class_number='{class_number}'"
         return await self.execute(sql, fetchrow=True)
 

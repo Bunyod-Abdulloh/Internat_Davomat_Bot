@@ -1,3 +1,5 @@
+import asyncio
+
 import openpyxl
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -51,10 +53,10 @@ async def get_photo(message: types.Message):
         counter += 1
         class_number = row[1].value
         language = row[2].value
-        fullname = row[3].value
+        fullname = row[3].value.split()
         level = class_number
         await db.add_student(
-            class_number=class_number, language=language, fullname=fullname
+            class_number=class_number, language=language, fullname=f"{fullname[0]} {fullname[1]}"
         )
     await message.answer(
         text=f"{level} sinfi uchun jami qo'shilgan o'quvchilar soni: {counter} ta"

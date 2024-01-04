@@ -1,8 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
+from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.admin_inline_keys import admin_check_keyboard
-from keyboards.inline.main_menu_inline_keys import main_menu_ikeys
 from loader import dp, db, bot
 from states.admin_state import AdminEducator_State
 
@@ -18,12 +18,10 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
     await db.update_educator_access(
         access=True, telegram_id=telegram_id
     )
-    await call.message.edit_text(
-        text="Bosh sahifa", reply_markup=await main_menu_ikeys(uz=True)
-    )
     await call.answer(
         text="Hodim ma'lumotlari saqlandi!", show_alert=True
     )
+    await call.message.delete()
     await bot.send_message(
         chat_id=telegram_id,
         text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! /start buyrug'ini qayta kiritib botdan"

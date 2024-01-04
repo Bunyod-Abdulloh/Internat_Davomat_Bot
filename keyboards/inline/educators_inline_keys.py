@@ -2,6 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from loader import db
 
+# ======== Section add educators ========
 edu_phone_number = InlineKeyboardMarkup(row_width=2)
 edu_phone_number.row(
     InlineKeyboardButton(
@@ -14,24 +15,25 @@ edu_phone_number.row(
     )
 )
 
-
-async def select_chapters_educator(class_number: str, back: str, uz: bool = False, ru: bool = False):
-    key = InlineKeyboardMarkup(row_width=1)
-    if uz:
-        key.add(
-            InlineKeyboardButton(
-                text="Davomat kiritish", callback_data=f"presents_{class_number}"
-            ),
-            InlineKeyboardButton(
-                text="Shaxsiy kabinet", callback_data=f"cabineteducator_{class_number}"
-            ),
-            InlineKeyboardButton(
-                text=f"⬅️ {back}", callback_data="back_chapters"
-            )
-        )
-    elif ru:
-        pass
-    return key
+# ======== Section educators main ========
+educators_main_uz = InlineKeyboardMarkup(row_width=1)
+educators_main_uz.add(
+    InlineKeyboardButton(
+        text="✅ Ishga keldim!", callback_data=f"eik_check_uz"
+    ),
+    InlineKeyboardButton(
+        text="📊 Davomatni kiritish", callback_data=f"eik_attendance_uz"
+    ),
+    InlineKeyboardButton(
+        text="👤 Shaxsiy kabinet", callback_data=f"eik_cabinet_uz"
+    ),
+    InlineKeyboardButton(
+        text="💰 Boshqa sinfda ishlash", callback_data=f"eik_another_uz"
+    ),
+    InlineKeyboardButton(
+        text=f"⬅️ Ortga", callback_data="eik_back_uz"
+    )
+)
 
 
 async def edu_work_time(class_number: str, morning: str, half_day: str, all_day: str, back: str):
@@ -57,7 +59,6 @@ async def edu_work_time(class_number: str, morning: str, half_day: str, all_day:
 
 async def educators_class_btn():
     classes = await db.get_educators_class()
-
     key = InlineKeyboardMarkup(row_width=3)
 
     for class_ in classes:

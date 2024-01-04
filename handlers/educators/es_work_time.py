@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from keyboards.inline.educators_inline_keys import select_chapters_educator
+from keyboards.inline.educators_inline_keys import educators_main_uz
 from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
 from states.educators_states import EducatorsWorkTime, EducatorsMain
@@ -15,9 +15,7 @@ async def ewt_main(call: types.CallbackQuery, state: FSMContext):
 
     if call.data.__contains__("eduback_"):
         await call.message.edit_text(
-            text="Kerakli bo'limni tanlang:", reply_markup=await select_chapters_educator(
-                uz=True, class_number=class_number, back="Ortga"
-            )
+            text="Kerakli bo'limni tanlang:", reply_markup=educators_main_uz
         )
         await EducatorsMain.main.set()
 
@@ -32,16 +30,15 @@ async def ewt_main(call: types.CallbackQuery, state: FSMContext):
 
             absent = await db.count_morning_check(class_number=class_number, morning_check="✅")
             present = await db.count_morning_check(class_number=class_number, morning_check="🔘")
+            explicable = await db.count_morning_check(class_number=class_number, morning_check="🟡")
             await call.message.edit_text(
                 text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
-                     "tugmasini bosing:",
+                     "tugmasini bosing!"
+                     "\n\n✅ - Kelganlar\n🔘 - Sababli kelmaganlar\n🟡 - Sababsiz kelmaganlar",
                 reply_markup=await view_students_uz(
                     work_time=get_morning, class_number=class_number, back="Ortga", check="Tasdiqlash",
-                    absent=f"🔘 : {absent} ta", present=f"✅ : {present} ta", uz=True
+                    absent=f"✅ : {absent} ta", explicable=f"🟡 : {explicable} ta", present=f"🔘 : {present} ta", uz=True
                 )
-            )
-            await state.update_data(
-                count=0
             )
             await EducatorsWorkTime.morning.set()
         else:
