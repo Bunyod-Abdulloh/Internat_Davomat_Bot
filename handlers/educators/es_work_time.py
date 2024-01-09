@@ -24,7 +24,7 @@ async def ewt_main(call: types.CallbackQuery, state: FSMContext):
 
         if status[0] is True:
 
-            get_morning = await db.get_students(
+            get_morning = await db.get_morning(
                 class_number=class_number
             )            
 

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
@@ -7,7 +9,7 @@ from keyboards.inline.admin_inline_keys import admin_check_btn
 from keyboards.inline.educators_inline_keys import (edu_phone_number, edu_work_time, educators_class_btn,
                                                     educators_main_uz)
 from loader import dp, db, bot
-from states.educators_states import EducatorsQuestionnaire, EducatorsWorkTime, EducatorsMain
+from states.educators_states import EducatorsQuestionnaire, EducatorsMorning, EducatorsDiurnal
 
 
 # e_m = Educators_main (handlers/educators/file-name)
@@ -21,42 +23,25 @@ async def em_main(message: types.Message):
         )
         await EducatorsQuestionnaire.select_class.set()
     else:
-        await message.answer(
-            text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
-        )
+        current_hour = datetime.now().hour
 
-        # current_hour = datetime.now().hour
+        morning = [6, 7, 8, 9, 10]
+        day = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
 
-        # if current_hour >= 6:
-        #     if current_hour < 10:
-        #         if len(educator) == 1:
-        # class_number = educator[0][4]
-        # get_morning = await db.get_students(
-        #     class_number=class_number
-        # )
-        # absent = await db.count_morning_check(class_number=class_number, morning_check="✅")
-        # present = await db.count_morning_check(class_number=class_number, morning_check="🔘")
-        # explicable = await db.count_morning_check(class_number=class_number, morning_check="🟡")
-        # await call.message.edit_text(
-        #     text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
-        #          "tugmasini bosing!"
-        #          "\n\n✅ - Kelganlar\n🔘 - Sababli kelmaganlar\n🟡 - Sababsiz kelmaganlar",
-        #     reply_markup=await view_students_uz(
-        #         work_time=get_morning, class_number=class_number, back="Ortga", check="Tasdiqlash",
-        #         absent=f"✅ : {absent} ta", explicable=f"🟡 : {explicable} ta", present=f"🔘 : {present} ta", uz=True
-        #     )
-        # )
-        # await EducatorsWorkTime.morning.set()
-                    # await call.message.edit_text(
-                    #     text="Salom", reply_markup=await view_students_uz(
-                    #         work_time=
-                    #     )
-                    # )
-            # else:
-            #     if len(educator) == 1:
-            #         print(educator)
-        # else:
-        #     print("Hozirgi vaqt 06:00 gacha.")
+        if current_hour in morning:
+            await message.answer(
+                text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
+            )
+            await EducatorsMorning.main.set()
+        elif current_hour in day:
+            await message.answer(
+                text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
+            )
+            await EducatorsDiurnal.main.set()
+        else:
+            await message.answer(
+                text="Ushbu bo'lim faqat ish vaqtida ochiladi!"
+            )
 
 
 @dp.callback_query_handler(state=EducatorsQuestionnaire.select_class)
@@ -76,7 +61,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
         await EducatorsQuestionnaire.fullname.set()
     else:
         educator = await db.select_educator_mark(telegram_id=call.from_user.id, class_number=call.data)
-        print(f"{call.data} 79")
+
         if educator is None:
             await db.add_educator_new(
                 telegram_id=call.from_user.id, mark="✅", class_number=call.data
@@ -202,30 +187,30 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
 #         print(educator)
 #         if educator is None:
 #             await db.add_educators_class(class_number=call.data, telegram_id=call.from_user.id)
-        # if not select_educator:
-        #     await db.add_educator_(
-        #         telegram_id=call.from_user.id, class_number=call.data
-        #     )
-        #     await state.update_data(
-        #         educator_class_number=call.data
-        #     )
-        #     await call.message.edit_text(
-        #         text="Ism, familiya va otangizni ismini kiriting:"
-        #              "\n\n<b>Namuna: Djalilov Zoir Saydirahmon o'g'li</b>"
-        #     )
-        #     await EducatorsQuestionnaire.fullname.set()
-        # else:
-        #     if select_educator[-1] is False:
-        #         await call.answer(
-        #             text="Ma'lumotlaringiz hali admin tomonidan tasdiqlanmadi!", show_alert=True
-        #         )
-        #     else:
-        #         await call.message.edit_text(
-        #             text="Kerakli bo'limni tanlang:", reply_markup=await select_chapters_educator(
-        #                 uz=True, class_number=call.data, back="Ortga"
-        #             )
-        #         )
-        #         await EducatorsMain.main.set()
+# if not select_educator:
+#     await db.add_educator_(
+#         telegram_id=call.from_user.id, class_number=call.data
+#     )
+#     await state.update_data(
+#         educator_class_number=call.data
+#     )
+#     await call.message.edit_text(
+#         text="Ism, familiya va otangizni ismini kiriting:"
+#              "\n\n<b>Namuna: Djalilov Zoir Saydirahmon o'g'li</b>"
+#     )
+#     await EducatorsQuestionnaire.fullname.set()
+# else:
+#     if select_educator[-1] is False:
+#         await call.answer(
+#             text="Ma'lumotlaringiz hali admin tomonidan tasdiqlanmadi!", show_alert=True
+#         )
+#     else:
+#         await call.message.edit_text(
+#             text="Kerakli bo'limni tanlang:", reply_markup=await select_chapters_educator(
+#                 uz=True, class_number=call.data, back="Ortga"
+#             )
+#         )
+#         await EducatorsMain.main.set()
 
 
 # await call.message.edit_text(
@@ -234,23 +219,23 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
 # )
 # await EducatorsQuestionnaire.fullname.set()
 
-
-@dp.callback_query_handler(state=EducatorsMain.main)
-async def esm_main(call: types.CallbackQuery):
-    print(call.data)
-    if call.data == "back_chapters":
-        await call.message.edit_text(
-            text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
-        )
-        await EducatorsQuestionnaire.select_class.set()
-
-    if call.data.__contains__("presents_"):
-        await call.message.edit_text(
-            text="Ish vaqtingizni tanlang:", reply_markup=await edu_work_time(
-                class_number=call.data, morning="Ertalabki", half_day="Yarim kun",
-                all_day="To'liq kun", back="Ortga"
-            )
-        )
-        await EducatorsWorkTime.presents.set()
-    elif call.data.__contains__("cabineteducator_"):
-        pass
+#
+# @dp.callback_query_handler(state=EducatorsMain.main)
+# async def esm_main(call: types.CallbackQuery):
+#     print(call.data)
+#     if call.data == "back_chapters":
+#         await call.message.edit_text(
+#             text="O'zingizga biriktirilgan sinfni tanlang:", reply_markup=await educators_class_btn()
+#         )
+#         await EducatorsQuestionnaire.select_class.set()
+#
+#     if call.data.__contains__("presents_"):
+#         await call.message.edit_text(
+#             text="Ish vaqtingizni tanlang:", reply_markup=await edu_work_time(
+#                 class_number=call.data, morning="Ertalabki", half_day="Yarim kun",
+#                 all_day="To'liq kun", back="Ortga"
+#             )
+#         )
+#         await EducatorsWorkTime.presents.set()
+#     elif call.data.__contains__("cabineteducator_"):
+#         pass

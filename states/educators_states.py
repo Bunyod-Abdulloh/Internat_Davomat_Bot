@@ -13,9 +13,20 @@ class EducatorsMain(StatesGroup):
     main = State()
 
 
+class EducatorsMorning(StatesGroup):
+    main = State()
+    attendance = State()
+
+
+class EducatorsDiurnal(StatesGroup):
+    main = State()
+    attendance = State()
+
+
 class EducatorsWorkTime(StatesGroup):
     main = State()
     presents = State()
     morning = State()
+    day = State()
     up_to_four = State()
     after_four = State()

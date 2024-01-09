@@ -1,3 +1,4 @@
+from . import a_priority
 from . import users
 from . import admin
 from . import educators
