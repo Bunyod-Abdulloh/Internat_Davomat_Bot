@@ -118,14 +118,6 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    # async def add_educator(self, fullname, telegram_id):
-    #     sql = "INSERT INTO Educators (fullname, telegram_id) VALUES($1, $2) returning *"
-    #     return await self.execute(sql, fullname, telegram_id, fetchrow=True)
-
-    # async def add_educator_(self, telegram_id, class_number):
-    #     sql = f"UPDATE Educators SET telegram_id='{telegram_id}' WHERE class_number='{class_number}'"
-    #     return await self.execute(sql, execute=True)
-
     async def add_educators_class(self, class_number):
         sql = "INSERT INTO Educators (class_number) VALUES($1) returning *"
         return await self.execute(sql, class_number, fetchrow=True)
@@ -166,8 +158,8 @@ class Database:
         sql = f"UPDATE Educators SET mark=$1 WHERE telegram_id=$2 AND class_number=$3"
         return await self.execute(sql, mark, telegram_id, class_number, execute=True)
 
-    async def update_educator_telegram(self, telegram_id, class_number):
-        sql = (f"UPDATE Educators SET telegram_id = NULL WHERE class_number='{class_number}' AND "
+    async def update_educator_telegram(self, telegram_id, mark, class_number):
+        sql = (f"UPDATE Educators SET telegram_id=NULL, mark='{mark}' WHERE class_number='{class_number}' AND "
                f"telegram_id='{telegram_id}'")
         return await self.execute(sql, execute=True)
 
@@ -266,10 +258,9 @@ class Database:
         id SERIAL PRIMARY KEY,        
         class_number VARCHAR(20) NOT NULL,
         educator VARCHAR(100) NULL,
-        fullname VARCHAR(100) NULL,
-        language VARCHAR(10) NULL,
-        morning_check VARCHAR(5) DEFAULT '🔘',        
-        night_check VARCHAR(5) DEFAULT '🔘'
+        fullname VARCHAR(100) NULL,        
+        morning_check VARCHAR(15) DEFAULT '🔘',        
+        night_check VARCHAR(15) DEFAULT '🔘'
         );        
         """
         await self.execute(sql, execute=True)
@@ -278,15 +269,21 @@ class Database:
         sql = "INSERT INTO Students (class_number, fullname) VALUES($1, $2) returning *"
         return await self.execute(sql, class_number, fullname, fetchrow=True)
 
-    async def update_student(self, old_class, old_fullname, new_class, new_fullname):
-        sql = (f"UPDATE Students SET class_number='{new_class}', fullname='{new_fullname}'"
-               f" WHERE class_number='{old_class}' AND fullname='{old_fullname}'")
-        return await self.execute(sql, execute=True)
-
+    # ========== Students Morning ========== #
     async def update_morning_student(self, morning_check, id_number):
         sql = f"UPDATE Students SET morning_check='{morning_check}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
 
+    async def get_morning(self, class_number):
+        sql = (f"SELECT id, fullname, morning_check FROM Students WHERE class_number='{class_number}' "
+               f"ORDER BY fullname")
+        return await self.execute(sql, fetch=True)
+
+    async def count_morning_check(self, class_number, morning_check):
+        sql = f"SELECT COUNT(morning_check) FROM Students WHERE class_number='{class_number}' AND morning_check='{morning_check}'"
+        return await self.execute(sql, fetchval=True)
+
+    # ========== Students Night ========== #
     async def update_night_student(self, night_check, id_number):
         sql = f"UPDATE Students SET night_check='{night_check}' WHERE id='{id_number}'"
         return await self.execute(sql, execute=True)
@@ -296,30 +293,15 @@ class Database:
                f"WHERE class_number='{class_number}' ORDER BY fullname")
         return await self.execute(sql, fetch=True)
 
-    async def get_morning(self, class_number):
-        sql = (f"SELECT id, fullname, morning_check FROM Students WHERE class_number='{class_number}' "
-               f"ORDER BY fullname")
-        return await self.execute(sql, fetch=True)
-
-    async def get_student(self, class_number, fullname):
-        sql = f"SELECT * FROM Students WHERE class_number='{class_number}' AND fullname='{fullname}'"
-        return await self.execute(sql, fetchrow=True)
-
-    async def get_student_id(self, id_number):
-        sql = f"SELECT morning_check, night_check, class_number FROM Students WHERE id='{id_number}'"
-        return await self.execute(sql, fetchrow=True)
-
-    async def count_morning_check(self, class_number, morning_check):
-        sql = f"SELECT COUNT(morning_check) FROM Students WHERE class_number='{class_number}' AND morning_check='{morning_check}'"
-        return await self.execute(sql, fetchval=True)
-
     async def count_night_check(self, class_number, night_check):
         sql = (f"SELECT COUNT(night_check) FROM Students WHERE class_number='{class_number}' "
                f"AND night_check='{night_check}'")
         return await self.execute(sql, fetchval=True)
 
-    async def delete_student(self, id_number):
-        await self.execute(f"DELETE FROM Students WHERE id='{id_number}'", execute=True)
+    # ========== Students All ========== #
+    async def get_student_id(self, id_number):
+        sql = f"SELECT morning_check, night_check, class_number FROM Students WHERE id='{id_number}'"
+        return await self.execute(sql, fetchrow=True)
 
     async def drop_table_students(self):
         await self.execute("DROP TABLE Students", execute=True)

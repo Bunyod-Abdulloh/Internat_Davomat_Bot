@@ -40,7 +40,7 @@ async def a_a_s_students(message: types.Message, state: FSMContext):
 
     elif message.text == "O'quvchilarni qo'shish (excel shaklda)":
         await message.answer(
-            text="Yuboriladigan hujjat yo'lini yuboring:"
+            text="Excel(xls, xlsx) shaklidagi hujjatni yuboring:"
         )
         await AdminStudents.students_xls.set()
 
@@ -69,7 +69,7 @@ async def get_document(message: types.Message):
             await db.add_student(
                 class_number=level, fullname=f"{first_name} {last_name}"
             )
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.02)
 
         await message.answer(
             text=f"{level} sinfi uchun jami {c} ta o'quvchi bot bazasiga qo'shildi!"

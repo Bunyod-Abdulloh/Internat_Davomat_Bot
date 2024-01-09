@@ -11,26 +11,23 @@ from utils.set_bot_commands import set_default_commands
 
 async def on_startup(dispatcher):
     await db.create()
-    # await db.drop_table_educators()
+    await db.drop_table_educators()
     # await db.drop_table_students()
     # await db.drop_table_teachers()
     # await db.drop_table_lessons()
     # await db.drop_table_admins()
     # await db.create_table_admins()
     # await db.create_table_classes()
-    # await db.create_table_educators()
+    await db.create_table_educators()
     await db.create_table_students()
     # await db.create_table_teachers()
     # await db.create_table_lessons()
-    # for sinf in classes_list:
-    #     await db.add_educators_class(
-    #         class_number=sinf
-    #     )
+    for sinf in classes_list:
+        await db.add_educators_class(
+            class_number=sinf
+        )
     # await db.add_admin(telegram_id=1041847396)
-    # await db.add_student(class_number="6-V",
-    #                      fullname="Abdulxayev Muhammadzohir")
-    # await db.add_student(class_number="6-V",
-    #                      fullname="Abdulxayev Firdavs")
+
 
     await set_default_commands(dispatcher)
     await on_startup_notify(dispatcher)

@@ -1,9 +1,10 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
+from keyboards.inline.educators_inline_keys import educators_class_btn_uz
 from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
-from states.educators_states import EducatorsDiurnal
+from states.educators_states import EducatorsDiurnal, EducatorsAnotherClass
 
 
 @dp.callback_query_handler(state=EducatorsDiurnal.main)
@@ -30,11 +31,13 @@ async def es_diurnal_main(call: types.CallbackQuery, state: FSMContext):
                 work_time=get_night, class_number=educator[4], night=True)
         )
         await EducatorsDiurnal.attendance.set()
-    elif call.data == "eik_cabinet_uz":
-        pass
 
     elif call.data == "eik_another_uz":
-        pass
+        await call.message.edit_text(
+            text="Ishlamoqchi bo'lgan sinf yoki sinflaringizni tanlang:", reply_markup=await educators_class_btn_uz()
+        )
+        if __name__ == '__main__':
+            await EducatorsAnotherClass.main.set()
 
     elif call.data == "eik_back_uz":
         await call.message.edit_text(

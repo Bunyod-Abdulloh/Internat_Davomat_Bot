@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from handlers.admin.a_functions import educator_main_first, educator_main_second
 from keyboards.inline.admin_inline_keys import admin_view_educators_btn, admin_main_button
 from keyboards.inline.all_inline_keys import classes_list
-from keyboards.inline.educators_inline_keys import educators_class_btn
+from keyboards.inline.educators_inline_keys import educators_class_btn_uz
 from loader import dp, db
 from states.admin_state import AdminEditEdicators
 
@@ -82,7 +82,7 @@ async def alert_message(call: types.CallbackQuery):
 async def a_e_classes(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         text="Tarbiyachilar bo'limi\n\nKerakli sinfni tanlang:",
-        reply_markup=await educators_class_btn()
+        reply_markup=await educators_class_btn_uz()
     )
     # c = 0
     # educators = await db.select_all_educators()

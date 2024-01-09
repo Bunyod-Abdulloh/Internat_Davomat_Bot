@@ -23,10 +23,7 @@ educators_main_uz.add(
     ),
     InlineKeyboardButton(
         text="📊 Davomatni kiritish", callback_data=f"eik_attendance_uz"
-    ),
-    InlineKeyboardButton(
-        text="👤 Shaxsiy kabinet", callback_data=f"eik_cabinet_uz"
-    ),
+    ),    
     InlineKeyboardButton(
         text="💰 Boshqa sinfda ishlash", callback_data=f"eik_another_uz"
     ),
@@ -36,28 +33,7 @@ educators_main_uz.add(
 )
 
 
-async def edu_work_time(class_number: str, morning: str, half_day: str, all_day: str, back: str):
-    key = InlineKeyboardMarkup(row_width=1)
-    key.add(
-        InlineKeyboardButton(
-            text=f"🌄 {morning}", callback_data=f"edumorning_{class_number}"
-        ),
-        InlineKeyboardButton(
-            text=f"⏱ {half_day}", callback_data=f"eduhalf_{class_number}"
-        ),
-        InlineKeyboardButton(
-            text=f"⏳ {all_day}", callback_data=f"eduallday_{class_number}"
-        )
-    )
-    key.add(
-        InlineKeyboardButton(
-            text=f"⬅️ {back}", callback_data=f"eduback_{class_number}"
-        )
-    )
-    return key
-
-
-async def educators_class_btn():
+async def educators_class_btn_uz():
     classes = await db.get_educators_class()
     key = InlineKeyboardMarkup(row_width=3)
 
@@ -68,7 +44,7 @@ async def educators_class_btn():
                 callback_data=class_[0]
             )
         )
-    key.row(
+    key.add(
         InlineKeyboardButton(
             text="⬅️ Ortga",
             callback_data="eduback_one"

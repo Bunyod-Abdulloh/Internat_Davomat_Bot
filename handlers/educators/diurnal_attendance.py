@@ -41,15 +41,9 @@ async def ed_attendance(call: types.CallbackQuery):
                 )
             elif get_student[1] == "✅":
                 await db.update_night_student(
-                    night_check="🟡",
-                    id_number=id_number
-                )
-            elif get_student[1] == "🟡":
-                await db.update_night_student(
                     night_check="🔘",
                     id_number=id_number
                 )
-
             get_night = await db.get_night(
                 class_number=get_student[2]
             )

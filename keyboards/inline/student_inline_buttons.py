@@ -5,12 +5,12 @@ from loader import db
 
 async def view_students_uz(work_time: list, class_number: str, morning: bool = False, night: bool = False):
     key = InlineKeyboardMarkup(row_width=1)
-    print(work_time)
+
     for student in work_time:
         key.add(
             InlineKeyboardButton(
                 text=f"{student[1]} {student[2]}",
-                callback_data=f"stb_{student[0]}_{class_number}"
+                callback_data=f"stb_{student[0]}"
             )
         )
     if morning:
@@ -23,10 +23,10 @@ async def view_students_uz(work_time: list, class_number: str, morning: bool = F
                 text=f"✅ : {absent} ta", callback_data=f"absentuz_{absent}"
             ),
             InlineKeyboardButton(
-                text=f"🔘 : {present}", callback_data=f"presentuz_{present}"
+                text=f"🔘 : {present} ta", callback_data=f"presentuz_{present}"
             ),
             InlineKeyboardButton(
-                text=f"🟡 : {explicable}", callback_data=f"explicableuz_{explicable}"
+                text=f"🟡 : {explicable} ta", callback_data=f"explicableuz_{explicable}"
             )
         )
     elif night:
@@ -38,7 +38,7 @@ async def view_students_uz(work_time: list, class_number: str, morning: bool = F
                 text=f"✅ : {absent} ta", callback_data=f"absentuz_{absent}"
             ),
             InlineKeyboardButton(
-                text=f"🔘 : {present}", callback_data=f"presentuz_{present}"
+                text=f"🔘 : {present} ta", callback_data=f"presentuz_{present}"
             )
         )
     key.row(
