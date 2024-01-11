@@ -8,11 +8,12 @@ from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.admin_inline_keys import admin_check_btn
 from keyboards.inline.educators_inline_keys import edu_phone_number, educators_class_btn_uz, educators_main_uz
 from loader import dp, db, bot
+from magic_filter import F
 from states.educators_states import EducatorsQuestionnaire, EducatorsMorning, EducatorsDiurnal
 
 
 # e_m = Educators_main (handlers/educators/file-name)
-@dp.message_handler(text='🧑‍🏫 Tarbiyachi', state='*')
+@dp.message_handler(F.text == '🧑‍🏫 Tarbiyachi', state='*')
 async def em_main(message: types.Message):
     educator = await db.select_educator(telegram_id=message.from_user.id)
 
@@ -45,10 +46,10 @@ async def em_main(message: types.Message):
 
 @dp.callback_query_handler(state=EducatorsQuestionnaire.select_class)
 async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
-    select_educator = await db.select_educator(telegram_id=call.from_user.id)
 
     if call.data == "eduback_one":
-        await call.message.edit_text(
+        await call.message.delete()
+        await call.message.answer(
             text="Bosh sahifa", reply_markup=main_menu_uz
         )
         await state.finish()
@@ -68,7 +69,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
         else:
             if educator[0] == "✅":
                 await db.update_educator_telegram(
-                   telegram_id=call.from_user.id, mark="🔘", class_number=call.data
+                    telegram_id=call.from_user.id, mark="🔘", class_number=call.data
                 )
             else:
                 await db.update_educator_mark(
@@ -120,6 +121,9 @@ async def educators_get_second_number(call: types.CallbackQuery):
             text="Ma'lumotlaringiz qabul qilindi! Admin ma'lumotlaringizni tasdiqlaganidan so'ng botdan "
                  "foydalanishingiz mumkin!"
         )
+        await bot.send_message(
+            text="Yangi hodim ma'lumotlari qabul qilindi! Ko'rish uchun /new_employee buyrug'ini kiriting!"
+        )
         educator = await db.select_educator(telegram_id=call.from_user.id)
 
         sinf = str()
@@ -134,10 +138,9 @@ async def educators_get_second_number(call: types.CallbackQuery):
                 chat_id=admin,
                 text=f"Yangi hodim ma'lumotlari qabul qilindi!"
                      f"\n\nLavozim: Tarbiyachi"
-                     f"\n\nF.I.SH: {datas[1]}"
+                     f"\n\nF I SH: {datas[1]}"
                      f"\n\nTelefon raqam: {datas[2]}"
                      f"\n\nSinf: {sinf}",
-                disable_web_page_preview=True,
                 reply_markup=await admin_check_btn(
                     user_id=call.from_user.id
                 )
@@ -150,10 +153,32 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
         await db.update_educator_second_phone(
             second_phone=f"+{message.text}", telegram_id=message.from_user.id
         )
-        await message.edit_text(
-            text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:", reply_markup=await educators_class_btn_uz()
+        await message.answer(
+            text="Ma'lumotlaringiz qabul qilindi! Admin ma'lumotlaringizni tasdiqlaganidan so'ng botdan "
+                 "foydalanishingiz mumkin!"
         )
-        await EducatorsQuestionnaire.select_class.set()
+        educator = await db.select_educator(telegram_id=message.from_user.id)
+
+        sinf = str()
+
+        for classes in educator:
+            sinf += f"{classes[4]} "
+
+        datas = await db.select_educator_distinct(telegram_id=message.from_user.id)
+
+        for admin in ADMINS:
+            await bot.send_message(
+                chat_id=admin,
+                text=f"Yangi hodim ma'lumotlari qabul qilindi!"
+                     f"\n\nLavozim: Tarbiyachi"
+                     f"\n\nF I SH: {datas[1]}"
+                     f"\n\nTelefon raqam: {datas[2]}"
+                     f"\n\nIkkinchi telefon raqam: {datas[3]}"
+                     f"\n\nSinf: {sinf}",
+                reply_markup=await admin_check_btn(
+                    user_id=message.from_user.id
+                )
+            )
     else:
         await message.answer(
             text="Iltimos, faqat raqam kiriting!"

@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from magic_filter import F
 
 from handlers.admin.a_functions import educator_main_first, educator_main_second
 from keyboards.inline.admin_inline_keys import admin_view_educators_btn, admin_main_button
@@ -10,14 +11,14 @@ from states.admin_state import AdminEditEdicators
 
 
 #  a_e = Admin educator (handlers/admin/file_name)
-# @dp.callback_query_handler(text='aik_educatorsmain', state='*')
+# @dp.callback_query_handler(F.data == 'aik_educatorsmain', state='*')
 # async def a_e_main(call: types.CallbackQuery):
 #     await call.message.edit_text(
 #         text="Tarbiyachilar bo'limi",
 #         reply_markup=await admin_view_educators_btn()
 #     )
 
-@dp.message_handler(text="userlar", state="*")
+@dp.message_handler(F.text == "userlar", state="*")
 async def a_e_userlar(message: types.Message):
     for sinf in classes_list:
         await db.add_educators_class(
@@ -28,7 +29,7 @@ async def a_e_userlar(message: types.Message):
     )
 
 
-@dp.callback_query_handler(text_contains='aikeducatorid_', state='*')
+@dp.callback_query_handler(F.text.contains('aikeducatorid_'), state='*')
 async def a_e_get_educator_id(call: types.CallbackQuery):
     educator_id = call.data.split('_')[-1]
     educator = await db.select_by_id(
@@ -47,7 +48,7 @@ async def a_e_get_educator_id(call: types.CallbackQuery):
     await AdminEditEdicators.main.set()
 
 
-@dp.callback_query_handler(text="aikback_adminpage", state="*")
+@dp.callback_query_handler(F.data == "aikback_adminpage", state="*")
 async def a_e_back_adminpage(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         text="Admin bosh menyusi",
@@ -56,7 +57,7 @@ async def a_e_back_adminpage(call: types.CallbackQuery, state: FSMContext):
     await state.finish()
 
 
-@dp.callback_query_handler(text="aeeb_educatorslist", state="*")
+@dp.callback_query_handler(F.data == "aeeb_educatorslist", state="*")
 async def a_e_educatorslist(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         text="Tarbiyachilar bo'limi",
@@ -69,7 +70,7 @@ CHANNEL_ID = -1001562489298
 ITEMS = list(range(1, 40))
 
 
-@dp.callback_query_handler(text_contains="alertmessage_", state="*")
+@dp.callback_query_handler(F.text.contains('alertmessage_'), state="*")
 async def alert_message(call: types.CallbackQuery):
     current_page = call.data.split("_")[1]
 
@@ -78,7 +79,7 @@ async def alert_message(call: types.CallbackQuery):
     )
 
 
-@dp.callback_query_handler(text="aik_educatorsmain", state="*")
+@dp.callback_query_handler(F.data == "aik_educatorsmain", state="*")
 async def a_e_classes(call: types.CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         text="Tarbiyachilar bo'limi\n\nKerakli sinfni tanlang:",

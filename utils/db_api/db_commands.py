@@ -55,28 +55,33 @@ class Database:
 
     async def drop_table_admins(self):
         await self.execute("DROP TABLE Admins", execute=True)
-
+q
     # ============================ ADD CLASSES ============================
-    async def create_table_classes(self):
+    async def create_table_employees(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS Classes (
+        CREATE TABLE IF NOT EXISTS Employees (
         id SERIAL PRIMARY KEY,
         class_number VARCHAR(10) NOT NULL,
-        mark VARCHAR(10) DEFAULT '🔘' 
+        fullname VARCHAR(100) NULL,
+        job_title VARCHAR(50) NULL,
+        first_phone VARCHAR(15) NULL,
+        second_phone VARCHAR(15) NULL,
+        access BOOLEAN DEFAULT FALSE,
+        mark VARCHAR(5) DEFAULT '🔘' 
         );
         """
         await self.execute(sql, execute=True)
 
     async def add_class(self, class_number):
-        sql = "INSERT INTO Classes (class_number) VALUES($1) returning *"
+        sql = "INSERT INTO Employee (class_number) VALUES($1) returning *"
         return await self.execute(sql, class_number, fetchrow=True)
 
     async def select_all_classes(self):
-        sql = "SELECT class_number, mark FROM Classes"
+        sql = "SELECT class_number, mark FROM Employees"
         return await self.execute(sql, fetch=True)
 
     async def select_class(self, class_number):
-        sql = "SELECT class_number, mark FROM Classes WHERE class_number=$1"
+        sql = "SELECT class_number, mark FROM Employees WHERE class_number=$1"
         return await self.execute(sql, class_number, fetch=True)
 
     async def update_class_mark(self, mark, class_number):

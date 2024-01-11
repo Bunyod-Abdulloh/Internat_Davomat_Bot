@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from magic_filter import F
 
 from keyboards.inline.main_menu_inline_keys import select_language_ikeys
 from keyboards.inline.teachers_inline_buttons import senior_lessons_ibutton, select_language_teachers
@@ -8,14 +9,14 @@ from states.teachers_state import TeachersAnketa
 
 
 # ts_m_ = Teachers Main (handlers/teachers/file_name)
-@dp.callback_query_handler(text="tr_main", state="*")
+@dp.callback_query_handler(F.data == "tr_main", state="*")
 async def ts_m_main(call: types.CallbackQuery):
     await call.message.edit_text(
         text="Dars o'tish tilini tanlang:", reply_markup=select_language_teachers
     )
 
 
-@dp.callback_query_handler(text="uz_teach", state="*")
+@dp.callback_query_handler(F.data == "uz_teach", state="*")
 async def ts_m_get_fullname(call: types.CallbackQuery):
     await call.message.edit_text(
         text="Ism-sharif va otaningizni ismini kiriting: "

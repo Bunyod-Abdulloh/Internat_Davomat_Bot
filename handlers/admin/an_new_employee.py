@@ -1,6 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from magic_filter import F
 
+from data.config import ADMINS
 from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.admin_inline_keys import admin_check_keyboard
 from loader import dp, db, bot
@@ -10,11 +12,16 @@ from states.admin_state import AdminEducator_State
 # a_e_a - Admin educators add (handlers/file_name)
 
 
-@dp.callback_query_handler(text_contains="admincheck_", state="*")
-async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
+@dp.message_handler(commands=["new_employee"], user_id=ADMINS[0], state="*")
+async def new_employee_main(message: types.Message):
+    new_employees  = await db.
+    print("salom")
 
+
+@dp.callback_query_handler(F.data.contains('admincheck_'), state='*')
+async def aae_check(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.data.split('_')[1]
-
+    print(call.data)
     await db.update_educator_access(
         access=True, telegram_id=telegram_id
     )
@@ -24,13 +31,13 @@ async def a_e_a_check(call: types.CallbackQuery, state: FSMContext):
     await call.message.delete()
     await bot.send_message(
         chat_id=telegram_id,
-        text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! /start buyrug'ini qayta kiritib botdan"
-             " foydalanishingiz mumkin!"
+        text="Kiritgan ma'lumotlaringiz bot admini tomonidan tasdiqlandi! /start buyrug'ini qayta kiritib botdan "
+             "foydalanishingiz mumkin!"
     )
     await state.finish()
 
 
-@dp.callback_query_handler(text_contains='admincancel_', state='*')
+@dp.callback_query_handler(F.text.contains('admincancel_'), state='*')
 async def a_e_a_cancel(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.data.split('_')[1]
     class_number = call.data.split('_')[-1]
@@ -76,7 +83,7 @@ async def a_e_a_cancelcheck(call: types.CallbackQuery, state: FSMContext):
         )
         await bot.send_message(
             chat_id=telegram_id,
-            text=f"Bot admini tomonidan kiritgan ma'lumotlaringiz qabul qilinmadi!"                 
+            text=f"Bot admini tomonidan kiritgan ma'lumotlaringiz qabul qilinmadi!"
                  f"\n\n<b>Sabab: {cancel_text}</b>"
                  f"\n\nIltimos, ma'lumotlaringizni qayta kiriting!"
         )

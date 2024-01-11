@@ -28,11 +28,11 @@ async def on_startup(dispatcher):
         )
     # await db.add_admin(telegram_id=1041847396)
 
-
     await set_default_commands(dispatcher)
     await on_startup_notify(dispatcher)
 
     # scheduler.start()
+
 
 if __name__ == "__main__":
     executor.start_polling(dp, on_startup=on_startup)

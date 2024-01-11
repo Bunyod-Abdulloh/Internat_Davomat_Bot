@@ -1,11 +1,12 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from magic_filter import F
 
 from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
 
 
-@dp.message_handler(text='salom', state='*')
+@dp.message_handler(F.text == 'salom', state='*')
 async def sampler_handler(message: types.Message, state: FSMContext):
     await message.answer(
         text="O'quvchilarni kelgan kelmaganligini tugmalardan birini tanlab belgilang:",
@@ -30,7 +31,7 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
         id_number=student_id
     )
     class_number = get_student[2]
-    print(get_student)
+
     if call.data:
         count += 1
         if count == 1:
@@ -63,10 +64,10 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
         )
     absent = await db.count_mark(class_number=class_number, mark="✅")
     present = await db.count_mark(class_number=class_number, mark="❎")
-    await call.message.edit_text(
-        text=f"Kelgan o'quvchilar soni: {absent}"
-             f"\nKelmagan o'quvchilar soni: {present}",
-        reply_markup=await view_students_uz(
-            class_number=class_number, back="Ortga", check="Tasdiqlash"
-        )
-    )
+    # await call.message.edit_text(
+    #     text=f"Kelgan o'quvchilar soni: {absent}"
+    #          f"\nKelmagan o'quvchilar soni: {present}",
+    #     reply_markup=await view_students_uz(
+    #         class_number=class_number
+    #     )
+    # )

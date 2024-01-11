@@ -1,11 +1,12 @@
 from datetime import datetime
 
 from aiogram import types
+from magic_filter import F
 
 from loader import dp, db
 
 
-@dp.callback_query_handler(text="eik_check_uz", state="*")
+@dp.callback_query_handler(F.data == "eik_check_uz", state="*")
 async def ech_main(call: types.CallbackQuery):
 
     current_hour = datetime.now().hour
