@@ -9,36 +9,34 @@ async def view_students_uz(work_time: list, level: str, morning: bool = False, n
     for student in work_time:
         key.add(
             InlineKeyboardButton(
-                text=f"{student[1]} {student[2]}",
+                text=f"{student[2]} {student[1]}",
                 callback_data=f"stb_{student[0]}"
             )
         )
     if morning:
-        absent = await db.count_morning_check(level=level, morning_check="✅")
-        present = await db.count_morning_check(level=level, morning_check="🔘")
-        explicable = await db.count_morning_check(level=level, morning_check="🟡")
-
+        present = await db.count_morning_check(level=level, morning_check="✅")
+        absent = await db.count_morning_check(level=level, morning_check="❎")
+        explicable = await db.count_morning_check(level=level, morning_check="☑️")
         key.row(
             InlineKeyboardButton(
-                text=f"✅ : {absent} ta", callback_data=f"absentuz_{absent}"
+                text=f"✅ : {present} ta", callback_data=f"presentuz_{present}"
             ),
             InlineKeyboardButton(
-                text=f"🔘 : {present} ta", callback_data=f"presentuz_{present}"
+                text=f"☑️ : {explicable} ta", callback_data=f"explicableuz_{explicable}"
             ),
             InlineKeyboardButton(
-                text=f"🟡 : {explicable} ta", callback_data=f"explicableuz_{explicable}"
+                text=f"❎ : {absent} ta", callback_data=f"absentuz_{absent}"
             )
         )
     elif night:
         absent = await db.count_night_check(level=level, night_check="✅")
-        present = await db.count_night_check(level=level, night_check="🔘")
-
+        present = await db.count_night_check(level=level, night_check="☑️")
         key.row(
             InlineKeyboardButton(
                 text=f"✅ : {absent} ta", callback_data=f"absentuz_{absent}"
             ),
             InlineKeyboardButton(
-                text=f"🔘 : {present} ta", callback_data=f"presentuz_{present}"
+                text=f"☑️ : {present} ta", callback_data=f"presentuz_{present}"
             )
         )
     key.row(

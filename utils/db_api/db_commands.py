@@ -109,10 +109,10 @@ class Database:
             sql = f"SELECT * FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
             return await self.execute(sql, fetchrow=True)
         elif return_list:
-            sql = f"SELECT level FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+            sql = f"SELECT level, id FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
             return await self.execute(sql, fetch=True)
         else:
-            sql = f"SELECT level, access FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+            sql = f"SELECT level, access, id FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
             return await self.execute(sql, fetchrow=True)
 
     async def delete_employees_class(self, telegram_id, level):
@@ -122,21 +122,22 @@ class Database:
     async def delete_employees(self, telegram_id):
         await self.execute(f"DELETE FROM Employees WHERE telegram_id='{telegram_id}'", execute=True)
 
-    async def delete_class(self, level):
-        await self.execute(f"DELETE FROM Employees WHERE level='{level}'", execute=True)
-
     async def drop_table_employees(self):
         await self.execute("DROP TABLE Employees", execute=True)
 
-    # ============================ EDUCATORS ============================
-    async def create_table_educators(self):
+    # ============================ ATTENDANCE ============================
+    async def create_table_attendance(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS Educators (
-        id SERIAL,
-        checked_date DATE DEFAULT DATE NOW(),        
-        level VARCHAR(20) NULL,                        
-        telegram_id BIGINT NULL,        
-        work_time VARCHAR(35) NULL        
+        CREATE TABLE IF NOT EXISTS Attendance (        
+        checked_date DATE DEFAULT CURRENT_DATE,                
+        level VARCHAR(20) NULL,
+        student_id INTEGER NULL,
+        morning_id INTEGER NULL,
+        check_morning VARCHAR(5) DEFAULT '☑️',
+        teacher_id INTEGER NULL,
+        check_teacher VARCHAR(5) DEFAULT '☑️',
+        night_id INTEGER NULL,
+        check_night VARCHAR(5) DEFAULT '☑️'                       
         );        
         """
         await self.execute(sql, execute=True)
@@ -148,133 +149,26 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educator(self, telegram_id, work_time):
-        sql = "INSERT INTO Educators (telegram_id, work_time) VALUES($1, $2) returning *"
-        return await self.execute(sql, telegram_id, work_time, fetchrow=True)
+    async def add_educator(self, morning_id, level):
+        sql = "INSERT INTO Attendance (morning_id, level) VALUES($1, $2) returning *"
+        return await self.execute(sql, morning_id, level, fetchrow=True)
 
-    async def add_educator_new(self, telegram_id, mark, level):
-        sql = f"UPDATE Educators SET telegram_id='{telegram_id}', mark='{mark}' WHERE level='{level}'"
-        return await self.execute(sql, execute=True)
-
-    # Ertalabki tarbiyachilar ishga kelgan kelmaganligini belgilovchi funksiya
-    async def update_educators_morning(self, morning):
-        sql = f"UPDATE Educators SET morning='{morning}'"
-        return await self.execute(sql, execute=True)
-
-    # Kunduzgi tarbiyachilar ishga kelgan kelmaganligini belgilovchi funksiya
-    async def update_educators_day(self, day):
-        sql = f"UPDATE Educators SET day='{day}'"
-        return await self.execute(sql, execute=True)
-
-    # Ertalabki tarbiyachi ishga kelgan kelmaganligini belgilovchi funksiya
-    async def update_educator_morning(self, morning, telegram_id):
-        sql = f"UPDATE Educators SET morning='{morning}' WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-    # Kunduzgi tarbiyachi ishga kelgan kelmaganligini belgilovchi funksiya
-    async def update_educator_day(self, day, telegram_id):
-        sql = f"UPDATE Educators SET day='{day}' WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-
-    async def update_educator_mark(self, mark, telegram_id, level):
-        sql = f"UPDATE Educators SET mark=$1 WHERE telegram_id=$2 AND level=$3"
-        return await self.execute(sql, mark, telegram_id, level, execute=True)
-
-    async def update_educator_telegram(self, telegram_id, mark, level):
-        sql = (f"UPDATE Educators SET telegram_id=NULL, mark='{mark}' WHERE level='{level}' AND "
-               f"telegram_id='{telegram_id}'")
-        return await self.execute(sql, execute=True)
-
-    # async def update_educator_(self, telegram_id, level):
-    #         sql = (f"UPDATE Educators SET telegram_id = NULL WHERE level='{level}' AND "
-    #                f"telegram_id='{telegram_id}'")
-    #         return await self.execute(sql, execute=True)
-
-    async def update_educator_fullname(self, fullname, telegram_id):
-        sql = f"UPDATE Educators SET fullname=$1 WHERE telegram_id=$2"
-        return await self.execute(sql, fullname, telegram_id, execute=True)
-
-    async def update_educator_first_phone(self, first_phone, telegram_id):
-        sql = f"UPDATE Educators SET first_phone='{first_phone}' WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-    async def update_educator_second_phone(self, second_phone, telegram_id):
-        sql = f"UPDATE Educators SET second_phone='{second_phone}' WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-    # async def update_educator_class_number(self, level, mark, telegram_id):
-    #     sql = f"UPDATE Educators SET level='{level}' WHERE ='{id_number}'"
-    #     return await self.execute(sql, execute=True)
-
-    async def update_educator_access(self, access: bool, telegram_id: int):
-        sql = f"UPDATE Educators SET access='{access}' WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-    async def select_all_educators(self, morning=None, day=None):
-        if morning:
-            sql = f"SELECT * FROM Educators WHERE morning='{morning}'"
-        else:
-            sql = f"SELECT * FROM Educators WHERE day='{day}'"
+    async def get_all_attendance(self):
+        sql = "SELECT * FROM Attendance"
         return await self.execute(sql, fetch=True)
 
-    async def select_educator_distinct(self, telegram_id):
-        sql = f"SELECT DISTINCT * FROM Educators WHERE telegram_id='{telegram_id}'"
-        return await self.execute(sql, fetchrow=True)
-
-    async def select_educator_mark(self, telegram_id, level):
-        sql = f"SELECT mark FROM Educators WHERE telegram_id='{telegram_id}' AND level='{level}'"
-        return await self.execute(sql, fetchrow=True)
-
-    async def get_educators_class(self):
-        sql = f"SELECT level, mark FROM Educators ORDER BY level"
-        return await self.execute(sql, fetch=True)
-
-    async def select_by_id(self, id_number):
-        sql = f"SELECT * FROM Educators WHERE id='{id_number}'"
-        return await self.execute(sql, fetchrow=True)
-
-    async def count_educators(self, all_=False, morning=False, day=False):
-        if all_:
-            sql = "SELECT COUNT(*) FROM Educators"
-            return await self.execute(sql, fetchval=True)
-        elif morning:
-            sql = f"SELECT COUNT(*) FROM Educators WHERE morning='{morning}'"
-            return await self.execute(sql, fetchval=True)
-        elif day:
-            sql = f"SELECT COUNT(*) FROM Educators WHERE day='{day}'"
-            return await self.execute(sql, fetchval=True)
-
-    async def delete_educators(self, telegram_id):
-        await self.execute(f"DELETE FROM Educators WHERE telegram_id='{telegram_id}'", execute=True)
-
-    async def drop_table_educators(self):
-        await self.execute("DROP TABLE Educators", execute=True)
-
-    # ============================ TABLE MORNING ============================
-    async def create_table_attendance(self):
-        sql = """
-        CREATE TABLE Attendance IF NOT EXISTS (
-        id SERIAL PRIMARY KEY,
-        level VARCHAR(15) NOT NULL,
-        language VARCHAR(10) NULL,
-        student_fullname VARCHAR(100) NULL,
-        check VARCHAR(30) NULL
-        );
-        """
-        await self.execute(sql, execute=True)
+    async def drop_table_attendance(self):
+        await self.execute("DROP TABLE Attendance", execute=True)
 
     # ============================ STUDENTS ============================
     async def create_table_students(self):
         sql = """
         CREATE TABLE IF NOT EXISTS Students (
         id SERIAL PRIMARY KEY,        
-        level VARCHAR(20) NOT NULL,
-        educator VARCHAR(100) NULL,
+        level VARCHAR(20) NOT NULL,        
         fullname VARCHAR(100) NULL,        
-        morning_check VARCHAR(15) DEFAULT '🔘',        
-        night_check VARCHAR(15) DEFAULT '🔘',
-        mark VARCHAR(5) DEFAULT '🔘'
+        morning_check VARCHAR(5) DEFAULT '☑️',        
+        night_check VARCHAR(5) DEFAULT '☑️'        
         );        
         """
         await self.execute(sql, execute=True)
@@ -319,7 +213,7 @@ class Database:
         return await self.execute(sql, fetch=True)
 
     async def get_student_id(self, id_number):
-        sql = f"SELECT morning_check, night_check, level FROM Students WHERE id='{id_number}'"
+        sql = f"SELECT id, morning_check, night_check, level FROM Students WHERE id='{id_number}'"
         return await self.execute(sql, fetchrow=True)
 
     async def get_classes_students(self, select_all=False):

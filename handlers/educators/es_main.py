@@ -39,8 +39,8 @@ async def em_main(message: types.Message):
         else:
             current_hour = datetime.now().hour
 
-            morning = [6, 7, 8, 9, 10, 11, 12]
-            day = [13, 14, 15, 16, 17, 18, 19, 20, 21]
+            day = [6, 7, 8, 9, 10, 11, 12]
+            morning = [13, 14, 15, 16, 17, 18, 19, 20, 21]
 
             if current_hour in morning:
                 await message.answer(

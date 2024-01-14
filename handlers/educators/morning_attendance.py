@@ -1,5 +1,4 @@
 from aiogram import types
-
 from keyboards.inline.educators_inline_keys import educators_main_uz
 from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
@@ -8,42 +7,35 @@ from states.educators_states import EducatorsMorning
 
 @dp.callback_query_handler(state=EducatorsMorning.attendance)
 async def esw_morning(call: types.CallbackQuery):
-
     if call.data == "stbback":
         await call.message.edit_text(
             text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
         )
         await EducatorsMorning.main.set()
-
     elif call.data.__contains__("absentuz_"):
-
         absent = call.data.split("_")[1]
         await call.answer(
-            text=f"Kelgan o'quvchilar soni: {absent} ta", show_alert=True
+            text=f"Sababsiz kelmagan o'quvchilar soni: {absent} ta", show_alert=True
         )
-
     elif call.data.__contains__("presentuz_"):
         present = call.data.split("_")[1]
         await call.answer(
-            text=f"Sababli kelmagan o'quvchilar soni: {present} ta", show_alert=True
+            text=f"Kelgan o'quvchilar soni: {present} ta", show_alert=True
         )
-
     elif call.data.__contains__("explicableuz_"):
         explicable = call.data.split("_")[1]
         await call.answer(
-            text=f"Sababsiz kelmagan o'quvchilar soni: {explicable} ta", show_alert=True
+            text=f"Sababli kelmagan o'quvchilar soni: {explicable} ta", show_alert=True
         )
-
     else:
         level = call.data.split("_")[-1]
         id_number = call.data.split("_")[1]
-
         if call.data.__contains__("stb_"):
             await call.answer(cache_time=0)
             get_student = await db.get_student_id(
                 id_number=id_number
             )
-
+            print(get_student)
             if get_student[0] == "🔘":
                 await db.update_morning_student(
                     morning_check="✅",
@@ -59,7 +51,6 @@ async def esw_morning(call: types.CallbackQuery):
                     morning_check="🔘",
                     id_number=id_number
                 )
-
             get_morning = await db.get_morning(
                 level=level
             )
@@ -70,7 +61,6 @@ async def esw_morning(call: types.CallbackQuery):
                 reply_markup=await view_students_uz(
                     work_time=get_morning, level=level, morning=True)
             )
-
         elif call.data.__contains__("stbcheck_"):
             await call.message.edit_text(
                 text="Bosh sahifa"
