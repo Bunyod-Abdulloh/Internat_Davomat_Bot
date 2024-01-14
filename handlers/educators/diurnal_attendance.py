@@ -45,14 +45,14 @@ async def ed_attendance(call: types.CallbackQuery):
                     id_number=id_number
                 )
             get_night = await db.get_night(
-                class_number=get_student[2]
+                level=get_student[2]
             )
             await call.message.edit_text(
                 text="Qoladigan yoki qolmaydigan o'quvchilarni tugmalarni bosib belgilang va yakunda <b>☑️ "
                      "Tasdiqlash</b> tugmasini bosing!"
                      "\n\n✅ - Qoladiganlar\n🔘 - Qolmaydiganlar",
                 reply_markup=await view_students_uz(
-                    work_time=get_night, class_number=get_student[2], night=True)
+                    work_time=get_night, level=get_student[2], night=True)
             )
 
         elif call.data.__contains__("stbcheck_"):

@@ -1,22 +1,56 @@
-#  https://schools.emaktab.uz/v2/admin/class/class?class=2114973963955558248&school=1000010426522&view=members
-# Yuqoridagi sahifada sinf id raqamlari almashtiriladi
-
-school = 1000010426522
-
-all_classes = {"1-A": 2119823896860798838, "1-B": 2119824536810925947,
-               "1-G": 2122403647492321849, "1-V": 2119824927652949886,
-               "2-A": 2114973951070656347, "2-B": 2114973951070656348,
-               "2-G": 2114973955365623645, "2-V": 2114973955365623646,
-               "3-A": 2114973959660590948, "3-B": 2114973959660590949,
-               "3-G": 2114973959660590950, "3-V": 2114973963955558247,
-               "4-A": 2114973963955558248, "4-B": 2114973968250525545,
-               "4-G": 2114973968250525546, "4-V": 2114973968250525551,
-               "5-A": 2114973972545492848, "5-B": 2114973972545492853,
-               "5-G": 2114973976840460154, "5-V": 2114973976840460155,
-               "6-A": 2114973976840460156, "6-B": 2114973981135427455,
-               "6-V": 2114973981135427461, "7-A": 2114973985430394760,
-               "7-B": 2114973985430394763, "7-V": 2114973989725362065,
-               "8-A": 2114973994020329364, "8-B": 2114973994020329367,
-               "8-V": 2114973994020329370, "9-A": 2114973998315296669,
-               "9-V": 2114973998315296672, "10-A": 2122021283733823379,
-               "10-V": 2122021588676501400, "11-A": 2114973955365623649}
+# from aiogram import Bot, Dispatcher, types
+# from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+# from aiogram.types import CallbackQuery
+#
+# API_TOKEN = '6402238640:AAFTP_9xivBftWwF3dMd2OKMwUJr32yE2sI'
+# bot = Bot(token=API_TOKEN)
+# dp = Dispatcher(bot)
+#
+# # List of options for multiselect
+# multiselect_options = ["Option 1"]
+#
+# user_selected_options = {}
+#
+#
+# @dp.message_handler(commands=['start'])
+# async def start_command(message: types.Message):
+#     keyboard = generate_multiselect_keyboard()
+#     await message.answer("Select multiple options:", reply_markup=keyboard)
+#
+#
+# def generate_multiselect_keyboard():
+#     keyboard = InlineKeyboardMarkup(row_width=2)
+#     for option in multiselect_options:
+#         selected = user_selected_options.get(option, False)
+#         print(f"{selected} 25")
+#         if selected:
+#             button_text = f"✅ {option}"
+#         else:
+#             button_text = f"☑ {option}"
+#         callback_data = f'multiselect_{option}'
+#         button = InlineKeyboardButton(text=button_text, callback_data=callback_data)
+#         keyboard.insert(button)
+#     return keyboard
+#
+#
+# @dp.callback_query_handler(lambda c: c.data.startswith('multiselect_'))
+# async def process_multiselect_callback(callback_query: CallbackQuery):
+#
+#     option = callback_query.data.split('_')[1]
+#     selected = user_selected_options.get(option, False)
+#
+#     print(f"{selected} 42")
+#     user_selected_options[option] = not selected
+#     print(f"{user_selected_options} 44")
+#     print(f"{user_selected_options[option]} 43")
+#
+#     # Update the keyboard with the new selection state
+#     await bot.edit_message_text(chat_id=callback_query.message.chat.id,
+#                                 message_id=callback_query.message.message_id,
+#                                 text="Select multiple options:",
+#                                 reply_markup=generate_multiselect_keyboard())
+#
+#
+# if __name__ == '__main__':
+#     from aiogram import executor
+#     executor.start_polling(dp, skip_updates=True)

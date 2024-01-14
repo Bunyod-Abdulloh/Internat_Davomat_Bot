@@ -35,7 +35,7 @@ async def esw_morning(call: types.CallbackQuery):
         )
 
     else:
-        class_number = call.data.split("_")[-1]
+        level = call.data.split("_")[-1]
         id_number = call.data.split("_")[1]
 
         if call.data.__contains__("stb_"):
@@ -61,14 +61,14 @@ async def esw_morning(call: types.CallbackQuery):
                 )
 
             get_morning = await db.get_morning(
-                class_number=class_number
+                level=level
             )
             await call.message.edit_text(
                 text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
                      "tugmasini bosing!"
                      "\n\n✅ - Kelganlar\n🔘 - Sababli kelmaganlar\n🟡 - Sababsiz kelmaganlar",
                 reply_markup=await view_students_uz(
-                    work_time=get_morning, class_number=class_number, morning=True)
+                    work_time=get_morning, level=level, morning=True)
             )
 
         elif call.data.__contains__("stbcheck_"):

@@ -27,7 +27,7 @@ admin_check_keyboard.row(
     ),
     InlineKeyboardButton(
         text="✅ Tasdiqlash",
-        callback_data="checkadmin"
+        callback_data="send_to_user"
     )
 )
 

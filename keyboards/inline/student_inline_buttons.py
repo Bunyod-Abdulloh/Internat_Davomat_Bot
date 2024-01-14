@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from loader import db
 
 
-async def view_students_uz(work_time: list, class_number: str, morning: bool = False, night: bool = False):
+async def view_students_uz(work_time: list, level: str, morning: bool = False, night: bool = False):
     key = InlineKeyboardMarkup(row_width=1)
 
     for student in work_time:
@@ -14,9 +14,9 @@ async def view_students_uz(work_time: list, class_number: str, morning: bool = F
             )
         )
     if morning:
-        absent = await db.count_morning_check(class_number=class_number, morning_check="✅")
-        present = await db.count_morning_check(class_number=class_number, morning_check="🔘")
-        explicable = await db.count_morning_check(class_number=class_number, morning_check="🟡")
+        absent = await db.count_morning_check(level=level, morning_check="✅")
+        present = await db.count_morning_check(level=level, morning_check="🔘")
+        explicable = await db.count_morning_check(level=level, morning_check="🟡")
 
         key.row(
             InlineKeyboardButton(
@@ -30,8 +30,8 @@ async def view_students_uz(work_time: list, class_number: str, morning: bool = F
             )
         )
     elif night:
-        absent = await db.count_night_check(class_number=class_number, night_check="✅")
-        present = await db.count_night_check(class_number=class_number, night_check="🔘")
+        absent = await db.count_night_check(level=level, night_check="✅")
+        present = await db.count_night_check(level=level, night_check="🔘")
 
         key.row(
             InlineKeyboardButton(
@@ -48,7 +48,7 @@ async def view_students_uz(work_time: list, class_number: str, morning: bool = F
         ),
         InlineKeyboardButton(
             text=f"☑️ Tasdiqlash",
-            callback_data=f"stbcheck_{class_number}"
+            callback_data=f"stbcheck_{level}"
         )
     )
     return key

@@ -52,4 +52,3 @@ async def a_m_m_parents(message: types.Message):
     await message.answer(
         text=message.text, reply_markup=admin_custom_students
     )
-    await AdminMain.students.set()

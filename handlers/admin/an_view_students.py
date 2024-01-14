@@ -11,7 +11,7 @@ async def sampler_handler(message: types.Message, state: FSMContext):
     await message.answer(
         text="O'quvchilarni kelgan kelmaganligini tugmalardan birini tanlab belgilang:",
         reply_markup=await view_students_uz(
-            class_number="6-V"
+            level="6-V"
         )
     )
     await state.update_data(
@@ -30,7 +30,7 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
     get_student = await db.get_student_id(
         id_number=student_id
     )
-    class_number = get_student[2]
+    level = get_student[2]
 
     if call.data:
         count += 1
@@ -62,12 +62,12 @@ async def sampler_two(call: types.CallbackQuery, state: FSMContext):
         await state.update_data(
             count=count
         )
-    absent = await db.count_mark(class_number=class_number, mark="✅")
-    present = await db.count_mark(class_number=class_number, mark="❎")
+    absent = await db.count_mark(level=level, mark="✅")
+    present = await db.count_mark(level=level, mark="❎")
     # await call.message.edit_text(
     #     text=f"Kelgan o'quvchilar soni: {absent}"
     #          f"\nKelmagan o'quvchilar soni: {present}",
     #     reply_markup=await view_students_uz(
-    #         class_number=class_number
+    #         level=level
     #     )
     # )

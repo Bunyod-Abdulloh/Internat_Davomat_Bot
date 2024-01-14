@@ -4,8 +4,6 @@ from magic_filter import F
 
 from handlers.admin.a_functions import educator_main_first, educator_main_second
 from keyboards.inline.admin_inline_keys import admin_view_educators_btn, admin_main_button
-from keyboards.inline.all_inline_keys import classes_list
-from keyboards.inline.educators_inline_keys import educators_class_btn_uz
 from loader import dp, db
 from states.admin_state import AdminEditEdicators
 
@@ -22,7 +20,7 @@ from states.admin_state import AdminEditEdicators
 async def a_e_userlar(message: types.Message):
     for sinf in classes_list:
         await db.add_educators_class(
-            class_number=sinf
+            level=sinf
         )
     await message.answer(
         text="Sinflar qo'shildi!"

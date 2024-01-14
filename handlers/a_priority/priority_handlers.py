@@ -5,7 +5,7 @@ from magic_filter import F
 
 from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.main_menu_inline_keys import select_language_ikeys
-from loader import dp, db
+from loader import dp
 
 
 @dp.message_handler(CommandStart(), state='*')

@@ -11,7 +11,7 @@ from states.educators_states import EducatorsWorkTime, EducatorsMain
 
 @dp.callback_query_handler(state=EducatorsWorkTime.presents)
 async def ewt_main(call: types.CallbackQuery, state: FSMContext):
-    class_number = call.data.split("_")[-1]
+    level = call.data.split("_")[-1]
 
     if call.data.__contains__("eduback_"):
         await call.message.edit_text(
@@ -25,18 +25,18 @@ async def ewt_main(call: types.CallbackQuery, state: FSMContext):
         if status[0] is True:
 
             get_morning = await db.get_morning(
-                class_number=class_number
+                level=level
             )            
 
-            absent = await db.count_morning_check(class_number=class_number, morning_check="✅")
-            present = await db.count_morning_check(class_number=class_number, morning_check="🔘")
-            explicable = await db.count_morning_check(class_number=class_number, morning_check="🟡")
+            absent = await db.count_morning_check(level=level, morning_check="✅")
+            present = await db.count_morning_check(level=level, morning_check="🔘")
+            explicable = await db.count_morning_check(level=level, morning_check="🟡")
             await call.message.edit_text(
                 text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
                      "tugmasini bosing!"
                      "\n\n✅ - Kelganlar\n🔘 - Sababli kelmaganlar\n🟡 - Sababsiz kelmaganlar",
                 reply_markup=await view_students_uz(
-                    work_time=get_morning, class_number=class_number, back="Ortga", check="Tasdiqlash",
+                    work_time=get_morning, level=level, back="Ortga", check="Tasdiqlash",
                     absent=f"✅ : {absent} ta", explicable=f"🟡 : {explicable} ta", present=f"🔘 : {present} ta", uz=True
                 )
             )
@@ -50,7 +50,7 @@ async def ewt_main(call: types.CallbackQuery, state: FSMContext):
         status = await db.select_admins()
 
         if status[0] is True:
-            class_number = call.data.split("_")[-1]
+            level = call.data.split("_")[-1]
         else:
             await call.message.edit_text(
                 text="Botning ushbu qismi vaqtincha o'chirilgan! Profilaktika ishlari yakuniga yetgach qayta yoqiladi!"
@@ -59,7 +59,7 @@ async def ewt_main(call: types.CallbackQuery, state: FSMContext):
     elif call.data.__contains__("eduday_"):
         status = await db.select_admins()
         if status[0] is True:
-            class_number = call.data.split("_")[-1]
+            level = call.data.split("_")[-1]
         else:
             await call.message.edit_text(
                 text="Botning ushbu qismi vaqtincha o'chirilgan! Profilaktika ishlari yakuniga yetgach qayta yoqiladi!"

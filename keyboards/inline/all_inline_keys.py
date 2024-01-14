@@ -1,22 +1,30 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-classes_list = ['1-A', '1-B', '1-V', '1-G', '2-A', '2-B', '2-V', '2-G', '3-A', '3-B', '3-V', '3-G', '4-A', '4-B', '4-V',
-                '4-G', '5-A', '5-B', '5-V', '5-G', '6-A', '6-B', '6-V', '7-A', '7-B', '7-V', '8-A', '8-B', '8-V', '9-A',
-                '9-V', '10-A', '10-V', '11-A']
+from loader import db
 
-classes_dict = {}
 
-# classes_button = InlineKeyboardMarkup(row_width=5)
-# for classes in classes_list:
-#     classes_button.insert(
-#         InlineKeyboardButton(
-#             text=classes,
-#             callback_data=classes
-#         )
-#     )
-# classes_button.add(
-#     InlineKeyboardButton(
-#         text="Ortga",
-#         callback_data="back_for_classes"
-#     )
-# )
+async def generate_multiselect_keyboard(telegram_id: int, table_from_db: list, next_step=False):
+    key = InlineKeyboardMarkup(row_width=4)
+    for class_ in table_from_db:
+        user = await db.select_employee(telegram_id=telegram_id, level=class_[0])
+        if user:
+            button_text = f"✅ {class_[0]}"
+        else:
+            button_text = f"{class_[0]}"
+        callback_data = f'multiselect_{class_[0]}'
+        button = InlineKeyboardButton(text=button_text, callback_data=callback_data)
+        key.insert(button)
+    key.add(
+        InlineKeyboardButton(
+            text="⬅️ Ortga",
+            callback_data="eduback_one"
+        )
+    )
+    if next_step:
+        key.insert(
+            InlineKeyboardButton(
+                text="Davom etish ➡️",
+                callback_data="educontinue"
+            )
+        )
+    return key
