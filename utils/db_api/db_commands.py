@@ -104,13 +104,16 @@ class Database:
         sql = f"SELECT * FROM Employees WHERE access='{access}'"
         return await self.execute(sql, fetch=True)
 
-    async def select_employee(self, telegram_id, level=False):
+    async def select_employee(self, telegram_id, level=False, return_list=False):
         if level:
             sql = f"SELECT * FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
             return await self.execute(sql, fetchrow=True)
-        else:
+        elif return_list:
             sql = f"SELECT level FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
             return await self.execute(sql, fetch=True)
+        else:
+            sql = f"SELECT level, access FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+            return await self.execute(sql, fetchrow=True)
 
     async def delete_employees_class(self, telegram_id, level):
         await self.execute(f"DELETE FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'",

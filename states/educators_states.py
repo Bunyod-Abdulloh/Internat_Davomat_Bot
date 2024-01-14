@@ -12,6 +12,7 @@ class EducatorsQuestionnaire(StatesGroup):
 class EducatorsMorning(StatesGroup):
     main = State()
     attendance = State()
+    first_class = State()
 
 
 class EducatorsDiurnal(StatesGroup):

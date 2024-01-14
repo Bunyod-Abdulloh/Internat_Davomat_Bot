@@ -33,3 +33,21 @@ educators_main_uz.add(
 )
 
 
+# ======== Section educators select_level ========
+async def select_level_educators(classes: list):
+    key = InlineKeyboardMarkup(row_width=2)
+    for level in classes:
+        key.insert(
+            InlineKeyboardButton(
+                text=level[0], callback_data=level[0]
+            )
+        )
+    key.add(
+        InlineKeyboardButton(
+            text="⬅️ Ortga", callback_data="back"
+        ),
+        InlineKeyboardButton(
+            text="✅ Tasdiqlash", callback_data="check"
+        )
+    )
+    return key

@@ -16,23 +16,21 @@ from loader import dp, db, bot
 async def em_main(message: types.Message):
     telegram_id = message.from_user.id
     educator = await db.select_employee(telegram_id=telegram_id)
-    classes = await db.select_all_classes()
-
     if not educator:
         await message.answer(
             text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
-            reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id, table_from_db=classes)
+            reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id)
         )
         await EducatorsQuestionnaire.select_class.set()
     else:
-        if educator[0][-1] is False:
+        if educator[1] is False:
             await db.delete_employees(
                 telegram_id=message.from_user.id
             )
             await message.answer(
                 text="Ma'lumotlaringiz tasdiqlanmadi! \nIltimos ma'lumotlaringizni qayta kiriting!"
                      "\n\nO'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
-                reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id, table_from_db=classes)
+                reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id)
             )
             await db.delete_employees(
                 telegram_id=message.from_user.id
@@ -41,8 +39,8 @@ async def em_main(message: types.Message):
         else:
             current_hour = datetime.now().hour
 
-            morning = [6, 7, 8, 9, 10]
-            day = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+            morning = [6, 7, 8, 9, 10, 11, 12]
+            day = [13, 14, 15, 16, 17, 18, 19, 20, 21]
 
             if current_hour in morning:
                 await message.answer(
@@ -63,8 +61,6 @@ async def em_main(message: types.Message):
 @dp.callback_query_handler(state=EducatorsQuestionnaire.select_class)
 async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.from_user.id
-    classes = await db.select_all_classes()
-
     if call.data == "eduback_one":
         await call.message.delete()
         await call.message.answer(
@@ -82,7 +78,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
         else:
             await call.message.edit_text(
                 text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
-                reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id, table_from_db=classes)
+                reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id)
             )
             await EducatorsQuestionnaire.select_class.set()
 
@@ -101,7 +97,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
         await call.message.edit_text(
             text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
             reply_markup=await generate_multiselect_keyboard(
-                telegram_id=telegram_id, table_from_db=classes, next_step=True
+                telegram_id=telegram_id, next_step=True
             )
         )
 
