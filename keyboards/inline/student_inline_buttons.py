@@ -45,8 +45,21 @@ async def view_students_uz(work_time: list, level: str, morning: bool = False, n
             callback_data=f"stbback"
         ),
         InlineKeyboardButton(
-            text=f"☑️ Tasdiqlash",
-            callback_data=f"stbcheck_{level}"
+            text=f"Davom etish ➡️",
+            callback_data=f"next_{level}"
         )
+    )
+    return key
+
+
+async def morning_attendance_check_button(level: str, educator_id: int):
+    key = InlineKeyboardMarkup(row_width=2)
+    key.add(
+        InlineKeyboardButton(
+            text='⬅️ Ortga',
+            callback_data=f'sibback60_{level}'),
+        InlineKeyboardButton(
+            text='✔️ Tasdiqlash',
+            callback_data=f'sibcheck63_{level}_{educator_id}')
     )
     return key

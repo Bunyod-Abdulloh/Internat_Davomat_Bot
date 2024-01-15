@@ -45,9 +45,6 @@ async def select_level_educators(classes: list):
     key.add(
         InlineKeyboardButton(
             text="⬅️ Ortga", callback_data="back"
-        ),
-        InlineKeyboardButton(
-            text="✅ Tasdiqlash", callback_data="check"
         )
     )
     return key

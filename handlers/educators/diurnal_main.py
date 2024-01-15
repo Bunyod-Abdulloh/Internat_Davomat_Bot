@@ -18,7 +18,7 @@ async def es_diurnal_main(call: types.CallbackQuery, state: FSMContext):
         )
     elif call.data == "eik_attendance_uz":
         educator = await db.select_employee(
-            telegram_id=call.from_user.id, onerow=True
+            telegram_id=call.from_user.id
         )
         get_night = await db.get_night(
             level=educator[4]

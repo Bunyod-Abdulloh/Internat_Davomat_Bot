@@ -7,7 +7,7 @@ async def generate_multiselect_keyboard(telegram_id: int, next_step=False):
     key = InlineKeyboardMarkup(row_width=4)
     classes = await db.select_all_classes()
     for class_ in classes:
-        user = await db.select_employee(telegram_id=telegram_id, level=class_[0])
+        user = await db.select_employee_level(telegram_id=telegram_id, level=class_[0])
         if user:
             button_text = f"✅ {class_[0]}"
         else:

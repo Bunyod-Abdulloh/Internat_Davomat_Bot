@@ -25,7 +25,7 @@ async def em_main(message: types.Message):
     else:
         if educator[1] is False:
             await db.delete_employees(
-                telegram_id=message.from_user.id
+                telegram_id=telegram_id
             )
             await message.answer(
                 text="Ma'lumotlaringiz tasdiqlanmadi! \nIltimos ma'lumotlaringizni qayta kiriting!"
@@ -33,7 +33,7 @@ async def em_main(message: types.Message):
                 reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id)
             )
             await db.delete_employees(
-                telegram_id=message.from_user.id
+                telegram_id=telegram_id
             )
             await EducatorsQuestionnaire.select_class.set()
         else:
@@ -69,6 +69,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
         await state.finish()
     elif call.data == "educontinue":
         educator = await db.select_employee(telegram_id=telegram_id)
+
         if educator:
             await call.message.edit_text(
                 text="Ism, familiya va otangizni ismini kiriting:\n\n<b>Namuna: Djalilov Zoir Saydirahmon "
@@ -84,7 +85,7 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
 
     else:
         level = call.data.split('_')[1]
-        user = await db.select_employee(telegram_id=telegram_id, level=level)
+        user = await db.select_employee_level(telegram_id=telegram_id, level=level)
 
         if not user:
             await db.add_employee(

@@ -66,9 +66,6 @@ async def get_document(message: types.Message):
                 level_data=df.values[5:], level=level, c=c
             )
         else:
-            await db.add_class_employees(
-                level=level
-            )
             c = await add_students_from_xls(
                 level_data=df.values[5:], level=level, c=c
             )

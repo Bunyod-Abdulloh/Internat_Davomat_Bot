@@ -1,55 +1,64 @@
 from aiogram import types
+from aiogram.dispatcher import FSMContext
+from magic_filter import F
+
 from keyboards.inline.educators_inline_keys import educators_main_uz
-from keyboards.inline.student_inline_buttons import view_students_uz
-from loader import dp, db
+from keyboards.inline.student_inline_buttons import view_students_uz, morning_attendance_check_button
+from loader import dp, db, bot
 from states.educators_states import EducatorsMorning
 
 
 @dp.callback_query_handler(state=EducatorsMorning.attendance)
-async def esw_morning(call: types.CallbackQuery):
+async def esw_morning(call: types.CallbackQuery, state: FSMContext):
     if call.data == "stbback":
         await call.message.edit_text(
             text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
         )
         await EducatorsMorning.main.set()
     elif call.data.__contains__("absentuz_"):
+
         absent = call.data.split("_")[1]
+
         await call.answer(
             text=f"Sababsiz kelmagan o'quvchilar soni: {absent} ta", show_alert=True
         )
     elif call.data.__contains__("presentuz_"):
+
         present = call.data.split("_")[1]
+
         await call.answer(
             text=f"Kelgan o'quvchilar soni: {present} ta", show_alert=True
         )
     elif call.data.__contains__("explicableuz_"):
+
         explicable = call.data.split("_")[1]
+
         await call.answer(
             text=f"Sababli kelmagan o'quvchilar soni: {explicable} ta", show_alert=True
         )
     else:
-        level = call.data.split("_")[-1]
+
         id_number = call.data.split("_")[1]
+
         if call.data.__contains__("stb_"):
             await call.answer(cache_time=0)
             get_student = await db.get_student_id(
                 id_number=id_number
             )
-            print(get_student)
-            if get_student[0] == "🔘":
+
+            level = get_student[3]
+
+            if get_student[1] == "☑️":
                 await db.update_morning_student(
-                    morning_check="✅",
-                    id_number=id_number
+                    morning_check="✅", id_number=id_number
                 )
-            elif get_student[0] == "✅":
+            elif get_student[1] == "✅":
                 await db.update_morning_student(
-                    morning_check="🟡",
-                    id_number=id_number
+                    morning_check="❎", id_number=id_number
                 )
-            elif get_student[0] == "🟡":
+            elif get_student[1] == "❎":
                 await db.update_morning_student(
-                    morning_check="🔘",
-                    id_number=id_number
+                    morning_check="☑️", id_number=id_number
                 )
             get_morning = await db.get_morning(
                 level=level
@@ -57,14 +66,61 @@ async def esw_morning(call: types.CallbackQuery):
             await call.message.edit_text(
                 text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
                      "tugmasini bosing!"
-                     "\n\n✅ - Kelganlar\n🔘 - Sababli kelmaganlar\n🟡 - Sababsiz kelmaganlar",
+                     "\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
                 reply_markup=await view_students_uz(
                     work_time=get_morning, level=level, morning=True)
             )
-        elif call.data.__contains__("stbcheck_"):
+        elif call.data.__contains__("next_"):
+
+            level = call.data.split('_')[1]
+            educator_id = await db.select_employee_level(
+                telegram_id=call.from_user.id, level=level
+            )
             await call.message.edit_text(
-                text="Bosh sahifa"
+                text="E'tibor qiling Tasdiqlash tugmasini bossangiz davomat adminga boradi va buni qayta o'zgartirib "
+                     "bo'lmaydi! Shu sababli ✔️ Tasdiqlash tugmasini davomatni tugatganingizga amin bo'lganingizdan "
+                     "so'ng bosishingizni so'raymiz!",
+                reply_markup=await morning_attendance_check_button(level=level, educator_id=educator_id[0])
             )
-            await call.answer(
-                text="Davomat sinf rahbariga yuborildi!", show_alert=True
-            )
+            await state.finish()
+
+
+@dp.callback_query_handler(F.data.contains('sibback60_'), state='*')
+async def back_morning_attendance(call: types.CallbackQuery):
+    level = call.data.split('_')[1]
+    get_morning = await db.get_morning(
+        level=level
+    )
+    await call.message.edit_text(
+        text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
+             "tugmasini bosing!"
+             "\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
+        reply_markup=await view_students_uz(
+            work_time=get_morning, level=level, morning=True)
+    )
+    await EducatorsMorning.attendance.set()
+
+
+@dp.callback_query_handler(F.data.contains('sibcheck63_'), state='*')
+async def ma_check_attendance(call: types.CallbackQuery):
+
+    level = call.data.split('_')[1]
+    educator_id = int(call.data.split('_')[-1])
+
+    morning_students = await db.get_morning_attendance(
+        level=level
+    )
+    for student in morning_students:
+        await db.add_morning_students(
+            educator_morning=educator_id, level=level, student_id=student[0], check_morning=student[1]
+        )
+    teacher = await db.select_teacher_id(
+        position='Teacher', level=level
+    )
+    await call.message.edit_text(
+        text="Davomat qabul qilindi va sinf rahbariga bu haqda habar yuborildi!"
+    )
+    # await bot.send_message(
+    #     chat_id=teacher[0],
+    #     text="Ertalabki tarbiyachi davomatni topshirdi! Kerakli bo'limga kirib davomatni ko'rishingiz mumkin!"
+    # )
