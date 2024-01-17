@@ -171,6 +171,10 @@ class Database:
         sql = f"SELECT * FROM Attendance WHERE educator_morning='{educator_id}'"
         return await self.execute(sql, fetch=True)
 
+    async def get_employee_attendance(self, educator_id, level):
+        sql = f"SELECT level FROM Attendance WHERE educator_morning='{educator_id}' AND level='{level}'"
+        return await self.execute(sql, fetch=True)
+
     async def drop_table_attendance(self):
         await self.execute("DROP TABLE Attendance", execute=True)
 

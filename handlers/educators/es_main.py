@@ -4,8 +4,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.all_inline_keys import generate_multiselect_keyboard
-from keyboards.inline.educators_inline_keys import edu_phone_number, educators_main_uz
-from states.educators_states import EducatorsQuestionnaire, EducatorsMorning, EducatorsDiurnal
+from keyboards.inline.educators_inline_keys import edu_phone_number, educators_main_uz, check_work_button
+from states.educators_states import EducatorsQuestionnaire, EducatorsMorning, EducatorsDiurnal, EducatorsSelectWork
 from magic_filter import F
 from data.config import ADMINS
 from loader import dp, db, bot
@@ -14,6 +14,7 @@ from loader import dp, db, bot
 # e_m = Educators_main (handlers/educators/file-name)
 @dp.message_handler(F.text == '🧑‍🏫 Tarbiyachi', state='*')
 async def em_main(message: types.Message):
+    print(message.text)
     telegram_id = message.from_user.id
     educator = await db.select_employee(telegram_id=telegram_id)
     if not educator:
@@ -38,20 +39,17 @@ async def em_main(message: types.Message):
             await EducatorsQuestionnaire.select_class.set()
         else:
             current_hour = datetime.now().hour
-
-            day = [6, 7, 8, 9, 10, 11, 12]
-            morning = [13, 14, 15, 16, 17, 18, 19, 20, 21]
-
+            morning = [6, 7, 8, 9, 10, 11, 12]
+            day = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
             if current_hour in morning:
                 await message.answer(
-                    text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
+                    text="Assalomu alaykum! Internatimizga xush kelibsiz!"
+                         "\n\nQuyidagi tugmalardan birini tanlang:",
+                    reply_markup=check_work_button()
                 )
                 await EducatorsMorning.main.set()
             elif current_hour in day:
-                await message.answer(
-                    text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
-                )
-                await EducatorsDiurnal.main.set()
+                pass
             else:
                 await message.answer(
                     text="Ushbu bo'lim faqat ish vaqtida ochiladi!"

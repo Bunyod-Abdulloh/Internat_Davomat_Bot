@@ -23,14 +23,24 @@ educators_main_uz.add(
     ),
     InlineKeyboardButton(
         text="📊 Davomatni kiritish", callback_data=f"eik_attendance_uz"
-    ),    
-    InlineKeyboardButton(
-        text="💰 Boshqa sinfda ishlash", callback_data=f"eik_another_uz"
     ),
     InlineKeyboardButton(
         text=f"⬅️ Ortga", callback_data="eik_back_uz"
     )
 )
+
+
+def check_work_button():
+    buttons = InlineKeyboardMarkup(row_width=1)
+    buttons.add(
+        InlineKeyboardButton(
+            text="👤 O'z sinfimda ishlayman!", callback_data="main_class_uz"
+        ),
+        InlineKeyboardButton(
+            text="💰 Boshqa sinfda ishlash", callback_data=f"another_uz"
+        )
+    )
+    return buttons
 
 
 # ======== Section educators select_level ========

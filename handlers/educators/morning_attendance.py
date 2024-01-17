@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from magic_filter import F
 
-from keyboards.inline.educators_inline_keys import educators_main_uz
+from keyboards.inline.educators_inline_keys import educators_main_uz, select_level_educators
 from keyboards.inline.student_inline_buttons import view_students_uz, morning_attendance_check_button
 from loader import dp, db, bot
 from states.educators_states import EducatorsMorning
@@ -10,11 +10,20 @@ from states.educators_states import EducatorsMorning
 
 @dp.callback_query_handler(state=EducatorsMorning.attendance)
 async def esw_morning(call: types.CallbackQuery, state: FSMContext):
+    telegram_id = call.from_user.id
+    classes = await db.select_employee_return_list(telegram_id=telegram_id)
+
     if call.data == "stbback":
-        await call.message.edit_text(
-            text="Tugmalardan birini tanlang:", reply_markup=educators_main_uz
-        )
-        await EducatorsMorning.main.set()
+        if len(classes) == 1:
+            pass
+        else:
+            await call.message.edit_text(
+                text="Sinflardan birini tanlang:",
+                reply_markup=await select_level_educators(
+                    classes=classes
+                )
+            )
+            await EducatorsMorning.first_class.set()
     elif call.data.__contains__("absentuz_"):
 
         absent = call.data.split("_")[1]
