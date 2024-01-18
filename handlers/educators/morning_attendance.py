@@ -19,9 +19,7 @@ async def esw_morning(call: types.CallbackQuery, state: FSMContext):
         else:
             await call.message.edit_text(
                 text="Sinflardan birini tanlang:",
-                reply_markup=await select_level_educators(
-                    classes=classes
-                )
+                reply_markup=await select_level_educators()
             )
             await EducatorsMorning.first_class.set()
     elif call.data.__contains__("absentuz_"):
@@ -112,19 +110,17 @@ async def back_morning_attendance(call: types.CallbackQuery):
 
 @dp.callback_query_handler(F.data.contains('sibcheck63_'), state='*')
 async def ma_check_attendance(call: types.CallbackQuery):
-
+    telegram_id = call.from_user.id
     level = call.data.split('_')[1]
-    educator_id = int(call.data.split('_')[-1])
-
     morning_students = await db.get_morning_attendance(
         level=level
     )
     for student in morning_students:
         await db.add_morning_students(
-            educator_id=educator_id, level=level, student_id=student[0], check_educator=student[1]
+            level=level, student_id=student[0], check_educator=student[1]
         )
     await db.update_employee_attendance(
-        attendance=False, level=level, telegram_id=call.from_user.id
+        attendance=False, level=level, telegram_id=telegram_id
     )
     teacher = await db.select_teacher_id(
         position='Teacher', level=level

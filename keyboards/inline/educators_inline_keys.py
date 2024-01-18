@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from loader import db
@@ -44,17 +46,45 @@ def check_work_button():
 
 
 # ======== Section educators select_level ========
-async def select_level_educators(classes: list):
-    key = InlineKeyboardMarkup(row_width=2)
-    for level in classes:
-        key.insert(
+async def select_level_educators(telegram_id: int = None, another: bool = False, next_step: bool = False):
+    user_classes = await db.select_employee_return_list(telegram_id=telegram_id)
+    all_classes = await db.select_all_classes()
+    key = InlineKeyboardMarkup(row_width=4)
+    if another:
+        for level in all_classes:
+            attendance = await db.get_educator_morning(
+                educator_telegram=telegram_id, level=level[0], checked_date=datetime.now().date()
+            )
+            if attendance:
+                button_text = f'✅ {level[0]}'
+            else:
+                button_text = f'☑️ {level[0]}'
+            key.insert(
+                InlineKeyboardButton(
+                    text=button_text, callback_data=level[0]
+                )
+            )
+        key.add(
             InlineKeyboardButton(
-                text=level[0], callback_data=level[0]
+                text="⬅️ Ortga", callback_data="back"
             )
         )
-    key.add(
-        InlineKeyboardButton(
-            text="⬅️ Ortga", callback_data="back"
+        if next_step:
+            key.insert(
+                InlineKeyboardButton(
+                    text="✅ Tasdiqlash", callback_data="check_another_uz"
+                )
+            )
+    else:
+        for level in user_classes:
+            key.insert(
+                InlineKeyboardButton(
+                    text=level[0], callback_data=level[0]
+                )
+            )
+        key.add(
+            InlineKeyboardButton(
+                text="⬅️ Ortga", callback_data="back"
+            )
         )
-    )
     return key

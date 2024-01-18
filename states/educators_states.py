@@ -9,10 +9,6 @@ class EducatorsQuestionnaire(StatesGroup):
     select_class = State()
 
 
-class EducatorsSelectWork(StatesGroup):
-    main = State()
-
-
 class EducatorsMorning(StatesGroup):
     main = State()
     attendance = State()

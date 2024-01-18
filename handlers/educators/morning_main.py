@@ -1,28 +1,33 @@
 from datetime import datetime
 
 from aiogram import types
+from aiogram.dispatcher import FSMContext
+
 from keyboards.default.educator_buttons import educators_main_buttons
+from keyboards.inline.educators_inline_keys import select_level_educators
 from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
-from states.educators_states import EducatorsMorning
+from states.educators_states import EducatorsMorning, EducatorsAnotherClass
 
 
 @dp.callback_query_handler(state=EducatorsMorning.main)
-async def es_morning_main(call: types.CallbackQuery):
+async def es_morning_main(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.from_user.id
     current_date = datetime.now().date()
     classes = await db.select_employee_return_list(telegram_id=telegram_id)
-    attendance = await db.get_educator_morning(educator_id=classes[0][1], checked_date=current_date)
+    attendance = await db.get_educator_morning(
+        educator_telegram=telegram_id, checked_date=current_date, level=classes[0][0]
+    )
     if call.data == 'main_class_uz':
         if not attendance:
             if len(classes) == 1:
                 await db.add_educator(
-                    educator_id=classes[0][1], level=classes[0][0], check_educator="☀️"
+                    educator_telegram=telegram_id, level=classes[0][0], check_educator="☀️"
                 )
             else:
                 for class_ in classes:
                     await db.add_educator(
-                        educator_id=class_[1], level=class_[0], check_educator="☀️"
+                        educator_telegram=telegram_id, level=class_[0], check_educator="☀️"
                     )
         await call.answer(
             text="Buyrug'ingiz qabul qilindi va ishga kelganlar jadvalida belgilab qo'yildingiz!", show_alert=True
@@ -33,7 +38,19 @@ async def es_morning_main(call: types.CallbackQuery):
         await call.message.delete()
 
     elif call.data == 'another_uz':
-        pass
+        if attendance:
+            await call.answer(
+                text="Siz boshqa sinf/sinflarga kelganligingiz haqida habar qoldirib bo'lgansiz! O'zgartirish uchun "
+                     "Shaxsiy kabinetingizga kirishingiz lozim!", show_alert=True
+            )
+            await state.finish()
+            await call.message.delete()
+        else:
+            await call.message.edit_text(
+                text="Ishlamoqchi bo'lgan sinf yoki sinflaringizni tanlang:",
+                reply_markup=await select_level_educators(telegram_id=telegram_id, another=True)
+            )
+            await EducatorsAnotherClass.main.set()
 
 
 @dp.callback_query_handler(state=EducatorsMorning.first_class)

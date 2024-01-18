@@ -177,10 +177,11 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
 async def mm_morning_main(message: types.Message):
     work_time = await get_work_time(current_hour=datetime.now().hour)
     if work_time == "morning":
+        await message.answer(
+            text="Quyidagi tugmalardan birini tanlang:",
+            reply_markup=check_work_button()
+        )
         await EducatorsMorning.main.set()
     else:
         pass
-    await message.answer(
-        text="Quyidagi tugmalardan birini tanlang:",
-        reply_markup=check_work_button()
-    )
+

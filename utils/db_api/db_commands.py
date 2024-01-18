@@ -126,7 +126,7 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_return_list(self, telegram_id):
-        sql = f"SELECT level, id, attendance FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+        sql = f"SELECT level, attendance FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
         return await self.execute(sql, fetch=True)
 
     async def select_teacher_id(self, position, level):
@@ -150,9 +150,9 @@ class Database:
         checked_date DATE DEFAULT CURRENT_DATE,                
         level VARCHAR(10) NULL,        
         student_id INTEGER NULL,
-        educator_id INTEGER NULL,
+        educator_telegram BIGINT NULL,
         check_educator VARCHAR(5) DEFAULT '☑️',
-        teacher_id INTEGER NULL,
+        teacher_telegram BIGINT NULL,
         check_teacher VARCHAR(5) DEFAULT '☑️',        
         check_night VARCHAR(5) DEFAULT '☑️'                       
         );        
@@ -166,26 +166,30 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educator(self, educator_id, level, check_educator):
-        sql = "INSERT INTO Attendance (educator_id, level, check_educator) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, educator_id, level, check_educator, fetchrow=True)
+    async def add_educator(self, educator_telegram, level, check_educator):
+        sql = "INSERT INTO Attendance (educator_telegram, level, check_educator) VALUES($1, $2, $3) returning *"
+        return await self.execute(sql, educator_telegram, level, check_educator, fetchrow=True)
 
-    async def add_morning_students(self, educator_id, level, student_id, check_educator):
-        sql = ("INSERT INTO Attendance (educator_id, level, student_id, check_educator) "
-               "VALUES($1, $2, $3, $4) returning *")
-        return await self.execute(sql, educator_id, level, student_id, check_educator, fetchrow=True)
+    async def add_morning_students(self, level, student_id, check_educator):
+        sql = "INSERT INTO Attendance (level, student_id, check_educator) VALUES($1, $2, $3) returning *"
+        return await self.execute(sql, level, student_id, check_educator, fetchrow=True)
 
     async def get_all_attendance(self):
         sql = "SELECT * FROM Attendance"
         return await self.execute(sql, fetch=True)
 
-    async def get_educator_morning(self, educator_id, checked_date):
-        sql = f"SELECT * FROM Attendance WHERE educator_id='{educator_id}' AND checked_date='{checked_date}'"
+    async def get_educator_morning(self, educator_telegram, checked_date, level):
+        sql = (f"SELECT level FROM Attendance WHERE educator_telegram='{educator_telegram}' "
+               f"AND checked_date='{checked_date}' AND level='{level}'")
         return await self.execute(sql, fetch=True)
 
-    async def get_employee_attendance(self, educator_id, level):
-        sql = f"SELECT level FROM Attendance WHERE educator_id='{educator_id}' AND level='{level}'"
+    async def get_employee_attendance(self, educator_telegram, level):
+        sql = f"SELECT level FROM Attendance WHERE educator_telegram='{educator_telegram}' AND level='{level}'"
         return await self.execute(sql, fetch=True)
+
+    async def delete_attendance_class(self, telegram_id, level):
+        await self.execute(f"DELETE FROM Attendance WHERE educator_telegram='{telegram_id}' AND level='{level}'",
+                           execute=True)
 
     async def drop_table_attendance(self):
         await self.execute("DROP TABLE Attendance", execute=True)

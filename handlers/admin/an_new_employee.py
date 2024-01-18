@@ -17,7 +17,7 @@ async def new_employee_main(message: types.Message):
     new_employees = await db.select_new_employees(access=False)
     if new_employees:
         for employee in new_employees:
-            if employee[-2] is None:
+            if employee[-2] is False:
                 await message.answer(
                     text=f"Lavozim: {employee[4]}"
                          f"\n\nIsm sharif: {employee[3]}"
@@ -32,7 +32,7 @@ async def new_employee_main(message: types.Message):
                     text=f"Lavozim: {employee[4]}"
                          f"\n\nIsm sharif: {employee[3]}"
                          f"\n\nTelefon raqam: {employee[5]}"
-                         f"\n\nIkkichi telefon raqam: {employee[-2]}"
+                         f"\n\nIkkinchi telefon raqam: {employee[-2]}"
                          f"\n\nBiriktirilgan sinf: {employee[2]}",
                     reply_markup=await admin_check_btn(
                         user_id=employee[1]

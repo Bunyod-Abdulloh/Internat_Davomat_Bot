@@ -20,7 +20,7 @@ async def es_main_attendance(message: types.Message):
         if len(classes) == 1:
             educator = await db.select_employee(telegram_id=telegram_id)
             level = educator[0]
-            employee_attendance = await db.select_employee_level(telegram_id=message.from_user.id, level=level)
+            employee_attendance = await db.select_employee_level(telegram_id=telegram_id, level=level)
             if employee_attendance[2] is False:
                 await message.answer(
                     text="Siz ushbu sinfni yo'qlama qilib bo'lgansiz!"
@@ -38,9 +38,7 @@ async def es_main_attendance(message: types.Message):
         else:
             await message.answer(
                 text="Sinflardan birini tanlang:",
-                reply_markup=await select_level_educators(
-                    classes=classes
-                )
+                reply_markup=await select_level_educators(telegram_id=telegram_id)
             )
             await EducatorsMorning.first_class.set()
     elif work_time == 'day':
