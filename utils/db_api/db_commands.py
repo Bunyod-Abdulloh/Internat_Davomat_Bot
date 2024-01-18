@@ -67,7 +67,8 @@ class Database:
         position VARCHAR(50) NULL,
         first_phone VARCHAR(15) NULL,
         second_phone VARCHAR(15) NULL,
-        access BOOLEAN DEFAULT FALSE                 
+        access BOOLEAN DEFAULT FALSE,
+        attendance BOOLEAN DEFAULT TRUE                 
         );
         """
         await self.execute(sql, execute=True)
@@ -96,6 +97,14 @@ class Database:
         sql = f"UPDATE Employees SET access='{access}' WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, execute=True)
 
+    async def update_employee_attendance(self, attendance, level, telegram_id):
+        sql = f"UPDATE Employees SET attendance='{attendance}' WHERE level='{level}' AND telegram_id='{telegram_id}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_employee_all_attendance(self, attendance):
+        sql = f"UPDATE Employees SET attendance='{attendance}'"
+        return await self.execute(sql, execute=True)
+
     async def select_all_employees(self):
         sql = "SELECT * FROM Employees"
         return await self.execute(sql, fetch=True)
@@ -108,12 +117,16 @@ class Database:
         sql = f"SELECT level, access, id FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
         return await self.execute(sql, fetchrow=True)
 
+    async def select_employee_position(self, telegram_id, position):
+        sql = f"SELECT access FROM Employees WHERE telegram_id='{telegram_id}' AND position='{position}'"
+        return await self.execute(sql, fetchrow=True)
+
     async def select_employee_level(self, telegram_id, level):
-        sql = f"SELECT * FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
+        sql = f"SELECT id, level, attendance FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_return_list(self, telegram_id):
-        sql = f"SELECT level, id FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+        sql = f"SELECT level, id, attendance FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
         return await self.execute(sql, fetch=True)
 
     async def select_teacher_id(self, position, level):
@@ -137,11 +150,10 @@ class Database:
         checked_date DATE DEFAULT CURRENT_DATE,                
         level VARCHAR(10) NULL,        
         student_id INTEGER NULL,
-        educator_morning INTEGER NULL,
-        check_morning VARCHAR(5) DEFAULT '☑️',
+        educator_id INTEGER NULL,
+        check_educator VARCHAR(5) DEFAULT '☑️',
         teacher_id INTEGER NULL,
-        check_teacher VARCHAR(5) DEFAULT '☑️',
-        educator_night INTEGER NULL,
+        check_teacher VARCHAR(5) DEFAULT '☑️',        
         check_night VARCHAR(5) DEFAULT '☑️'                       
         );        
         """
@@ -154,25 +166,25 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educator(self, educator_morning, level):
-        sql = "INSERT INTO Attendance (educator_morning, level) VALUES($1, $2) returning *"
-        return await self.execute(sql, educator_morning, level, fetchrow=True)
+    async def add_educator(self, educator_id, level, check_educator):
+        sql = "INSERT INTO Attendance (educator_id, level, check_educator) VALUES($1, $2, $3) returning *"
+        return await self.execute(sql, educator_id, level, check_educator, fetchrow=True)
 
-    async def add_morning_students(self, educator_morning, level, student_id, check_morning):
-        sql = ("INSERT INTO Attendance (educator_morning, level, student_id, check_morning) "
+    async def add_morning_students(self, educator_id, level, student_id, check_educator):
+        sql = ("INSERT INTO Attendance (educator_id, level, student_id, check_educator) "
                "VALUES($1, $2, $3, $4) returning *")
-        return await self.execute(sql, educator_morning, level, student_id, check_morning, fetchrow=True)
+        return await self.execute(sql, educator_id, level, student_id, check_educator, fetchrow=True)
 
     async def get_all_attendance(self):
         sql = "SELECT * FROM Attendance"
         return await self.execute(sql, fetch=True)
 
-    async def get_educator_morning(self, educator_id):
-        sql = f"SELECT * FROM Attendance WHERE educator_morning='{educator_id}'"
+    async def get_educator_morning(self, educator_id, checked_date):
+        sql = f"SELECT * FROM Attendance WHERE educator_id='{educator_id}' AND checked_date='{checked_date}'"
         return await self.execute(sql, fetch=True)
 
     async def get_employee_attendance(self, educator_id, level):
-        sql = f"SELECT level FROM Attendance WHERE educator_morning='{educator_id}' AND level='{level}'"
+        sql = f"SELECT level FROM Attendance WHERE educator_id='{educator_id}' AND level='{level}'"
         return await self.execute(sql, fetch=True)
 
     async def drop_table_attendance(self):

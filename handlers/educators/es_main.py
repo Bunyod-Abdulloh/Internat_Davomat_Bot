@@ -2,10 +2,13 @@ from datetime import datetime
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+
+from handlers.a_priority.asd import get_work_time
+from keyboards.default.educator_buttons import educators_main_buttons
 from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.all_inline_keys import generate_multiselect_keyboard
-from keyboards.inline.educators_inline_keys import edu_phone_number, educators_main_uz, check_work_button
-from states.educators_states import EducatorsQuestionnaire, EducatorsMorning, EducatorsDiurnal, EducatorsSelectWork
+from keyboards.inline.educators_inline_keys import edu_phone_number, check_work_button
+from states.educators_states import EducatorsQuestionnaire, EducatorsMorning
 from magic_filter import F
 from data.config import ADMINS
 from loader import dp, db, bot
@@ -14,9 +17,8 @@ from loader import dp, db, bot
 # e_m = Educators_main (handlers/educators/file-name)
 @dp.message_handler(F.text == '🧑‍🏫 Tarbiyachi', state='*')
 async def em_main(message: types.Message):
-    print(message.text)
     telegram_id = message.from_user.id
-    educator = await db.select_employee(telegram_id=telegram_id)
+    educator = await db.select_employee_position(telegram_id=telegram_id, position='Tarbiyachi')
     if not educator:
         await message.answer(
             text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
@@ -24,7 +26,7 @@ async def em_main(message: types.Message):
         )
         await EducatorsQuestionnaire.select_class.set()
     else:
-        if educator[1] is False:
+        if educator[0] is False:
             await db.delete_employees(
                 telegram_id=telegram_id
             )
@@ -38,17 +40,15 @@ async def em_main(message: types.Message):
             )
             await EducatorsQuestionnaire.select_class.set()
         else:
-            current_hour = datetime.now().hour
-            morning = [6, 7, 8, 9, 10, 11, 12]
-            day = [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-            if current_hour in morning:
+            work_time = await get_work_time(current_hour=datetime.now().hour)
+            if work_time == 'morning':
                 await message.answer(
                     text="Assalomu alaykum! Internatimizga xush kelibsiz!"
                          "\n\nQuyidagi tugmalardan birini tanlang:",
-                    reply_markup=check_work_button()
+                    reply_markup=educators_main_buttons()
                 )
                 await EducatorsMorning.main.set()
-            elif current_hour in day:
+            elif work_time == 'day':
                 pass
             else:
                 await message.answer(
@@ -146,7 +146,7 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
         )
         await bot.send_message(
             chat_id=ADMINS[0],
-            text="Yangi hodim ma'lumotlari qabul qilindi! Ko'rish uchun /new_employees buyrug'ini kiriting!"
+            text="Yangi hodim ma'lumotlari qabul qilindi! Ko'rish uchun /new_employee buyrug'ini kiriting!"
         )
         await state.finish()
 
@@ -154,7 +154,7 @@ async def educators_get_second_number(call: types.CallbackQuery, state: FSMConte
 @dp.message_handler(state=EducatorsQuestionnaire.check_second_number)
 async def educators_check_second_number(message: types.Message, state: FSMContext):
     if message.text.isdigit():
-        await db.update_educator_second_phone(
+        await db.update_employee_second_phone(
             second_phone=f"+{message.text}", telegram_id=message.from_user.id
         )
         await message.answer(
@@ -171,3 +171,16 @@ async def educators_check_second_number(message: types.Message, state: FSMContex
         await message.answer(
             text="Iltimos, faqat raqam kiriting!"
         )
+
+
+@dp.message_handler(F.text == '✅ Ishga keldim!', state='*')
+async def mm_morning_main(message: types.Message):
+    work_time = await get_work_time(current_hour=datetime.now().hour)
+    if work_time == "morning":
+        await EducatorsMorning.main.set()
+    else:
+        pass
+    await message.answer(
+        text="Quyidagi tugmalardan birini tanlang:",
+        reply_markup=check_work_button()
+    )

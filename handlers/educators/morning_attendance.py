@@ -86,7 +86,7 @@ async def esw_morning(call: types.CallbackQuery, state: FSMContext):
                 telegram_id=call.from_user.id, level=level
             )
             await call.message.edit_text(
-                text="E'tibor qiling Tasdiqlash tugmasini bossangiz davomat adminga boradi va buni qayta o'zgartirib "
+                text="E'tibor qiling ✔️ Tasdiqlash tugmasini bossangiz davomat adminga boradi va buni qayta o'zgartirib "
                      "bo'lmaydi! Shu sababli ✔️ Tasdiqlash tugmasini davomatni tugatganingizga amin bo'lganingizdan "
                      "so'ng bosishingizni so'raymiz!",
                 reply_markup=await morning_attendance_check_button(level=level, educator_id=educator_id[0])
@@ -121,8 +121,11 @@ async def ma_check_attendance(call: types.CallbackQuery):
     )
     for student in morning_students:
         await db.add_morning_students(
-            educator_morning=educator_id, level=level, student_id=student[0], check_morning=student[1]
+            educator_id=educator_id, level=level, student_id=student[0], check_educator=student[1]
         )
+    await db.update_employee_attendance(
+        attendance=False, level=level, telegram_id=call.from_user.id
+    )
     teacher = await db.select_teacher_id(
         position='Teacher', level=level
     )

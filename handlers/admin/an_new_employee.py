@@ -12,7 +12,7 @@ from states.admin_state import AdminEducator_State
 # a_e_a - Admin educators add (handlers/file_name)
 
 
-@dp.message_handler(commands=["new_employees"], user_id=ADMINS[0], state="*")
+@dp.message_handler(commands=["new_employee"], user_id=ADMINS[0], state="*")
 async def new_employee_main(message: types.Message):
     new_employees = await db.select_new_employees(access=False)
     if new_employees:

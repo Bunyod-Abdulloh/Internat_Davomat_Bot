@@ -10,7 +10,7 @@ from utils.set_bot_commands import set_default_commands
 
 async def on_startup(dispatcher):
     await db.create()
-    await db.drop_table_attendance()
+    # await db.drop_table_attendance()
     # await db.drop_table_students()
     # await db.drop_table_employees()
     # await db.drop_table_teachers()
@@ -25,7 +25,7 @@ async def on_startup(dispatcher):
     await set_default_commands(dispatcher)
     await on_startup_notify(dispatcher)
 
-    # scheduler.start()
+    scheduler.start()
 
 
 if __name__ == "__main__":
