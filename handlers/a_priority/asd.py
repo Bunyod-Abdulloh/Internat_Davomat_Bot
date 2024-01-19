@@ -4,8 +4,8 @@ from aiogram import types
 
 
 async def get_work_time(current_hour: int):
-    day = [6, 7, 8, 9]
-    morning = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+    morning = [6, 7, 8, 9, 10]
+    day = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
     if current_hour in morning:
         return str('morning')

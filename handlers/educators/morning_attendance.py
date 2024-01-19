@@ -81,7 +81,7 @@ async def esw_morning(call: types.CallbackQuery, state: FSMContext):
 
             level = call.data.split('_')[1]
             educator_id = await db.select_employee_level(
-                telegram_id=call.from_user.id, level=level
+                telegram_id=telegram_id, level=level
             )
             await call.message.edit_text(
                 text="E'tibor qiling ✔️ Tasdiqlash tugmasini bossangiz davomat adminga boradi va buni qayta o'zgartirib "

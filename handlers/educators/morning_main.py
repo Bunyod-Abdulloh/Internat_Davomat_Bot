@@ -63,7 +63,7 @@ async def ma_first_class(call: types.CallbackQuery):
     else:
         level = call.data
         employee_attendance = await db.select_employee_level(telegram_id=call.from_user.id, level=level)
-        if employee_attendance[2] is False:
+        if employee_attendance[1] is False:
             await call.answer(
                 text="Siz ushbu sinfni yo'qlama qilib bo'lgansiz!", show_alert=True
             )

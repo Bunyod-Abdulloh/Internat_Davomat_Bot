@@ -122,7 +122,7 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_level(self, telegram_id, level):
-        sql = f"SELECT id, level, attendance FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
+        sql = f"SELECT level, attendance FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_return_list(self, telegram_id):
@@ -183,8 +183,9 @@ class Database:
                f"AND checked_date='{checked_date}' AND level='{level}'")
         return await self.execute(sql, fetch=True)
 
-    async def get_employee_attendance(self, educator_telegram, level):
-        sql = f"SELECT level FROM Attendance WHERE educator_telegram='{educator_telegram}' AND level='{level}'"
+    async def get_employee_attendance(self, checked_date, educator_telegram):
+        sql = (f"SELECT level FROM Attendance WHERE checked_date='{checked_date}' AND "
+               f"educator_telegram='{educator_telegram}'")
         return await self.execute(sql, fetch=True)
 
     async def delete_attendance_class(self, telegram_id, level):

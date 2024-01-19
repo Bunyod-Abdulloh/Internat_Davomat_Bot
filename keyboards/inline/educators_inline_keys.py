@@ -47,7 +47,8 @@ def check_work_button():
 
 # ======== Section educators select_level ========
 async def select_level_educators(telegram_id: int = None, another: bool = False, next_step: bool = False):
-    user_classes = await db.select_employee_return_list(telegram_id=telegram_id)
+    current_date = datetime.now().date()
+    user_classes = await db.get_employee_attendance(checked_date=current_date, educator_telegram=telegram_id)
     all_classes = await db.select_all_classes()
     key = InlineKeyboardMarkup(row_width=4)
     if another:
