@@ -32,29 +32,60 @@ class Database:
             return result
 
     # ============================ ADMIN COMMANDS ============================
-    async def create_table_admins(self):
+    async def create_table_checker(self):
         sql = """
-        CREATE TABLE IF NOT EXISTS Admins (
-        telegram_id BIGINT UNIQUE NOT NULL,
-        bot_on BOOLEAN DEFAULT TRUE        
+        CREATE TABLE IF NOT EXISTS Checker (
+        telegram_id BIGINT NOT NULL,
+        level VARCHAR(10) NULL,
+        check_work BOOLEAN DEFAULT FALSE,
+        check_attendance BOOLEAN DEFAULT FALSE                        
         );
         """
         await self.execute(sql, execute=True)
 
-    async def add_admin(self, telegram_id):
-        sql = "INSERT INTO Admins (telegram_id) VALUES($1) returning *"
+    async def add_user(self, telegram_id):
+        sql = "INSERT INTO Checker (telegram_id) VALUES($1) returning *"
         return await self.execute(sql, telegram_id, fetchrow=True)
 
-    async def update_admin(self, bot_on: bool):
-        sql = f"UPDATE Admins SET bot_on='{bot_on}'"
+    async def add_employee_checker(self, telegram_id, level, check_work):
+        sql = "INSERT INTO Checker (telegram_id, level, check_work) VALUES ($1, $2, $3) returning*"
+        return await self.execute(sql, telegram_id, level, check_work, fetchrow=True)
+
+    async def check_employee_work(self, check_work: bool, telegram_id: str, level: str):
+        sql = f"UPDATE Checker SET check_work='{check_work}' WHERE telegram_id='{telegram_id}' AND level='{level}'"
         return await self.execute(sql, execute=True)
 
-    async def select_admins(self):
-        sql = f"SELECT bot_on FROM Admins"
+    async def check_employee_attendance(self, check_attendance: bool, telegram_id: str, level: str):
+        sql = (f"UPDATE Checker SET check_attendance='{check_attendance}' WHERE telegram_id='{telegram_id}' "
+               f"AND level='{level}'")
+        return await self.execute(sql, execute=True)
+
+    async def update_all_check_work(self):
+        sql = "UPDATE Checker SET check_work=FALSE"
+        return await self.execute(sql, execute=True)
+
+    async def update_all_check_attendance(self):
+        sql = "UPDATE Checker SET check_attendance=FALSE"
+        return await self.execute(sql, execute=True)
+
+    async def select_check_work(self, telegram_id, level):
+        sql = f"SELECT check_work, check_attendance FROM Checker WHERE telegram_id='{telegram_id}' AND level='{level}'"
         return await self.execute(sql, fetchrow=True)
 
-    async def drop_table_admins(self):
-        await self.execute("DROP TABLE Admins", execute=True)
+    async def select_check_work_telegram(self, telegram_id):
+        sql = f"SELECT check_work, level, check_attendance FROM Checker WHERE telegram_id='{telegram_id}'"
+        return await self.execute(sql, fetch=True)
+
+    async def delete_checker_class(self, telegram_id, level):
+        await self.execute(f"DELETE FROM Checker WHERE telegram_id='{telegram_id}' AND level='{level}'",
+                           execute=True)
+
+    async def delete_checker(self, telegram_id):
+        await self.execute(f"DELETE FROM Checker WHERE telegram_id='{telegram_id}'",
+                           execute=True)
+
+    async def drop_table_checker(self):
+        await self.execute("DROP TABLE Checker", execute=True)
 
     # ============================ TABLE EMPLOYEES ============================
     async def create_table_employees(self):
@@ -67,8 +98,7 @@ class Database:
         position VARCHAR(50) NULL,
         first_phone VARCHAR(15) NULL,
         second_phone VARCHAR(15) NULL,
-        access BOOLEAN DEFAULT FALSE,
-        attendance BOOLEAN DEFAULT TRUE                 
+        access BOOLEAN DEFAULT FALSE                        
         );
         """
         await self.execute(sql, execute=True)
@@ -150,9 +180,8 @@ class Database:
         checked_date DATE DEFAULT CURRENT_DATE,                
         level VARCHAR(10) NULL,        
         student_id INTEGER NULL,
-        educator_telegram BIGINT NULL,
-        check_educator VARCHAR(5) DEFAULT '☑️',
-        teacher_telegram BIGINT NULL,
+        employee_id BIGINT NULL,
+        check_morning VARCHAR(5) DEFAULT '☑️',        
         check_teacher VARCHAR(5) DEFAULT '☑️',        
         check_night VARCHAR(5) DEFAULT '☑️'                       
         );        
@@ -166,20 +195,16 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_educator(self, educator_telegram, level, check_educator):
-        sql = "INSERT INTO Attendance (educator_telegram, level, check_educator) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, educator_telegram, level, check_educator, fetchrow=True)
-
-    async def add_morning_students(self, level, student_id, check_educator):
-        sql = "INSERT INTO Attendance (level, student_id, check_educator) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, level, student_id, check_educator, fetchrow=True)
+    async def add_morning_students(self, level, student_id, employee_id, check_educator):
+        sql = "INSERT INTO Attendance (level, student_id, employee_id, check_morning) VALUES($1,$2,$3,$4) returning *"
+        return await self.execute(sql, level, student_id, employee_id, check_educator, fetchrow=True)
 
     async def get_all_attendance(self):
         sql = "SELECT * FROM Attendance"
         return await self.execute(sql, fetch=True)
 
-    async def get_educator_morning(self, educator_telegram, checked_date, level):
-        sql = (f"SELECT level FROM Attendance WHERE educator_telegram='{educator_telegram}' "
+    async def get_educator_morning(self, employee_id, checked_date, level):
+        sql = (f"SELECT level FROM Attendance WHERE employee_id='{employee_id}' "
                f"AND checked_date='{checked_date}' AND level='{level}'")
         return await self.execute(sql, fetch=True)
 

@@ -47,15 +47,13 @@ def check_work_button():
 
 # ======== Section educators select_level ========
 async def select_level_educators(telegram_id: int = None, another: bool = False, next_step: bool = False):
-    current_date = datetime.now().date()
-    user_classes = await db.get_employee_attendance(checked_date=current_date, educator_telegram=telegram_id)
+    user_classes = await db.select_check_work_telegram(telegram_id=telegram_id)
+    print(user_classes)
     all_classes = await db.select_all_classes()
     key = InlineKeyboardMarkup(row_width=4)
     if another:
         for level in all_classes:
-            attendance = await db.get_educator_morning(
-                educator_telegram=telegram_id, level=level[0], checked_date=datetime.now().date()
-            )
+            attendance = await db.select_check_work(telegram_id=telegram_id, level=level[0])
             if attendance:
                 button_text = f'✅ {level[0]}'
             else:
@@ -80,7 +78,7 @@ async def select_level_educators(telegram_id: int = None, another: bool = False,
         for level in user_classes:
             key.insert(
                 InlineKeyboardButton(
-                    text=level[0], callback_data=level[0]
+                    text=level[1], callback_data=level[1]
                 )
             )
         key.add(
