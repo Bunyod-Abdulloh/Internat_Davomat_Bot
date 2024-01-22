@@ -127,14 +127,6 @@ class Database:
         sql = f"UPDATE Employees SET access='{access}' WHERE telegram_id='{telegram_id}'"
         return await self.execute(sql, execute=True)
 
-    async def update_employee_attendance(self, attendance, level, telegram_id):
-        sql = f"UPDATE Employees SET attendance='{attendance}' WHERE level='{level}' AND telegram_id='{telegram_id}'"
-        return await self.execute(sql, execute=True)
-
-    async def update_employee_all_attendance(self, attendance):
-        sql = f"UPDATE Employees SET attendance='{attendance}'"
-        return await self.execute(sql, execute=True)
-
     async def select_all_employees(self):
         sql = "SELECT * FROM Employees"
         return await self.execute(sql, fetch=True)
@@ -144,7 +136,7 @@ class Database:
         return await self.execute(sql, fetch=True)
 
     async def select_employee(self, telegram_id):
-        sql = f"SELECT level, access, id FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+        sql = f"SELECT level, access FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_position(self, telegram_id, position):
@@ -152,11 +144,11 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_level(self, telegram_id, level):
-        sql = f"SELECT level, attendance FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
+        sql = f"SELECT level FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_return_list(self, telegram_id):
-        sql = f"SELECT level, attendance FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
+        sql = f"SELECT level FROM Employees WHERE telegram_id='{telegram_id}' ORDER BY level"
         return await self.execute(sql, fetch=True)
 
     async def select_teacher_id(self, position, level):
@@ -180,9 +172,11 @@ class Database:
         checked_date DATE DEFAULT CURRENT_DATE,                
         level VARCHAR(10) NULL,        
         student_id INTEGER NULL,
-        employee_id BIGINT NULL,
+        morning_id BIGINT NULL,
         check_morning VARCHAR(5) DEFAULT '☑️',        
-        check_teacher VARCHAR(5) DEFAULT '☑️',        
+        teacher_id BIGINT NULL,
+        check_teacher VARCHAR(5) DEFAULT '☑️',
+        night_id BIGINT NULL,        
         check_night VARCHAR(5) DEFAULT '☑️'                       
         );        
         """
@@ -195,9 +189,11 @@ class Database:
         )
         return sql, tuple(parameters.values())
 
-    async def add_morning_students(self, level, student_id, employee_id, check_educator):
-        sql = "INSERT INTO Attendance (level, student_id, employee_id, check_morning) VALUES($1,$2,$3,$4) returning *"
-        return await self.execute(sql, level, student_id, employee_id, check_educator, fetchrow=True)
+    async def add_morning_students(self, level, student_id, morning_id, check_morning, check_teacher):
+        sql = ("INSERT INTO Attendance (level, student_id, morning_id, check_morning, check_teacher) "
+               "VALUES($1, $2, $3, $4, $5) returning *")
+        return await self.execute(sql, level, student_id, morning_id, check_morning, check_teacher,
+                                  fetchrow=True)
 
     async def get_all_attendance(self):
         sql = "SELECT * FROM Attendance"

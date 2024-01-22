@@ -19,20 +19,19 @@ async def es_main_attendance(message: types.Message):
     if work_time == 'morning':
         if get_attendance:
             if len(get_attendance) == 1:
-                level = get_attendance[0][0]
-                employee_attendance = await db.select_employee_level(telegram_id=telegram_id, level=level)
-
-                if employee_attendance[1] is False:
+                level = get_attendance[0][1]
+                employee_attendance = await db.select_check_work(telegram_id=telegram_id, level=level)
+                if employee_attendance[1] is True:
                     await message.answer(
-                        text="Siz ushbu sinfni yo'qlama qilib bo'lgansiz!"
+                        text=f"Siz {level} sinfini yo'qlama qilib bo'lgansiz!"
                     )
                 else:
                     current_date = datetime.now().date()
                     get_morning = await db.get_morning(level=level)
                     await message.answer(
-                        text=f"Sana: {current_date}\nSinf: {level}"
-                             f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ "
-                             f"Tasdiqlash</b>tugmasini bosing!"
+                        text=f"Sana: {current_date}\nSinf: {level}\nJami o'quvchilar soni: {len(get_morning)} ta "
+                             f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
+                             f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
                              f"\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
                         reply_markup=await view_students_uz(
                             work_time=get_morning, level=level, morning=True)
@@ -65,16 +64,18 @@ async def ma_first_class(call: types.CallbackQuery):
         employee_attendance = await db.select_check_work(telegram_id=telegram_id, level=level)
         if employee_attendance[1] is True:
             await call.answer(
-                text="Siz ushbu sinfni yo'qlama qilib bo'lgansiz!", show_alert=True
+                text=f"Siz {level} sinfini yo'qlama qilib bo'lgansiz!", show_alert=True
             )
         else:
+            current_date = datetime.now().date()
             get_morning = await db.get_morning(
                 level=level
             )
             await call.message.edit_text(
-                text="O'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda <b>☑️ Tasdiqlash</b> "
-                     "tugmasini bosing!"
-                     "\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
+                text=f"Sana: {current_date}\nSinf: {level}\nJami o'quvchilar soni: {len(get_morning)} ta "
+                     f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
+                     f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
+                     f"\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
                 reply_markup=await view_students_uz(
                     work_time=get_morning, level=level, morning=True)
             )

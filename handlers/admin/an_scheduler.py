@@ -19,8 +19,8 @@ jobstores = {
 scheduler = AsyncIOScheduler(timezone=tz, jobstores=jobstores, job_defaults=job_defaults)
 
 
-async def update_all_attendance_job():
-    await db.update_employee_all_attendance(attendance=True)
+# async def update_all_attendance_job():
+#     await db.update_employee_all_attendance(attendance=True)
 
 
 async def morning_off_mon_sat():

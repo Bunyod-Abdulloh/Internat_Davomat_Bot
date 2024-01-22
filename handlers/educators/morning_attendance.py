@@ -4,6 +4,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from magic_filter import F
 
+from keyboards.default.educator_buttons import educators_main_buttons
 from keyboards.inline.educators_inline_keys import select_level_educators
 from keyboards.inline.student_inline_buttons import view_students_uz, morning_attendance_check_button
 from loader import dp, db, bot
@@ -16,7 +17,10 @@ async def esw_morning(call: types.CallbackQuery, state: FSMContext):
     classes = await db.select_employee_return_list(telegram_id=telegram_id)
     if call.data == "stbback":
         if len(classes) == 1:
-            pass
+            await call.message.answer(
+                text="Tarbiyachi bo'limi", reply_markup=educators_main_buttons()
+            )
+            await call.message.delete()
         else:
             await call.message.edit_text(
                 text="Sinflardan birini tanlang:",
@@ -72,14 +76,11 @@ async def esw_morning(call: types.CallbackQuery, state: FSMContext):
             )
         elif call.data.__contains__("next_"):
             level = call.data.split('_')[1]
-            educator_id = await db.select_employee_level(
-                telegram_id=telegram_id, level=level
-            )
             await call.message.edit_text(
-                text="E'tibor qiling ✔️ Tasdiqlash tugmasini bossangiz davomat adminga boradi va buni qayta o'zgartirib "
-                     "bo'lmaydi! Shu sababli ✔️ Tasdiqlash tugmasini davomatni tugatganingizga amin bo'lganingizdan "
-                     "so'ng bosishingizni so'raymiz!",
-                reply_markup=await morning_attendance_check_button(level=level, educator_id=educator_id[0])
+                text="E'tibor qiling ✔️ Tasdiqlash tugmasini bossangiz davomat adminga boradi va buni qayta "
+                     "o'zgartirib bo'lmaydi! Shu sababli ✔️ Tasdiqlash tugmasini davomatni tugatganingizga amin "
+                     "bo'lganingizdan so'ng bosishingizni so'raymiz!",
+                reply_markup=await morning_attendance_check_button(level=level)
             )
             await state.finish()
 
@@ -111,7 +112,8 @@ async def ma_check_attendance(call: types.CallbackQuery):
     )
     for student in morning_students:
         await db.add_morning_students(
-            level=level, student_id=student[0], employee_id=telegram_id, check_educator=student[1]
+            level=level, student_id=student[0], morning_id=telegram_id,
+            check_morning=student[1], check_teacher=student[1]
         )
     await db.check_employee_attendance(
         check_attendance=True,  telegram_id=telegram_id, level=level

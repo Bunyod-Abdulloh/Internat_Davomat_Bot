@@ -5,7 +5,7 @@ from loader import dp, db
 from aiogram.dispatcher import FSMContext
 from states.educators_states import EducatorsMorning, EducatorsAnotherClass
 from keyboards.default.educator_buttons import educators_main_buttons
-from keyboards.inline.educators_inline_keys import select_level_educators
+from keyboards.inline.educators_inline_keys import select_level_educators, another_class_buttons
 from keyboards.inline.student_inline_buttons import view_students_uz
 
 
@@ -14,7 +14,6 @@ async def es_morning_main(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.from_user.id
     classes = await db.select_employee_return_list(telegram_id=telegram_id)
     educator_verification = await db.select_check_work_telegram(telegram_id=telegram_id)
-    print(educator_verification)
     if call.data == 'main_class_uz':
         if not educator_verification:
             if len(classes) == 1:
@@ -42,6 +41,6 @@ async def es_morning_main(call: types.CallbackQuery, state: FSMContext):
         else:
             await call.message.edit_text(
                 text="Ishlamoqchi bo'lgan sinf yoki sinflaringizni tanlang:",
-                reply_markup=await select_level_educators(telegram_id=telegram_id, another=True)
+                reply_markup=await another_class_buttons(telegram_id=telegram_id)
             )
             await EducatorsAnotherClass.main.set()

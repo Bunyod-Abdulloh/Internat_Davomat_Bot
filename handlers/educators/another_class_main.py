@@ -3,7 +3,7 @@ from datetime import datetime
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 
-from keyboards.inline.educators_inline_keys import select_level_educators
+from keyboards.inline.educators_inline_keys import select_level_educators, another_class_buttons
 from loader import dp, db
 from states.educators_states import EducatorsAnotherClass
 
@@ -36,5 +36,5 @@ async def e_another_class(call: types.CallbackQuery, state: FSMContext):
             text="Ishlamoqchi bo'lgan sinf yoki sinflaringizni tanlang:"
                  "\n\n(mabodo fikringizdan qaytib qolsangiz iltimos ishlamaydigan sinfingizni ustiga bosib ☑️ holatiga "
                  "keltirib qo'ying!)",
-            reply_markup=await select_level_educators(telegram_id=telegram_id, another=True, next_step=True)
+            reply_markup=await another_class_buttons(telegram_id=telegram_id, next_step=True)
         )

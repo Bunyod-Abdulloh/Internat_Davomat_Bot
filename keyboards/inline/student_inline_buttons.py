@@ -52,7 +52,7 @@ async def view_students_uz(work_time: list, level: str, morning: bool = False, n
     return key
 
 
-async def morning_attendance_check_button(level: str, educator_id: int):
+async def morning_attendance_check_button(level: str):
     key = InlineKeyboardMarkup(row_width=2)
     key.add(
         InlineKeyboardButton(
