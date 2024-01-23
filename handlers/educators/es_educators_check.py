@@ -31,5 +31,5 @@ async def ech_main(call: types.CallbackQuery):
                 text="Bu tugma faqat ish vaqtingizda ishlaydi!", show_alert=True
             )
     educator = await db.select_employee(
-        telegram_id=call.from_user.id
+        telegram_id=call.from_user.id, position='Tarbiyachi'
     )

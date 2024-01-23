@@ -49,6 +49,10 @@ async def es_main_attendance(message: types.Message):
             )
     elif work_time == 'day':
         pass
+    else:
+        await message.answer(
+            text='Ushbu bo\'lim faqat ish vaqtida ishlaydi!'
+        )
 
 
 @dp.callback_query_handler(state=EducatorsMorning.first_class)

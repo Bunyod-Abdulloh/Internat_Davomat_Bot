@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 
-class AdminEducator_State(StatesGroup):
+class AdminEducator(StatesGroup):
     cancel_message = State()
     cancel_check = State()
 

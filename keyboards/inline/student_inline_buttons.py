@@ -63,3 +63,16 @@ async def morning_attendance_check_button(level: str):
             callback_data=f'sibcheck63_{level}')
     )
     return key
+
+
+async def teacher_attendance_check_button(level: str):
+    key = InlineKeyboardMarkup(row_width=2)
+    key.add(
+        InlineKeyboardButton(
+            text='⬅️ Ortga',
+            callback_data=f'teachback_{level}'),
+        InlineKeyboardButton(
+            text='✔️ Tasdiqlash',
+            callback_data=f'teachcheck_{level}')
+    )
+    return key

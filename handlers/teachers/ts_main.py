@@ -1,113 +1,66 @@
-from aiogram import types
-from aiogram.dispatcher import FSMContext
-from magic_filter import F
+from datetime import datetime
 
-from keyboards.inline.main_menu_inline_keys import select_language_ikeys
-from keyboards.inline.teachers_inline_buttons import senior_lessons_ibutton, select_language_teachers
+from aiogram import types
+from aiogram.types import ReplyKeyboardRemove
+from magic_filter import F
+from keyboards.inline.all_inline_keys import teachers_multiselect_keyboard
+from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
-from states.teachers_state import TeachersAnketa
+from states.teachers_state import TeacherForm, TeacherAttendance
 
 
 # ts_m_ = Teachers Main (handlers/teachers/file_name)
-@dp.callback_query_handler(F.data == "tr_main", state="*")
-async def ts_m_main(call: types.CallbackQuery):
-    await call.message.edit_text(
-        text="Dars o'tish tilini tanlang:", reply_markup=select_language_teachers
-    )
-
-
-@dp.callback_query_handler(F.data == "uz_teach", state="*")
-async def ts_m_get_fullname(call: types.CallbackQuery):
-    await call.message.edit_text(
-        text="Ism-sharif va otaningizni ismini kiriting: "
-             "\n\n<b>Namuna: Xaitova Barno Axmedovna</b>"
-    )
-    await TeachersAnketa.get_fullname.set()
-
-
-@dp.message_handler(state=TeachersAnketa.get_fullname)
-async def ts_m_get_fullname(message: types.Message, state: FSMContext):
-
-    await db.add_teacher(
-        fullname=message.text, telegram_id=message.from_user.id
-    )
-    await state.update_data(
-        teacher_counter=0
-    )
-    await message.answer(
-        text="Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(
-            back_step="Ortga", next_step="Keyingi", language_uz=True
+@dp.message_handler(F.text == '🏫 Sinf rahbar', state='*')
+async def teachers_main_cmd(message: types.Message):
+    telegram_id = message.from_user.id
+    teacher = await db.select_employee_position(telegram_id=telegram_id, position='Sinf rahbar')
+    if not teacher:
+        await message.answer(
+            text=message.text, reply_markup=ReplyKeyboardRemove()
         )
-    )
-    await TeachersAnketa.get_lesson.set()
-
-
-@dp.callback_query_handler(state=TeachersAnketa.get_lesson)
-async def ts_m_get_lesson(call: types.CallbackQuery, state: FSMContext):
-    await call.answer(cache_time=0)
-    data = await state.get_data()
-    counter = data['teacher_counter']
-    lesson_name = call.data
-    get_teacher = await db.get_teacher(
-        telegram_id=call.from_user.id
-    )
-
-    counter += 1
-    if counter == 1:
-        if get_teacher[2] == "✅":
-            await db.update_lesson_name(
-                mark="🔘", lesson_name=lesson_name, telegram_id=call.from_user.id
-            )
-        else:
-            await db.update_lesson_name(
-                mark="✅", lesson_name=lesson_name, telegram_id=call.from_user.id
-            )
-
-    elif counter == 2:
-        if get_teacher[2] == "🔘":
-            await db.update_lesson_name(
-                mark="✅", lesson_name=lesson_name, telegram_id=call.from_user.id
-            )
-        else:
-            await db.update_lesson_name(
-                mark="🔘", lesson_name=lesson_name, telegram_id=call.from_user.id
-            )
-        counter = 0
-
-    await state.update_data(
-        teacher_counter=counter
-    )
-    get_teacher = await db.get_teacher(
-        telegram_id=call.from_user.id
-    )
-    print(get_teacher)
-    await call.message.answer(
-        text="Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(
-            back_step="Ortga", next_step="Keyingi", language_uz=True
+        await db.add_employee_sql(
+            telegram_id=telegram_id, position='Sinf rahbar'
         )
-    )
-
-    # get_lesson = await db.
-    # counter += 1
-    #
-    # if counter == 1:
-
-    # await call.message.edit_text(
-    #     text=f"Faningiz nomini tanlang:", reply_markup=await senior_lessons_ibutton(
-    #         back_step="Ortga", next_step="Keyingi", language_uz=True
-    #     )
-    # )
-
-    #
-    # await state.update_data(
-    #     teacher_lesson=call.data
-    # )
-    # await call.message.edit_text(
-    #     text="Ish kunlaringizni tanlang:"
-    # )
-    # await TeachersAnketa.get_work_days.set()
-
-
-@dp.callback_query_handler(state=TeachersAnketa.get_work_days)
-async def ts_m_get_work_days(call: types.CallbackQuery, state: FSMContext):
-    print(call.data)
+        await message.answer(
+            text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
+            reply_markup=await teachers_multiselect_keyboard(telegram_id=telegram_id)
+        )
+        await TeacherForm.select_class.set()
+    else:
+        if teacher[0] is False:
+            await db.delete_employees(
+                telegram_id=telegram_id, position='Sinf rahbar'
+            )
+            await message.answer(
+                text="Ma'lumotlaringiz tasdiqlanmadi! \nIltimos ma'lumotlaringizni qayta kiriting!"
+                     "\n\nO'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
+                reply_markup=await teachers_multiselect_keyboard(telegram_id=telegram_id)
+            )
+            await db.delete_employees(
+                telegram_id=telegram_id, position='Sinf rahbar'
+            )
+            await TeacherForm.select_class.set()
+        else:
+            current_date = datetime.now().date()
+            checker = await db.select_check_work_teacher(
+                checked_date=current_date, level=teacher[1]
+            )
+            if checker is None:
+                await message.answer(
+                    text='Davomat hozircha mavjud emas!'
+                )
+            else:
+                level = teacher[1]
+                current_date = datetime.now().date()
+                get_morning = await db.get_morning(
+                    level=level
+                )
+                await message.answer(
+                        text=f"Sana: {current_date}\nSinf: {level}"
+                             f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
+                             f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
+                             f"\n\n✅ - Kelganlar\n☑️ - Sababli kelmaganlar\n❎ - Sababsiz kelmaganlar",
+                        reply_markup=await view_students_uz(
+                            work_time=get_morning, level=level, morning=True)
+                    )
+                await TeacherAttendance.main.set()

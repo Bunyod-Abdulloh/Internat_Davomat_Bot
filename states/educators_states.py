@@ -1,7 +1,7 @@
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 
-class EducatorsQuestionnaire(StatesGroup):
+class EducatorForm(StatesGroup):
     fullname = State()
     first_number = State()
     second_number = State()

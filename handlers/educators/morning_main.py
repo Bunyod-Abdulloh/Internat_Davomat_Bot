@@ -12,7 +12,7 @@ from keyboards.inline.student_inline_buttons import view_students_uz
 @dp.callback_query_handler(state=EducatorsMorning.main)
 async def es_morning_main(call: types.CallbackQuery, state: FSMContext):
     telegram_id = call.from_user.id
-    classes = await db.select_employee_return_list(telegram_id=telegram_id)
+    classes = await db.select_employee_return_list(telegram_id=telegram_id, position='Tarbiyachi')
     educator_verification = await db.select_check_work_telegram(telegram_id=telegram_id)
     if call.data == 'main_class_uz':
         if not educator_verification:
