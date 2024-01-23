@@ -39,7 +39,8 @@ class Database:
         telegram_id BIGINT NOT NULL,
         level VARCHAR(10) NULL,
         check_work BOOLEAN DEFAULT FALSE,
-        check_attendance BOOLEAN DEFAULT FALSE                              
+        check_attendance BOOLEAN DEFAULT FALSE,
+        check_teacher BOOLEAN DEFAULT FALSE                              
         );
         """
         await self.execute(sql, execute=True)
@@ -54,6 +55,11 @@ class Database:
 
     async def check_employee_work(self, check_work: bool, telegram_id: str, level: str):
         sql = f"UPDATE Checker SET check_work='{check_work}' WHERE telegram_id='{telegram_id}' AND level='{level}'"
+        return await self.execute(sql, execute=True)
+
+    async def update_check_teacher(self, check_teacher: bool, telegram_id: str, level: str):
+        sql = (f"UPDATE Checker SET check_teacher='{check_teacher}' WHERE telegram_id='{telegram_id}'"
+               f" AND level='{level}'")
         return await self.execute(sql, execute=True)
 
     async def check_employee_attendance(self, check_attendance, telegram_id, level):
@@ -74,7 +80,8 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def select_check_work_teacher(self, checked_date, level):
-        sql = f"SELECT check_attendance FROM Checker WHERE checked_date='{checked_date}' AND level='{level}'"
+        sql = (f"SELECT check_attendance, check_teacher FROM Checker WHERE checked_date='{checked_date}' "
+               f"AND level='{level}'")
         return await self.execute(sql, fetchrow=True)
 
     async def select_check_work_telegram(self, telegram_id):
@@ -103,7 +110,8 @@ class Database:
         position VARCHAR(50) NULL,
         first_phone VARCHAR(15) NULL,
         second_phone VARCHAR(15) NULL,
-        access BOOLEAN DEFAULT FALSE                        
+        access BOOLEAN DEFAULT FALSE,
+        teach_check BOOLEAN DEFAULT FALSE                                
         );
         """
         await self.execute(sql, execute=True)
@@ -139,6 +147,11 @@ class Database:
                f"AND position='{position}'")
         return await self.execute(sql, execute=True)
 
+    async def update_teach_check(self, teach_check, telegram_id, position):
+        sql = (f"UPDATE Employees SET teach_check='{teach_check}' WHERE telegram_id='{telegram_id}' "
+               f"AND position='{position}'")
+        return await self.execute(sql, execute=True)
+
     async def select_all_employees(self):
         sql = "SELECT * FROM Employees"
         return await self.execute(sql, fetch=True)
@@ -148,7 +161,7 @@ class Database:
         return await self.execute(sql, fetch=True)
 
     async def select_employee(self, telegram_id, position):
-        sql = (f"SELECT level, access FROM Employees WHERE telegram_id='{telegram_id}' AND position='{position}'"
+        sql = (f"SELECT level, access, teach_check FROM Employees WHERE telegram_id='{telegram_id}' AND position='{position}'"
                f" ORDER BY level")
         return await self.execute(sql, fetchrow=True)
 

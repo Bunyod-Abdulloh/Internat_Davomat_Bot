@@ -3,6 +3,8 @@ from datetime import datetime
 from aiogram import types
 from aiogram.types import ReplyKeyboardRemove
 from magic_filter import F
+
+from keyboards.default.teacher_cbuttons import teachers_main_cbuttons
 from keyboards.inline.all_inline_keys import teachers_multiselect_keyboard
 from keyboards.inline.student_inline_buttons import view_students_uz
 from loader import dp, db
@@ -41,26 +43,7 @@ async def teachers_main_cmd(message: types.Message):
             )
             await TeacherForm.select_class.set()
         else:
-            current_date = datetime.now().date()
-            checker = await db.select_check_work_teacher(
-                checked_date=current_date, level=teacher[1]
+            await message.answer(
+                text='Kerakli bo\'limni tanlang:', reply_markup=teachers_main_cbuttons
             )
-            if checker is None:
-                await message.answer(
-                    text='Davomat hozircha mavjud emas!'
-                )
-            else:
-                level = teacher[1]
-                current_date = datetime.now().date()
-                get_morning = await db.get_morning(
-                    level=level
-                )
-                await message.answer(
-                        text=f"Sana: {current_date}\nSinf: {level}"
-                             f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
-                             f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
-                             f"\n\n✅ - Kelganlar\n☑️ - Sababli kelmaganlar\n❎ - Sababsiz kelmaganlar",
-                        reply_markup=await view_students_uz(
-                            work_time=get_morning, level=level, morning=True)
-                    )
-                await TeacherAttendance.main.set()
+

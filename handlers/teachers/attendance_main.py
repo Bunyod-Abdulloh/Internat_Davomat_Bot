@@ -4,15 +4,54 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from magic_filter import F
 
+from keyboards.default.main_menu_cbuttons import main_menu_uz
 from keyboards.inline.student_inline_buttons import view_students_uz, teacher_attendance_check_button
 from loader import dp, db
 from states.teachers_state import TeacherAttendance
 
 
+@dp.message_handler(F.text == '📆 Davomatni ko\'rish', state='*')
+async def view_students_attendance_cmd(message: types.Message):
+    teacher_id = message.from_user.id
+    current_date = datetime.now().date()
+    teacher = await db.select_employee_position(telegram_id=teacher_id, position='Sinf rahbar')
+    checker = await db.select_check_work_teacher(
+        checked_date=current_date, level=teacher[1]
+    )
+    if checker is None or checker[1] is True:
+        await message.answer(
+            text='Davomat hozircha mavjud emas!'
+        )
+    elif checker[0] is False:
+        await message.answer(
+            text='Davomat hozircha mavjud emas!'
+        )
+    else:
+        level = teacher[1]
+        get_morning = await db.get_morning(
+            level=level
+        )
+        await message.answer(
+                text=f"Sana: {current_date}\nSinf: {level}"
+                     f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
+                     f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
+                     f"\n\n✅ - Kelganlar\n☑️ - Sababli kelmaganlar\n❎ - Sababsiz kelmaganlar",
+                reply_markup=await view_students_uz(
+                    work_time=get_morning, level=level, morning=True)
+            )
+        await TeacherAttendance.main.set()
+
+
+@dp.message_handler(F.text == '↩️ Bosh sahifaga qaytish', state='*')
+async def back_teacher_main_menu(message: types.Message, state: FSMContext):
+    await message.answer(
+        text='Bosh sahifa', reply_markup=main_menu_uz
+    )
+    await state.finish()
+
+
 @dp.callback_query_handler(state=TeacherAttendance.main)
 async def teacher_attendance_main_cmd(call: types.CallbackQuery, state: FSMContext):
-    telegram_id = call.from_user.id
-    # classes = await db.select_employee_return_list(telegram_id=telegram_id, position='Tarbiyachi')
     if call.data == "stbback":
         await call.message.delete()
     elif call.data.__contains__("absentuz_"):
@@ -105,6 +144,9 @@ async def check_teach_attendance(call: types.CallbackQuery, state: FSMContext):
         )
     await call.message.edit_text(
         text="Davomat qabul qilindi!"
+    )
+    await db.update_check_teacher(
+        check_teacher=True, telegram_id=teacher_id, level=level
     )
     # await bot.send_message(
     #     chat_id=teacher[0],
