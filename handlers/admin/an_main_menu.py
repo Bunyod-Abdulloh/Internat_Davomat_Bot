@@ -2,7 +2,7 @@ from aiogram import types
 from magic_filter import F
 
 from data.config import ADMINS
-from keyboards.default.admin_custom_buttons import admin_custom_btn, admin_custom_students, admin_custom_teachers
+from keyboards.default.admin_custom_buttons import admin_custom_btn
 from loader import dp
 from states.admin_state import AdminMain, AdminTeachers
 

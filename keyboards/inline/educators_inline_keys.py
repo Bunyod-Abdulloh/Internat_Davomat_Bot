@@ -67,14 +67,15 @@ async def another_class_buttons(telegram_id: int, next_step: bool = None):
     all_classes = await db.select_all_classes()
     key = InlineKeyboardMarkup(row_width=4)
     for level in all_classes:
-        attendance = await db.select_check_work(telegram_id=telegram_id, level=level[0])
+        level_ = f'{level[0]}-{level[1]}'
+        attendance = await db.select_check_work(telegram_id=telegram_id, level=level_)
         if attendance:
-            button_text = f'✅ {level[0]}'
+            button_text = f'✅ {level_}'
         else:
-            button_text = f'☑️ {level[0]}'
+            button_text = f'{level_}'
         key.insert(
             InlineKeyboardButton(
-                text=button_text, callback_data=level[0]
+                text=button_text, callback_data=level_
             )
         )
     key.add(

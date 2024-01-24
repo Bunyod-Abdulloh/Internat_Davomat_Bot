@@ -20,9 +20,6 @@ async def teachers_main_cmd(message: types.Message):
         await message.answer(
             text=message.text, reply_markup=ReplyKeyboardRemove()
         )
-        await db.add_employee_sql(
-            telegram_id=telegram_id, position='Sinf rahbar'
-        )
         await message.answer(
             text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
             reply_markup=await teachers_multiselect_keyboard(telegram_id=telegram_id)

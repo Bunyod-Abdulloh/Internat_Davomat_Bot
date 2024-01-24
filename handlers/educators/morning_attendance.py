@@ -67,7 +67,7 @@ async def esw_morning(call: types.CallbackQuery, state: FSMContext):
             )
             current_date = datetime.now().date()
             await call.message.edit_text(
-                text=f"Sana: {current_date}\nSinf: {level}"
+                text=f"Sana: {current_date}\nSinf: {level}\nJami o'quvchilar soni: {len(get_morning)} ta"
                      f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
                      f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
                      f"\n\n✅ - Kelganlar\n☑️ - Sababli kelmaganlar\n❎ - Sababsiz kelmaganlar",

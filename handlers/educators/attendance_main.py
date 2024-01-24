@@ -32,7 +32,7 @@ async def es_main_attendance(message: types.Message):
                         text=f"Sana: {current_date}\nSinf: {level}\nJami o'quvchilar soni: {len(get_morning)} ta "
                              f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
                              f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
-                             f"\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
+                             f"\n\n✅ - Kelganlar\n☑️ - Sababli kelmaganlar\n❎ - Sababsiz kelmaganlar",
                         reply_markup=await view_students_uz(
                             work_time=get_morning, level=level, morning=True)
                     )
@@ -79,7 +79,7 @@ async def ma_first_class(call: types.CallbackQuery):
                 text=f"Sana: {current_date}\nSinf: {level}\nJami o'quvchilar soni: {len(get_morning)} ta "
                      f"\n\nO'quvchilarni kelgan kelmaganligini tugmalarni bosib belgilang va yakunda "
                      f"<b>☑️ Tasdiqlash</b> tugmasini bosing!"
-                     f"\n\n✅ - Kelganlar\n\n☑️ - Sababli kelmaganlar\n\n❎ - Sababsiz kelmaganlar",
+                     f"\n\n✅ - Kelganlar\n☑️ - Sababli kelmaganlar\n❎ - Sababsiz kelmaganlar",
                 reply_markup=await view_students_uz(
                     work_time=get_morning, level=level, morning=True)
             )

@@ -1,12 +1,9 @@
-from datetime import datetime
-
 from aiogram import types
 from loader import dp, db
 from aiogram.dispatcher import FSMContext
 from states.educators_states import EducatorsMorning, EducatorsAnotherClass
 from keyboards.default.educator_buttons import educators_main_buttons
-from keyboards.inline.educators_inline_keys import select_level_educators, another_class_buttons
-from keyboards.inline.student_inline_buttons import view_students_uz
+from keyboards.inline.educators_inline_keys import another_class_buttons
 
 
 @dp.callback_query_handler(state=EducatorsMorning.main)

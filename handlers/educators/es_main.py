@@ -24,9 +24,6 @@ async def em_main(message: types.Message):
         await message.answer(
             text=message.text, reply_markup=ReplyKeyboardRemove()
         )
-        await db.add_employee_sql(
-            telegram_id=telegram_id, position='Tarbiyachi'
-        )
         await message.answer(
             text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
             reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id)
@@ -85,13 +82,12 @@ async def e_m_select_class(call: types.CallbackQuery, state: FSMContext):
                 text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
                 reply_markup=await generate_multiselect_keyboard(telegram_id=telegram_id)
             )
-            await EducatorForm.select_class.set()
     else:
         level = call.data.split('_')[1]
         user = await db.select_employee_level(telegram_id=telegram_id, level=level, position='Tarbiyachi')
         if user is None:
-            await db.update_employee_level(
-                level=level, position='Tarbiyachi', telegram_id=telegram_id
+            await db.add_employee_sql(
+                level=level,  telegram_id=telegram_id, position='Tarbiyachi'
             )
         else:
             await db.delete_employees_class(

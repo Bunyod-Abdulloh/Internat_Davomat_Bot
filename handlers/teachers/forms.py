@@ -31,13 +31,12 @@ async def teachers_select_class_cmd(call: types.CallbackQuery, state: FSMContext
                 text="O'zingizga biriktirilgan sinf yoki sinflarni tanlang:",
                 reply_markup=await teachers_multiselect_keyboard(telegram_id=telegram_id)
             )
-            await TeacherForm.select_class.set()
     else:
         level = call.data.split('_')[1]
         user = await db.select_employee_level(telegram_id=telegram_id, level=level, position='Sinf rahbar')
         if user is None:
-            await db.update_employee_level(
-                level=level,  position='Sinf rahbar', telegram_id=telegram_id
+            await db.add_employee_sql(
+                level=level, telegram_id=telegram_id, position='Sinf rahbar'
             )
         else:
             await db.delete_employees_class(

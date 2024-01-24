@@ -104,7 +104,7 @@ class Database:
         sql = """
         CREATE TABLE IF NOT EXISTS Employees (
         id SERIAL PRIMARY KEY,
-        telegram_id BIGINT NULL,
+        telegram_id BIGINT NULL,        
         level VARCHAR(10) NULL,
         fullname VARCHAR(100) NULL,
         position VARCHAR(50) NULL,
@@ -120,9 +120,9 @@ class Database:
         sql = "INSERT INTO Employees (level) VALUES($1) returning *"
         return await self.execute(sql, level, fetchrow=True)
 
-    async def add_employee_sql(self, telegram_id, position):
-        sql = f"INSERT INTO Employees (telegram_id, position) VALUES($1, $2) returning*"
-        return await self.execute(sql, telegram_id, position, fetchrow=True)
+    async def add_employee_sql(self, level, telegram_id, position):
+        sql = f"INSERT INTO Employees (level, telegram_id, position) VALUES($1, $2, $3) returning*"
+        return await self.execute(sql, level, telegram_id, position, fetchrow=True)
 
     async def update_employee_level(self, level, position, telegram_id):
         sql = f"UPDATE Employees SET level=$1 WHERE position=$2 AND telegram_id=$3"
@@ -161,8 +161,9 @@ class Database:
         return await self.execute(sql, fetch=True)
 
     async def select_employee(self, telegram_id, position):
-        sql = (f"SELECT level, access, teach_check FROM Employees WHERE telegram_id='{telegram_id}' AND position='{position}'"
-               f" ORDER BY level")
+        sql = (
+            f"SELECT level, access, teach_check FROM Employees WHERE telegram_id='{telegram_id}' AND position='{position}'"
+            f" ORDER BY level")
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_position(self, telegram_id, position):
@@ -199,7 +200,7 @@ class Database:
         sql = """
         CREATE TABLE IF NOT EXISTS Attendance (        
         checked_date DATE DEFAULT CURRENT_DATE,                
-        level VARCHAR(10) NULL,        
+        level VARCHAR(10) NULL,                
         student_id INTEGER NULL,
         morning_id BIGINT NULL,
         check_morning VARCHAR(5) DEFAULT '☑️',        
@@ -238,14 +239,32 @@ class Database:
                f"AND checked_date='{checked_date}' AND level='{level}'")
         return await self.execute(sql, fetch=True)
 
-    async def get_level_attendance(self, checked_date, level):
-        sql = (f"SELECT level FROM Attendance WHERE checked_date='{checked_date}' AND "
-               f"level='{level}'")
-        return await self.execute(sql, fetchrow=True)
+    async def get_level_attendance(self, checked_date):
+        sql = f"SELECT DISTINCT level FROM Attendance WHERE checked_date='{checked_date}' ORDER BY level"
+        return await self.execute(sql, fetch=True)
 
-    async def get_student_attendance(self, student_id):
+    # async def get_everyday_attendance(self, checked_date):
+    #     sql = (f"SELECT level FROM Attendance WHERE checked_date='{checked_date}' AND "
+    #            f"level='{level}'")
+    #     return await self.execute(sql, fetchrow=True)
+
+    async def get_levels_attendance(self, student_id):
         sql = f"SELECT level, check_teacher FROM Attendance WHERE student_id='{student_id}'"
         return await self.execute(sql, fetchrow=True)
+
+    async def count_everyday_attendance(self, current_date, level):
+        sql = f"SELECT COUNT(*) FROM Attendance WHERE checked_date='{current_date}' AND level='{level}'"
+        return await self.execute(sql, fetchval=True)
+
+    async def count_everyday_morning_check(self, current_date, level, check_teacher):
+        sql = (f"SELECT COUNT(*) FROM Attendance WHERE checked_date='{current_date}' AND level='{level}' "
+               f"AND check_teacher='{check_teacher}'")
+        return await self.execute(sql, fetchval=True)
+
+    async def morning_report(self, first_value, second_value, check_teacher, current_date):
+        sql = (f"SELECT COUNT(*) FROM Attendance WHERE SUBSTRING(level FROM '([0-9]+)')::INTEGER BETWEEN {first_value} "
+               f"AND {second_value} AND check_teacher='{check_teacher}' AND checked_date='{current_date}'")
+        return await self.execute(sql, fetchval=True)
 
     async def delete_attendance_class(self, telegram_id, level):
         await self.execute(f"DELETE FROM Attendance WHERE educator_telegram='{telegram_id}' AND level='{level}'",
@@ -289,11 +308,6 @@ class Database:
         sql = f"SELECT COUNT(morning_check) FROM Students WHERE level='{level}' AND morning_check='{morning_check}'"
         return await self.execute(sql, fetchval=True)
 
-    async def morning_report(self, first_value, second_value, morning_check):
-        sql = (f"SELECT COUNT(*) FROM Students WHERE SUBSTRING(level FROM '([0-9]+)')::INTEGER BETWEEN {first_value} "
-               f"AND {second_value} AND morning_check='{morning_check}'")
-        return await self.execute(sql, fetchval=True)
-
     # ========== Students Night ========== #
     async def update_night_student(self, night_check, id_number):
         sql = f"UPDATE Students SET night_check='{night_check}' WHERE id='{id_number}'"
@@ -312,7 +326,17 @@ class Database:
     # ========== Students All ========== #
 
     async def select_all_classes(self):
-        sql = "SELECT DISTINCT level FROM Students ORDER BY level"
+        sql = ("SELECT DISTINCT ON (res.level, res.level_str) res.level, res.level_str FROM (SELECT split_part(level,"
+               " '-', 1)::int as level, split_part(level, '-', 2) as level_str FROM \"students\") as res "
+               "ORDER BY res.level, res.level_str")
+        return await self.execute(sql, fetch=True)
+    # split_part(level, '-', 1)::int, split_part(level, '-', 2)
+    # SELECT DISTINCT ON (res.level, res.level_str) res.level, res.level_str
+
+    async def select_all_classes_distinct(self):
+        sql = ("SELECT level FROM Students ORDER BY CASE WHEN level REGEXP '^[0-9]+' THEN LPAD(CAST(SUBSTRING_INDEX("
+               "level, '-', 1) AS UNSIGNED), 5, '0')) ELSE level END ASC, CASE WHEN level REGEXP '-[a-z]+$' THEN "
+               "SUBSTRING_INDEX(level, '-', -1) ELSE level END ASC")
         return await self.execute(sql, fetch=True)
 
     async def get_student_id(self, id_number):

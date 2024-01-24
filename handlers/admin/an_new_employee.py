@@ -13,10 +13,10 @@ from states.admin_state import AdminEducator
 
 @dp.message_handler(commands=["new_employee"], user_id=ADMINS[0], state="*")
 async def new_employee_main(message: types.Message):
-    new_employees = await db.select_new_employees(access=False)    
+    new_employees = await db.select_new_employees(access=False)
     if new_employees:
         for employee in new_employees:
-            if employee[-2] is None:
+            if employee[-3] is None:
                 await message.answer(
                     text=f"Lavozim: {employee[4]}"
                          f"\n\nIsm sharif: {employee[3]}"
