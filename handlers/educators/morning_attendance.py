@@ -107,24 +107,28 @@ async def back_morning_attendance(call: types.CallbackQuery):
 async def ma_check_attendance(call: types.CallbackQuery):
     telegram_id = call.from_user.id
     level = call.data.split('_')[1]
+    levels = await db.select_all_classes()
+
     morning_students = await db.get_morning_attendance(
         level=level
     )
-    for student in morning_students:
-        await db.add_morning_students(
-            level=level, student_id=student[0], morning_id=telegram_id,
-            check_morning=student[1], check_teacher=student[1]
-        )
-    await db.check_employee_attendance(
-        check_attendance=True,  telegram_id=telegram_id, level=level
-    )
+    for n in levels:
+        level_ = f'{n[0]}-{n[1]}'
+        for student in morning_students:
+            await db.add_morning_students(
+                level=level_, student_id=student[0], morning_id=telegram_id,
+                check_morning=student[1], check_teacher=student[1]
+            )
+    # await db.check_employee_attendance(
+    #     check_attendance=True,  telegram_id=telegram_id, level=level
+    # )
     teacher = await db.select_teacher_id(
         position='Sinf rahbar', level=level
     )
     await call.message.edit_text(
         text="Davomat qabul qilindi va sinf rahbariga bu haqda habar yuborildi!"
     )
-    await bot.send_message(
-        chat_id=teacher[0],
-        text="Ertalabki tarbiyachi davomatni topshirdi! Kerakli bo'limga kirib davomatni ko'rishingiz mumkin!"
-    )
+    # await bot.send_message(
+    #     chat_id=teacher[0],
+    #     text="Ertalabki tarbiyachi davomatni topshirdi! Kerakli bo'limga kirib davomatni ko'rishingiz mumkin!"
+    # )

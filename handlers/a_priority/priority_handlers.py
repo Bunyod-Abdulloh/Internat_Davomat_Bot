@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters import CommandStart
+from aiogram.dispatcher.filters import CommandStart, Command
 from magic_filter import F
 
 from keyboards.default.main_menu_cbuttons import main_menu_uz
@@ -12,16 +12,6 @@ from loader import dp
 async def bot_start(message: types.Message):
     print(message.from_user.full_name)
     await message.answer(
-        text="Tilni tanlang:"
-             "\n\nВыберите язык:",
-        reply_markup=select_language_ikeys
-    )
-
-
-@dp.callback_query_handler(F.data == "uz", state="*")
-async def start_uz_main(call: types.CallbackQuery):
-    await call.message.delete()
-    await call.message.answer(
         text="Tugmalardan birini tanlang:",
         reply_markup=main_menu_uz
     )

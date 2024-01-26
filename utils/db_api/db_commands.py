@@ -252,6 +252,12 @@ class Database:
         sql = f"SELECT level, check_teacher FROM Attendance WHERE student_id='{student_id}'"
         return await self.execute(sql, fetchrow=True)
 
+    async def all_levels_attendance(self, current_date):
+        sql = (f"SELECT DISTINCT ON (res.level, res.level_str) res.level, res.level_str FROM (SELECT split_part(level,"
+               f" '-', 1)::int as level, split_part(level, '-', 2) as level_str FROM \"attendance\") as res "
+               f"ORDER BY res.level, res.level_str ")
+        return await self.execute(sql, fetch=True)
+
     async def count_everyday_attendance(self, current_date, level):
         sql = f"SELECT COUNT(*) FROM Attendance WHERE checked_date='{current_date}' AND level='{level}'"
         return await self.execute(sql, fetchval=True)
@@ -264,6 +270,11 @@ class Database:
     async def morning_report(self, first_value, second_value, check_teacher, current_date):
         sql = (f"SELECT COUNT(*) FROM Attendance WHERE SUBSTRING(level FROM '([0-9]+)')::INTEGER BETWEEN {first_value} "
                f"AND {second_value} AND check_teacher='{check_teacher}' AND checked_date='{current_date}'")
+        return await self.execute(sql, fetchval=True)
+
+    async def morning_report_levels(self, first_value, second_value, current_date):
+        sql = (f"SELECT COUNT(*) FROM Attendance WHERE SUBSTRING(level FROM '([0-9]+)')::INTEGER BETWEEN {first_value} "
+               f"AND {second_value} AND checked_date='{current_date}'")
         return await self.execute(sql, fetchval=True)
 
     async def delete_attendance_class(self, telegram_id, level):
