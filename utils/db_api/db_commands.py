@@ -79,6 +79,10 @@ class Database:
         sql = f"SELECT check_work, check_attendance FROM Checker WHERE telegram_id='{telegram_id}' AND level='{level}'"
         return await self.execute(sql, fetchrow=True)
 
+    async def get_educator_checker(self, level, check_work):
+        sql = f"SELECT telegram_id FROM Checker WHERE level='{level}' AND check_work='{check_work}'"
+        return await self.execute(sql, fetchrow=True)
+
     async def select_check_work_teacher(self, checked_date, level):
         sql = (f"SELECT check_attendance, check_teacher FROM Checker WHERE checked_date='{checked_date}' "
                f"AND level='{level}'")
@@ -171,8 +175,8 @@ class Database:
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_level(self, telegram_id, level, position):
-        sql = (f"SELECT level FROM Employees WHERE telegram_id='{telegram_id}' AND level='{level}'"
-               f"AND position='{position}'")
+        sql = (f"SELECT level, fullname, first_phone, second_phone FROM Employees WHERE telegram_id='{telegram_id}' "
+               f"AND level='{level}' AND position='{position}'")
         return await self.execute(sql, fetchrow=True)
 
     async def select_employee_return_list(self, telegram_id, position):
@@ -225,6 +229,10 @@ class Database:
         return await self.execute(sql, level, student_id, morning_id, check_morning, check_teacher,
                                   fetchrow=True)
 
+    async def add_parents(self, parents_telegram, level):
+        sql = "INSERT INTO Attendance (teacher_id, level) VALUES($1, $2) returning *"
+        return await self.execute(sql, parents_telegram, level,  fetchrow=True)
+
     async def update_teacher_check(self, checked_date, check_teacher, teacher_id, student_id):
         sql = (f"UPDATE Attendance SET check_teacher='{check_teacher}', teacher_id='{teacher_id}' "
                f"WHERE student_id='{student_id}' AND checked_date='{checked_date}'")
@@ -243,16 +251,20 @@ class Database:
         sql = f"SELECT DISTINCT level FROM Attendance WHERE checked_date='{checked_date}' ORDER BY level"
         return await self.execute(sql, fetch=True)
 
-    # async def get_everyday_attendance(self, checked_date):
-    #     sql = (f"SELECT level FROM Attendance WHERE checked_date='{checked_date}' AND "
-    #            f"level='{level}'")
-    #     return await self.execute(sql, fetchrow=True)
+    async def get_parents_level(self, parents_telegram, level):
+        sql = (f"SELECT level FROM Attendance WHERE teacher_id='{parents_telegram}' AND "
+               f"level='{level}'")
+        return await self.execute(sql, fetchrow=True)
+
+    async def get_parents(self, parents_telegram):
+        sql = f"SELECT level FROM Attendance WHERE teacher_id='{parents_telegram}'"
+        return await self.execute(sql, fetch=True)
 
     async def get_levels_attendance(self, student_id):
         sql = f"SELECT level, check_teacher FROM Attendance WHERE student_id='{student_id}'"
         return await self.execute(sql, fetchrow=True)
 
-    async def all_levels_attendance(self, current_date):
+    async def all_levels_attendance(self):
         sql = (f"SELECT DISTINCT ON (res.level, res.level_str) res.level, res.level_str FROM (SELECT split_part(level,"
                f" '-', 1)::int as level, split_part(level, '-', 2) as level_str FROM \"attendance\") as res "
                f"ORDER BY res.level, res.level_str ")
@@ -277,8 +289,12 @@ class Database:
                f"AND {second_value} AND checked_date='{current_date}'")
         return await self.execute(sql, fetchval=True)
 
-    async def delete_attendance_class(self, telegram_id, level):
-        await self.execute(f"DELETE FROM Attendance WHERE educator_telegram='{telegram_id}' AND level='{level}'",
+    async def delete_parents(self, parents_telegram, level):
+        await self.execute(f"DELETE FROM Attendance WHERE teacher_id='{parents_telegram}' AND level='{level}'",
+                           execute=True)
+
+    async def delete_parents_(self, parents_telegram):
+        await self.execute(f"DELETE FROM Attendance WHERE teacher_id='{parents_telegram}'",
                            execute=True)
 
     async def drop_table_attendance(self):

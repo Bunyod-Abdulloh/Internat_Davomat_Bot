@@ -1,8 +1,7 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup
 
 admin_custom_btn = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-admin_custom_btn.row("Ota-onalar", "Sinf rahbarlar")
-admin_custom_btn.row("Tarbiyachilar", "Davomat")
+admin_custom_btn.row("Davomat")
 admin_custom_btn.row("O'quvchilarni qo'shish (excel shaklda)")
 admin_custom_btn.row("↩️ Bosh sahifaga qaytish")
 

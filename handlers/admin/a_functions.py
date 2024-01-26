@@ -1,4 +1,6 @@
 from aiogram import types
+from openpyxl.styles import Side, Border, Alignment
+from openpyxl.workbook import Workbook
 
 from keyboards.inline.admin_edit_educator_buttons import edit_educators
 from loader import db
@@ -32,7 +34,12 @@ async def educator_main_second(educator_id: str, call: types.CallbackQuery, educ
     )
 
 
-async def send_xlsx(current_date, all_levels, ws=None, button=False):
+async def send_xlsx(current_date, all_levels, new_date):
+    wb = Workbook()
+    ws = wb.active
+    ws.append(['Sana:', new_date, '', '', '', ''])
+    ws.append(['№', 'Sinf', 'Umumiy o\'quvchilar soni', 'Kelgan o\'quvchilar soni',
+               'Kelmagan o\'quvchilar soni', 'Yotoqxonada qoladigan o\'quvchilar soni'])
     one_four_all = await db.morning_report_levels(
         first_value=1, second_value=4, current_date=current_date
     )
@@ -99,48 +106,64 @@ async def send_xlsx(current_date, all_levels, ws=None, button=False):
     )
     one_eleven_abs_exp = one_eleven_absent + one_eleven_explicable
     count = 0
-    if button:
-        keyboard = types.InlineKeyboardMarkup(row_width=5)
-        keyboard.add(types.InlineKeyboardButton(
-            text='Sinf', callback_data='1'),
-            types.InlineKeyboardButton(
-                text='Jami:', callback_data='1'),
-            types.InlineKeyboardButton(
-                text='Kelganlar', callback_data='1'),
-            types.InlineKeyboardButton(
-                text='Kelmaganlar', callback_data='1'),
-            types.InlineKeyboardButton(
-                text='Yotoqxona', callback_data='1')
-        )
-        for n in all_levels:
-            level = f'{n[0]}-{n[1]}'
-            all_students = await db.count_everyday_attendance(current_date=current_date, level=level)
-            present = await db.count_everyday_morning_check(current_date=current_date, level=level, check_teacher='✅')
-            absent = await db.count_everyday_morning_check(current_date=current_date, level=level, check_teacher='☑️')
-            explicable = await db.count_everyday_morning_check(current_date=current_date, level=level,
-                                                               check_teacher='❎')
-            abs_exp = absent + explicable
-            count += 1
-            keyboard.add(types.InlineKeyboardButton(
-                text=f'{count}.{level}', callback_data=f'1'
-            ))
-        return keyboard
-    else:
-        for n in all_levels:
-            level = f'{n[0]}-{n[1]}'
-            all_students = await db.count_everyday_attendance(current_date=current_date, level=level)
-            present = await db.count_everyday_morning_check(current_date=current_date, level=level, check_teacher='✅')
-            absent = await db.count_everyday_morning_check(current_date=current_date, level=level, check_teacher='☑️')
-            explicable = await db.count_everyday_morning_check(current_date=current_date, level=level,
-                                                               check_teacher='❎')
-            abs_exp = absent + explicable
-            count += 1
-            ws.append([count, level, all_students, present, abs_exp, ''])
-            if level == '4-V':
-                ws.append(['', '1-4 sinflar', one_four_all, one_four_present, one_four_abs_exp, ''])
-            elif level == '7-V':
-                ws.append(['', '5-7 sinflar', five_seven_all, five_seven_present, five_seven_abs_exp, ''])
-                ws.append(['', '1-7 sinflar', one_seven_all, one_seven_present, one_seven_abs_exp, ''])
-            elif level == '11-A':
-                ws.append(['', '8-11 sinflar', eight_eleven_all, eight_eleven_present, eight_eleven_abs_exp, ''])
-                ws.append(['', '1-11 sinflar', one_eleven_all, one_eleven_present, one_eleven_abs_exp, ''])
+    for n in all_levels:
+        level = f'{n[0]}-{n[1]}'
+        all_students = await db.count_everyday_attendance(current_date=current_date, level=level)
+        present = await db.count_everyday_morning_check(current_date=current_date, level=level, check_teacher='✅')
+        absent = await db.count_everyday_morning_check(current_date=current_date, level=level, check_teacher='☑️')
+        explicable = await db.count_everyday_morning_check(current_date=current_date, level=level,
+                                                           check_teacher='❎')
+        abs_exp = absent + explicable
+        count += 1
+        ws.append([count, level, all_students, present, abs_exp, ''])
+        if level == '4-V':
+            ws.append(['', '1-4 sinflar', one_four_all, one_four_present, one_four_abs_exp, ''])
+        elif level == '7-V':
+            ws.append(['', '5-7 sinflar', five_seven_all, five_seven_present, five_seven_abs_exp, ''])
+            ws.append(['', '1-7 sinflar', one_seven_all, one_seven_present, one_seven_abs_exp, ''])
+        elif level == '11-A':
+            ws.append(['', '8-11 sinflar', eight_eleven_all, eight_eleven_present, eight_eleven_abs_exp, ''])
+            ws.append(['', '1-11 sinflar', one_eleven_all, one_eleven_present, one_eleven_abs_exp, ''])
+    max_row = ws.max_row
+    start_cell = ws['A2']
+    end_cell = ws[f'F{max_row}']
+    border_style = Border(left=Side(border_style='thin'),
+                          right=Side(border_style='thin'),
+                          top=Side(border_style='thin'),
+                          bottom=Side(border_style='thin'))
+    alignment_style = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+    for row in ws.iter_rows(min_row=start_cell.row, max_row=end_cell.row,
+                            min_col=start_cell.column, max_col=end_cell.column):
+        for cell in row:
+            cell.border = border_style
+            cell.alignment = alignment_style
+    wb.save("Kunlik_hisobot.xlsx")
+
+    line = '\n------------------------------------\n'
+    empty = 'ㅤ'
+    double_empty = empty + empty
+    text = (f'Joriy sana: {new_date}\n\n<b>1-4 sinflar:</b>'
+            f'\n{empty}📌Jami: {one_four_all}'
+            f'\n{double_empty}✅ Kelganlar: {one_four_present}'
+            f'\n{double_empty}❌ Kelmaganlar: {one_four_abs_exp}'
+            f'{line}'
+            f'<b>5-7 sinflar:</b>'
+            f'\n{empty}📌Jami: {five_seven_all}'
+            f'\n{double_empty}✅ Kelganlar: {five_seven_present}'
+            f'\n{double_empty}❌ Kelmaganlar: {five_seven_abs_exp}'
+            f'\n\n<b>1-7 sinflar:</b>'
+            f'\n{empty}📌Jami: {one_seven_all}'
+            f'\n{double_empty}✅ Kelganlar: {one_seven_present}'
+            f'\n{double_empty}❌ Kelmaganlar: {one_seven_abs_exp}'
+            f'{line}'
+            f'<b>8-11 sinflar:</b>'
+            f'\n{empty}📌Jami: {five_seven_all}'
+            f'\n{double_empty}✅ Kelganlar: {five_seven_present}'
+            f'\n{double_empty}❌ Kelmaganlar: {five_seven_abs_exp}'
+            f'\n\n<b>1-11 sinflar:</b>'
+            f'\n{empty}📌Jami: {one_eleven_all}'
+            f'\n{double_empty}✅ Kelganlar: {one_eleven_present}'
+            f'\n{double_empty}❌ Kelmaganlar: {one_eleven_abs_exp}'
+            )
+    return text

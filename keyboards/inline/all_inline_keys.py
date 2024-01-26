@@ -58,3 +58,32 @@ async def teachers_multiselect_keyboard(telegram_id: int, next_step: bool = Fals
             )
         )
     return key
+
+
+async def parents_main_ikb(telegram_id: int, next_step: bool = False):
+    levels = await db.select_all_classes()
+    key = InlineKeyboardMarkup(row_width=4)
+    for n in levels:
+        level = f'{n[0]}-{n[1]}'
+        parents = await db.get_parents_level(parents_telegram=telegram_id, level=level)
+        if parents:
+            button_text = f'✅ {level}'
+        else:
+            button_text = level
+        key.insert(InlineKeyboardButton(
+            text=button_text, callback_data=f'plevel_{level}'
+        ))
+    key.add(
+        InlineKeyboardButton(
+            text="⬅️ Ortga",
+            callback_data="parents_back"
+        )
+    )
+    if next_step:
+        key.insert(
+            InlineKeyboardButton(
+                text="Davom etish ➡️",
+                callback_data="parents_next"
+            )
+        )
+    return key
